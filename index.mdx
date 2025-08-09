@@ -1,97 +1,216 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: 'Welcome to Trust Engine'
+description: 'Give the internet a simple, independent way to verifiably see who registered a piece of digital media and when.'
 ---
 
-## Setting up
+<img
+  className="mx-auto"
+  src="/New-TE-logo.png"
+  alt="Trust Engine Logo"
+  width="400"
+/>
 
-Get your documentation site up and running in minutes.
+## The Problem We Solve
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+AI-generated media is on a rapidly exponential rise, and it's now become indistinguishable from real content. **Consumers can't reliably verify who made what**. This fuels misinformation, fraud, and erodes trust in digital media.
 
-## Make it yours
+<Warning>
+**The Stakes Are High**: Global financial damages from deepfake-enabled fraud may approach or exceed **$40 billion** ([Deloitte, 2024](https://www.deloitte.com/us/en/insights/industry/financial-services/deepfake-banking-fraud-risk-on-the-rise.html)). 
 
-Design a docs site that looks great and empowers your users.
+The average cost per deepfake scam incident to businesses is approximately **$500,000** ([Regula, 2024](https://regulaforensics.com/blog/impact-of-deepfakes-on-idv-regula-survey/); [Eftsure, 2025](https://www.eftsure.com/statistics/deepfake-statistics/)).
+</Warning>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
+---
+
+## How Trust Engine Works
+
+Trust Engine provides **privacy-preserving <Tooltip tip="A record of who registered digital media on our protocol and when - establishing a connection between the registrant and their claimed digital media piece">provenance</Tooltip> records** at the moment of creation or distribution.
+
+<Info>
+**What Trust Engine Does:** Creates immutable, timestamped records of who registered digital media on our protocol and when.
+</Info>
+
+<Warning>
+**What Trust Engine Does NOT Do:**
+- Determine rightful ownership or settle disputes
+- Judge whether content is AI-generated vs. human-created  
+- Make claims about content accuracy or editorial truth
+- Act as arbiters of what's politically correct or appropriate
+</Warning>
+
+<Steps>
+  <Step title="Register">
+    Creators register their digital media in seconds without exposing contents. Files are hashed and metadata stored securely.
+  </Step>
+  <Step title="Verify">
+    A decentralized network of independent verifiers checks registrations.
+  </Step>
+  <Step title="Confirm">
+    Anyone can instantly verify origin and integrity through our public records and APIs.
+  </Step>
+</Steps>
+
+### Three-Party Architecture
+
+<Tabs>
+  <Tab title="Creators">
+    **Submit content** and register proofs of ownership and origin
+    - Upload files via REST API
+    - Generate cryptographic proofs
+    - Receive immutable timestamps
+  </Tab>
+  
+  <Tab title="Verifiers">
+    **Independent validators** on a decentralized network authenticate content
+    - Raw media piece never exposed
+    - Reach consensus
+    - Prevent lazy verification through economic incentives
+  </Tab>
+  
+  <Tab title="Public Verification">
+    **Anyone can check** content provenance without intermediaries
+    - Query public records
+    - Verify cryptographic proofs
+    - No central authority required
+  </Tab>
+</Tabs>
+
+---
+
+<CardGroup cols={2}>
+  <Card title="For Content Creators" icon="user-pen">
+    Prove "I had it first" without exposing your content. Defend against theft, false attribution, and secure your intellectual property with cryptographic timestamps.
   </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
+  
+  <Card title="For Platforms & Publishers" icon="building">
+    Get a portable trust signal that travels with digital media. Verify authenticity without handling sensitive files or relying on centralized authorities.
   </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+  
+  <Card title="For Consumers" icon="shield-check">
+    Check content provenance and integrity instantly. Know the origin of digital media without depending on watermarks that can be forged.
   </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
+  
+  <Card title="For Developers" icon="code">
+    Integrate provenance verification into your applications with simple REST APIs. No blockchain expertise required.
   </Card>
-</Columns>
+</CardGroup>
 
-## Create beautiful pages
+---
 
-Everything you need to create world-class documentation.
+## Why Trust Engine?
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<AccordionGroup>
+  <Accordion title="Privacy-First Design">
+    Your content stays private. We use cryptographic hashes so file contents are never exposed during verification.
+  </Accordion>
 
-## Need inspiration?
+  <Accordion title="Decentralized & Tamper-Proof">
+    No single points of failure. Records are stored on blockchain infrastructure with cryptographic integrity guarantees.
+  </Accordion>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
+  <Accordion title="Instant Verification">
+    Check authenticity in real-time through simple API calls. No complex blockchain interactions required.
+  </Accordion>
+
+  <Accordion title="Developer-Friendly">
+    REST APIs with comprehensive documentation. Integrate provenance checking into any application in minutes.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Getting Started
+
+<Info>
+Ready to add verifiable provenance to your digital media? Follow our quickstart guide to register your first file in under 5 minutes.
+</Info>
+
+<CardGroup cols={2}>
+  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
+    Get up and running with your first API call
+  </Card>
+  
+  <Card title="How Verification Works" icon="magnifying-glass" href="/how-it-works">
+    Deep dive into our verification process and core concepts
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Complete endpoint documentation with examples
+  </Card>
+  
+  <Card title="Security & Privacy" icon="shield-halved" href="/security">
+    Learn about our privacy guarantees and threat model
+  </Card>
+</CardGroup>
+
+---
+
+## Common Use Cases
+
+<Tabs>
+  <Tab title="Content Creators">
+    - **Prove originality** of artwork, photos, and videos
+    - **Timestamp creative works** for IP protection  
+    - **Defend against unauthorized use** and false attribution
+    - **Build trust** with audiences through verified provenance
+  </Tab>
+  
+  <Tab title="News & Media">
+    - **Verify source material** and maintain editorial integrity
+    - **Combat misinformation** with provenance trails
+    - **Build reader trust** through transparent sourcing
+    - **Meet growing demand** for content transparency
+  </Tab>
+  
+  <Tab title="Platforms & Apps">
+    - **Add verification features** to user-generated content
+    - **Reduce fraud** and fake account activity
+    - **Enhance content moderation** with provenance data
+    - **Differentiate** with trust and safety features
+  </Tab>
+  
+  <Tab title="Enterprise">
+    - **Secure document workflows** with tamper-evident records
+    - **Audit trail** for sensitive digital assets
+    - **Compliance support** for regulated industries
+    - **Brand protection** against impersonation and fraud
+  </Tab>
+</Tabs>
+
+---
+
+## What Makes Us Different
+
+Traditional solutions like watermarks or centralized databases are **prone to forgery and single points of failure**. Trust Engine introduces **Proof of Verification (PoV)** — solving the lazy verification problem by creating economic incentives for thorough validation.
+
+<Tip>
+**Key Insight**: Just as Bitcoin's Proof of Work solved double spending and Peercoin's Proof of Stake improved security economics, Trust Engine's Proof of Verification solves the lazy verification problem in content authentication.
+</Tip>
+
+<CardGroup cols={3}>
+  <Card title="Watermarks" icon="droplet">
+    ❌ Can be removed or forged  
+    ❌ Visible to users  
+    ❌ No cryptographic guarantees
+  </Card>
+  
+  <Card title="Centralized DBs" icon="database">
+    ❌ Single point of failure  
+    ❌ Requires trust in operator  
+    ❌ Vulnerable to tampering
+  </Card>
+  
+  <Card title="Trust Engine" icon="shield-check">
+    ✅ Cryptographically secure  
+    ✅ Decentralized verification  
+    ✅ Privacy-preserving proofs
+  </Card>
+</CardGroup>
+
+---
+
+## Ready to Build?
+
+<Card title="Start with our Quickstart" icon="play" href="/quickstart">
+  Create your first wallet, register a file, and verify its provenance in minutes
 </Card>

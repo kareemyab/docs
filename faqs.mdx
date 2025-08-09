@@ -1,0 +1,251 @@
+---
+title: 'Frequently Asked Questions'
+description: 'Common questions about Trust Engine'
+icon: 'circle-question'
+---
+
+## General Questions
+
+<AccordionGroup>
+  <Accordion title="Does Trust Engine determine who rightfully owns a digital media piece?">
+    **No.** Trust Engine does NOT decide or arbitrate rightful ownership of digital media. **Instead, it provides the transparency and context needed for consumers to make informed judgments about rightful ownership.**
+
+    We don't dictate whether content is AI-generated, stolen, original, or rightfully owned. Rather, our system links the digital media piece to the entity who registered it on our protocol as an immutable, timestamped entry on our public registry.
+
+    - Trust Engine doesn't attempt to settle ownership disputes or certify originality. That’s not practical—or even possible—in an open digital ecosystem.
+    - Even if a bad actor registers a stolen digital media piece before the “rightful” owner, our protocol still allows the “rightful” owner to register that same piece.
+    - The transparent, public, on-chain record empowers media consumers to make informed choices with all relevant history at their fingertips.
+
+    <Tip>
+    <strong>Key point:</strong> Trust Engine’s power lies in provable attribution and open, chronological provenance—not in acting as a judge. Consumers get the factual record and evaluate credibility using the cryptographic and social signals our protocol surfaces.
+    </Tip>
+  </Accordion>
+  <Accordion title="What problem does Trust Engine solve?">
+    Trust Engine solves the growing problem of verifying digital media authenticity in an era of AI-generated media. With deepfake fraud costing businesses an average of \$500,000 per incident ([Regula, 2024](https://regulaforensics.com/blog/impact-of-deepfakes-on-idv-regula-survey/); [Eftsure, 2025](https://www.eftsure.com/statistics/deepfake-statistics/)) and global damages potentially exceeding \$40 billion ([Deloitte, 2024](https://www.deloitte.com/us/en/insights/industry/financial-services/deepfake-banking-fraud-risk-on-the-rise.html)), **consumers and platforms need a reliable way to verify who created digital media.**
+
+    Unlike watermarks (which can be removed) or centralized databases (which create single points of failure), Trust Engine provides you the ability to record tamper-proof provenance records for your digital media. The provenance record is verified by our decentralized network of verifiers. Media consumers can instantly confirm a digital media piece's origin through our public registry system.
+  </Accordion>
+
+  <Accordion title="How does Trust Engine deliver stronger provenance than watermarks and manifests?">
+    **Watermarks and metadata:**
+    - ❌ Easily removed or manipulated
+    - ❌ Altered user experience and aesthetics
+    - ❌ Offer no independent, cryptographically verifiable claim on origin
+
+    **Conventional content registries:**
+    - ❌ Depend on central authorities or platforms
+    - ❌ History is only as reliable as operator integrity
+    - ❌ Can be silenced, censored, or tampered with
+
+    **Trust Engine's impact for creators, developers, verifiers, and consumers:**
+    - ✅ Directly cryptographically proves registration and attribution—every record is impossible to edit, erase, or forge
+    - ✅ Open, decentralized validator network means nobody (not even us) can rewrite history or exclude participants
+    - ✅ Content privacy is preserved by default; only hashes and provenance proofs are published, never private media
+    - ✅ Provenance info and trust signals travel with your content anywhere online—empowering platforms, consumers and creators regardless of where or how their work is shared
+  </Accordion>
+
+  <Accordion title="Who can benefit from Trust Engine?">
+    **Media Creators**: Photographers, artists, journalists, and creators who need to prove originality and defend against theft.
+
+    **Platforms & Publishers**: Social media platforms, news organizations, and media platforms that need to combat misinformation and verify sources.
+
+    **Consumers**: Anyone who wants to verify the authenticity and origin of digital media they encounter online.
+
+    **Developers**: Applications that need to integrate media verification and provenance checking into their workflows.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Technical Questions
+
+<AccordionGroup>
+
+  <Accordion title="What happens if I edited my file, even a very minor one?">
+    Even tiny changes create completely different cryptographic hashes, so modified files won't match existing provenance records. This is by design - it ensures integrity verification is extremely precise.
+
+    **Scenarios:**
+    - **Identical file**: ✅ Matches existing provenance record
+    - **Compressed/resized**: ❌ Creates new hash, needs new registration
+    - **Metadata changed**: ❌ Creates new hash, needs new registration
+    - **Single pixel different**: ❌ Creates new hash, needs new registration
+  </Accordion>
+
+  <Accordion title="Do I need SOL tokens to use the API?">
+    **Short answer: No** — for standard usage you don't need SOL. All normal API calls and flows run without you holding SOL.
+
+    **How it works:**
+    For API-initiated flows, Trust Engine uses a fee payer (via Crossmint) to cover on-chain SOL costs — including transaction fees, rent, wallet creation, and submission fees — so you don't have to. You only pay protocol fees in TRUST.
+
+    **What you pay (in TRUST):**
+    - Proof registration fees
+    - Validator initialization fees
+  </Accordion>
+
+  <Accordion title="What if validators disagree on a file?">
+    Trust Engine uses **Proof of Verification (PoV)** with a two-thirds supermajority consensus threshold:
+
+    **Consensus Rules:**
+    - **≥66.67% approval** (two-thirds): File verification **PASSES** (finalized on-chain)
+    - **&lt;66.67% approval** after voting window: File verification **FAILS**
+    - **No/insufficient votes yet**: Status remains **PENDING** until window closes or threshold is reached
+
+    **Why validators might disagree:**
+    - File corruption or mismatch during upload/download
+    - Temporary network or retrieval issues
+    - Suspicious or manipulated media
+    - Validator-side technical errors during verification
+
+    **Resolution:**
+    - Once the threshold is met, the decision is finalized and recorded immutably on-chain
+    - The registry UI shows vote breakdown and consensus percentage
+    - You can resubmit a corrected asset (new content hash) if consensus failed previously
+
+    <Tip>
+    The two-thirds threshold (≥66.67%) is the canonical rule from our whitepaper, ensuring robust consensus while preventing deadlock scenarios.
+    </Tip>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Privacy & Security
+
+<AccordionGroup>
+  <Accordion title="What data do you store about my files?">
+    Trust Engine is designed for **privacy by default**. We minimize centralized storage and keep only what's required to verify provenance.
+
+    **What we store (centrally):**
+    - ✅ Cryptographic hash (e.g., SHA-256) of your file
+    - ✅ Metadata you provide (title, description, custom fields)
+    - ✅ IPFS CIDs that reference what you registered (content and/or metadata)
+    - ✅ Blockchain transaction references and timestamps
+
+    **What we do not store (centrally):**
+    - ❌ Raw media bytes of your file (beyond transient processing required to compute the hash and pin to IPFS)
+    - ❌ Personally identifiable information unless you explicitly include it in submitted metadata
+    - ❌ Any separate copy of embedded file metadata (e.g., EXIF) — we don't extract or store it
+
+    **Important clarifications:**
+    - **IPFS storage**: If you upload content, the file is pinned to IPFS under its CID so it can be independently verified. IPFS is a public, decentralized storage layer; anyone with the CID can retrieve the file. We do not maintain a proprietary central copy.
+    - **Embedded metadata**: If your file contains embedded metadata (like EXIF), it remains within the file on IPFS. We don't extract or store EXIF separately. If that's sensitive, strip it before uploading or encrypt the content prior to registration.
+    - **Permanence**: On-chain records (hashes, proof status, and timestamps) are permanent and immutable.
+    - **IPFS availability**: IPFS availability is governed by pinning/replication; we pin to keep your content available, but distribution follows IPFS network behavior.
+
+    <Warning>
+    Server logs are minimal and rotated per policy; they don't include your raw media.
+    </Warning>
+  </Accordion>
+
+  <Accordion title="Can you see my file media?">
+    **Short answer: We don't retain your media.** For registration, your file is processed transiently on secure servers to compute its hash and pin it to IPFS, then discarded.
+
+    **During upload:**
+    - File is transmitted to our secure processing service to compute a cryptographic hash and pin to IPFS
+    - We store only the hash, user-supplied metadata, the IPFS CID(s), and related on-chain references
+    - The original file bytes are discarded after processing; we do not keep a centralized copy
+
+    **During verification:**
+    - Validators operate on cryptographic hashes/CIDs and on-chain records to determine consensus
+    - The protocol does not require validators to retain your raw media. They may check IPFS availability and metadata for verification; fetching full content is not required in standard flows
+    - Because IPFS is public content-addressed storage, anyone with the CID can retrieve the file. We do not gate or re-host it centrally
+
+    **Privacy tips:**
+    - Don't include sensitive PII in public metadata unless you intend to disclose it
+    - If your file has embedded EXIF or sensitive metadata, strip it before uploading or encrypt the file and register the encrypted artifact
+
+    <Info>
+    We never keep a centralized copy of your media. We do briefly process it to compute the hash and pin to IPFS, then discard it.
+    </Info>
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## Integration & Development
+
+<AccordionGroup>
+  <Accordion title="How do I integrate Trust Engine into my app?">
+    Trust Engine provides simple REST APIs that work with any programming language:
+
+    **Basic integration steps:**
+    1. **Create user wallets** via `/create-wallet`
+    2. **Register media** via `/register` when users upload files
+    3. **Verify provenance** via `/search` when users view media
+    4. **Display verification status** in your UI
+
+    See our [Quickstart Guide](/quickstart) for complete examples.
+  </Accordion>
+
+  <Accordion title="Can I verify files without uploading them again?">
+    **Yes. Two ways:**
+
+    **Registry UI (Client-side):**
+    - Select a file; it's hashed locally in your browser (SHA-256) and searched on-chain by its hash
+    - The file never leaves your device in this flow
+
+    **API (Server-side):**
+    - POST `/search` with a file; our backend computes the hash server-side, searches for matches, and discards the file after hashing
+
+    **What you can search by (Registry UI):**
+    - File hash (SHA-256)
+    - Creator address
+    - Filters: status, category, date range, minimum reputation
+    - Results include consensus percentage and vote counts
+
+    **Privacy note:**
+    - **Registry UI flow**: The file is not uploaded to our servers; hashing happens locally
+    - **API flow**: The file is used transiently to compute the hash and is then discarded; it's not sent to validators as part of search
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Business & Legal
+
+<AccordionGroup>
+  <Accordion title="Does Trust Engine prove legal ownership?">
+    **No.** Trust Engine proves **when you registered media** with our system, not legal ownership or copyright.
+
+    **What we provide:**
+    - Cryptographic proof of "first seen" timestamp
+    - Verifiable record of who submitted the media
+    - Immutable audit trail of registration
+
+    **What we don't provide:**
+    - Legal ownership determination
+    - Copyright or trademark validation
+    - Resolution of ownership disputes
+    - Legal advice or representation
+
+    **Legal use**: Our records can serve as evidence in legal proceedings, but courts determine their weight and relevance.
+  </Accordion>
+
+</AccordionGroup>
+
+---
+
+## Still Have Questions?
+
+<CardGroup cols={2}>
+  <Card title="Developer Community" icon="discord">
+    Join our Discord for real-time help and discussions with other developers
+  </Card>
+  
+  <Card title="Technical Support" icon="headset">
+    Contact our technical support team for integration assistance
+  </Card>
+  
+  <Card title="Documentation" icon="book">
+    Browse our complete API documentation and guides
+  </Card>
+  
+  <Card title="Feature Requests" icon="lightbulb">
+    Suggest new features or improvements to our roadmap
+  </Card>
+</CardGroup>
+
+<Tip>
+**Can't find your answer?** Our FAQ is continuously updated based on user questions. Reach out to us and we'll add your question to help other developers.
+</Tip>

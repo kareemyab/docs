@@ -1,0 +1,117 @@
+---
+title: 'Security & Privacy'
+icon: 'shield-check'
+---
+
+Trust Engine minimizes centralized data retention and uses cryptographic proofs and on-chain records to verify provenance. This page outlines our current security model and planned improvements.
+
+---
+
+## Core Security Principles
+
+<CardGroup cols={2}>
+  <Card title="Privacy by Design" icon="eye-slash">
+    We do not retain centralized copies of your media. Files are processed transiently to compute a hash and pin to IPFS, then discarded
+  </Card>
+  
+  <Card title="Cryptographic Integrity" icon="key">
+    SHA-256 is used for content fingerprinting and integrity verification
+  </Card>
+  
+  <Card title="Decentralized Trust" icon="network-wired">
+    Verification outcomes are finalized via validator consensus with a two-thirds threshold (≥66.67%)
+  </Card>
+  
+  <Card title="Immutable Records" icon="lock">
+    On-chain records prevent retroactive tampering of provenance data
+  </Card>
+</CardGroup>
+
+---
+
+## Cryptographic Security
+
+### Hash Functions
+
+**SHA-256 (Secure Hash Algorithm 256-bit)**:
+- **Collision Resistance**: Computationally infeasible to find two inputs with same hash
+- **Pre-image Resistance**: Cannot derive original content from hash
+- **Avalanche Effect**: Single bit change produces completely different hash
+
+Used for file identity and integrity checks throughout Trust Engine.
+
+### Digital Signatures
+
+**Ed25519** (Solana standard) for transactions and validator attestations:
+- **Authentication**: Proves identity of the signer
+- **Non-repudiation**: Signer cannot deny having signed
+- **Integrity**: Detects any message tampering
+
+### Key Management (Current)
+
+**Server-side fee payer**: A managed wallet (and/or Crossmint integration) sponsors on-chain SOL fees for standard flows.
+
+**User wallets**: Non-custodial wallets are supported; Crossmint managed wallets are available. Keep private keys secure (we never ask for user private keys).
+
+<Info>
+**Planned**: HSM custody, automated key rotation, enterprise multi-signature support
+</Info>
+
+---
+
+## Privacy Guarantees
+
+**File contents**: Not centrally stored. For registration, we transiently process the file to derive its hash and pin to IPFS; the original bytes are discarded after processing.
+
+**Search**: In the Registry UI, you can verify by hashing locally in the browser; the file never leaves your device. The API also supports server-side hashing; files are discarded after hashing.
+
+**Metadata**: Only what you explicitly submit (title/description/custom fields). Avoid sensitive PII. If your file embeds EXIF or other metadata, strip it before upload or consider encrypting the asset you register.
+
+**IPFS**: Content is content-addressed and publicly retrievable by CID. We pin to improve availability; we do not re-host a proprietary copy.
+
+**On-chain**: Hashes, timestamps, and verification state are immutable.
+
+## Data Minimization
+
+**Stored on-chain**:
+- Content hash (SHA-256), creator wallet, timestamp, IPFS CID(s), consensus/vote aggregates
+
+**Not centrally stored**:
+- Raw media bytes; file paths/names unless you include them in metadata
+
+**Operational logs**:
+- We keep minimal service logs (timestamps/status/errors) for reliability and abuse mitigation
+- We do not log raw media
+- We aim to avoid storing sensitive payloads in logs
+
+---
+
+## API Security (Current)
+
+**Transport**: HTTPS/TLS for API communication.
+
+**Validation & limits**: Basic payload validation and size limits in product surfaces; large/binary uploads are restricted to explicit endpoints.
+
+<Info>
+**Planned**: API keys for production integrations, adaptive rate limits, WAF/DDoS layers, certificate pinning (mobile), strict schema validation, magic-number file checks
+</Info>
+
+---
+
+## Smart Contract Security
+
+<Warning>
+**Status**: Contracts are under active development and unaudited. We prioritize devnet/testnet usage for MVP.
+</Warning>
+
+**Planned**: Third-party audits, expanded test coverage, formal verification for critical paths.
+
+---
+
+## Validator Network Security
+
+**PoV mechanism**: Validators attest to verification outcomes; finalization requires a two-thirds supermajority (≥66.67%).
+
+<Info>
+**Planned**: Slashing/economic penalties, richer reputation weighting, dispute/appeal rounds
+</Info>

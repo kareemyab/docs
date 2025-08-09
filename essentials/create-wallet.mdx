@@ -1,0 +1,251 @@
+---
+title: '/create-wallet'
+description: 'Creates a new Solana wallet using Crossmint service and links it to a user ID for easy management.'
+icon: 'wallet'
+openapi: 'POST /create-wallet'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/create-wallet</code>
+</div>
+
+<Info>
+**Rate Limit:** 100 requests per 15 minutes
+</Info>
+
+---
+
+## Quick Start
+
+### Complete Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/create-wallet \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userID": "user_12345"
+  }'
+```
+
+```javascript JavaScript
+async function createWallet(userID) {
+  try {
+    const response = await fetch('http://localhost:3000/create-wallet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userID })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('Wallet created:', data.details.walletAddress);
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('Error creating wallet:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+createWallet('user_12345')
+  .then(result => console.log('Success:', result))
+  .catch(error => console.error('Failed:', error));
+```
+
+```javascript Axios
+const axios = require('axios');
+
+async function createWallet(userID) {
+  try {
+    const response = await axios.post('http://localhost:3000/create-wallet', {
+      userID: userID
+    });
+    
+    console.log('Wallet Address:', response.data.details.walletAddress);
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error('Error:', error.response.data.message);
+    } else {
+      console.error('Network Error:', error.message);
+    }
+    throw error;
+  }
+}
+```
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "chain": "solana",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+
+### Prerequisite
+
+<Check>Crossmint API key configured</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="userID" type="string" required>
+  Unique identifier for the user
+  
+  **Constraints:** Maximum 50 characters
+  
+  Example: `"user_12345"`
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (201)
+
+<ResponseField name="message" type="string">
+  Success confirmation message
+  
+  Example: `"Success! Your Crossmint wallet has been created and linked to your user ID."`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Wallet creation details
+  
+  <Expandable title="Details Object">
+    <ResponseField name="walletAddress" type="string">
+      The newly created Solana wallet address
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+    </ResponseField>
+    
+    <ResponseField name="chain" type="string">
+      Blockchain network identifier
+      
+      Example: `"solana"`
+    </ResponseField>
+    
+    <ResponseField name="transactionSignature" type="string">
+      On-chain transaction signature for the wallet creation
+      
+      Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
+    </ResponseField>
+    
+    <ResponseField name="explorerUrl" type="string">
+      Direct link to view the transaction on Solana Explorer
+      
+      Example: `"https://explorer.solana.com/tx/...?cluster=devnet"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Success (201)
+{
+  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "chain": "solana",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Missing User ID (400)
+{
+  "message": "Hold on! We need a `userID` to proceed."
+}
+```
+
+```json Server Error (500)
+{
+  "message": "Oh no! Something went wrong while creating your wallet.",
+  "details": {
+    "error": "Crossmint wallet creation failed: <statusText>"
+  }
+}
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Creates Crossmint Wallet">
+    Generates a new Solana wallet using Crossmint's API-key signing method
+  </Step>
+  <Step title="Stores User Relation">
+    Creates an on-chain record linking your `userID` to the wallet address
+  </Step>
+  <Step title="Returns Details">
+    Provides the wallet address and transaction confirmation
+  </Step>
+</Steps>
+
+## Common Errors
+
+| Error Message | Why It Happens | How to Fix |
+|---------------|----------------|------------|
+| `Hold on! We need a userID to proceed.` | Missing or empty `userID` in request | Include a valid `userID` string in request body |
+| `Oh no! Something went wrong while creating your wallet.` | Crossmint API error or network issue | Retry the request; check server logs for details |
+| `User key relation already exists.` | The `userID` is already linked to a wallet | Use a different `userID` or retrieve existing wallet |
+| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
+
+
+---
+
+## Next Steps
+
+After creating a wallet:
+
+<CardGroup cols={2}>
+  <Card title="Fund the Wallet" icon="coins" href="/essentials/wallet-balance">
+    Use `/validators/mint-tokens` to add tokens for transaction fees
+  </Card>
+  
+  <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
+    Use `/wallet-balance` to verify token balance
+  </Card>
+  
+  <Card title="Register Files" icon="file-plus" href="/essentials/register">
+    Use `/register` to start uploading and verifying files
+  </Card>
+  
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/create">
+    Use `/store-user-key-relation` if needed
+  </Card>
+</CardGroup>
+
+<Tip>
+Keep the `walletAddress` and `transactionSignature` from the response for future reference and verification.
+</Tip>

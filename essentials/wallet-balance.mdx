@@ -1,0 +1,318 @@
+---
+title: '/wallet-balance'
+description: 'Retrieves the SOL balance for any Solana wallet address in real-time.'
+icon: 'scale-balanced'
+openapi: 'POST /wallet-balance'
+---
+
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/wallet-balance</code>
+</div>
+
+<Info>
+**Rate Limit:** 100 requests per 15 minutes
+</Info>
+
+---
+
+## Quick Start
+
+### Complete Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/wallet-balance \
+  -H "Content-Type: application/json" \
+  -d '{
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+  }'
+```
+
+```javascript JavaScript
+async function checkWalletBalance(walletAddress) {
+  try {
+    const response = await fetch('http://localhost:3000/wallet-balance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ walletAddress })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log(`Balance: ${data.details.balanceSOL} SOL`);
+      console.log(`Lamports: ${data.details.balanceLamports.toLocaleString()}`);
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('Error checking balance:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
+  .then(result => {
+    console.log('Wallet details:', result.details);
+  })
+  .catch(error => {
+    console.error('Failed to get balance:', error);
+  });
+```
+
+```javascript Axios
+const axios = require('axios');
+
+async function checkWalletBalance(walletAddress) {
+  try {
+    const response = await axios.post('http://localhost:3000/wallet-balance', {
+      walletAddress: walletAddress
+    });
+    
+    const { details } = response.data;
+    console.log(`Wallet: ${details.walletAddress}`);
+    console.log(`Balance: ${details.balanceSOL} SOL`);
+    console.log(`Network: ${details.chain}`);
+    
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      console.error('Error:', error.response.data.message);
+    } else {
+      console.error('Network Error:', error.message);
+    }
+    throw error;
+  }
+}
+```
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "message": "Wallet balance retrieved successfully.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "balanceSOL": 1.234567890,
+    "balanceLamports": 1234567890,
+    "chain": "solana-devnet"
+  }
+}
+```
+
+### Prerequisites
+<Check>You have either connected your wallet or created a wallet Crossmint wallet with us</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="walletAddress" type="string" required>
+  Valid Solana wallet address in Base58 format
+  
+  **Constraints:** Must be a valid Solana public key (32-44 characters)
+  
+  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="message" type="string">
+  Success confirmation message
+  
+  Example: `"Wallet balance retrieved successfully."`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Wallet balance details
+  
+  <Expandable title="Details Object">
+    <ResponseField name="walletAddress" type="string">
+      The queried Solana wallet address
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+    </ResponseField>
+    
+    <ResponseField name="balanceSOL" type="number">
+      Balance in SOL (human-readable decimal format)
+      
+      Example: `1.234567890`
+    </ResponseField>
+    
+    <ResponseField name="balanceLamports" type="number">
+      Balance in lamports (smallest unit, integer)
+      
+      Example: `1234567890`
+    </ResponseField>
+    
+    <ResponseField name="chain" type="string">
+      Network identifier showing which Solana cluster
+      
+      Example: `"solana-devnet"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Success (200)
+{
+  "message": "Wallet balance retrieved successfully.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "balanceSOL": 1.234567890,
+    "balanceLamports": 1234567890,
+    "chain": "solana-devnet"
+  }
+}
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Missing Wallet Address (400)
+{
+  "message": "Hold on! We need a `walletAddress` to check the balance."
+}
+```
+
+```json Invalid Wallet Address (500)
+{
+  "message": "Oh no! Something went wrong while checking the wallet balance.",
+  "details": {
+    "error": "Invalid public key input"
+  }
+}
+```
+
+```json Network Error (500)
+{
+  "message": "Oh no! Something went wrong while checking the wallet balance.",
+  "details": {
+    "error": "Connection timeout"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Address Validation">
+    Validates the provided wallet address format using Solana's Base58 encoding
+  </Step>
+  <Step title="Balance Query">
+    Queries the Solana blockchain via RPC for the current SOL balance
+  </Step>
+  <Step title="Unit Conversion">
+    Converts and returns balance in both SOL and lamports for convenience
+  </Step>
+  <Step title="Network Info">
+    Includes current network information for context
+  </Step>
+</Steps>
+
+## Common Errors
+
+| Error Message | Why It Happens | How to Fix |
+|---------------|----------------|------------|
+| `Hold on! We need a walletAddress to check the balance.` | Missing `walletAddress` in request body | Include a valid `walletAddress` in your JSON request |
+| `Invalid public key input` | Malformed wallet address format | Use a valid Base58-encoded Solana public key |
+| `Connection timeout` | Solana RPC network connectivity issue | Retry the request; check network connectivity |
+| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
+
+---
+
+## Understanding Solana Balances
+
+### SOL vs Lamports
+<Info>
+**1 SOL = 1,000,000,000 lamports**
+
+- **SOL**: Human-readable format (e.g., 1.5 SOL)
+- **Lamports**: Smallest unit, used for precise calculations
+</Info>
+
+### Balance Types
+This endpoint returns **native SOL balance only**. For SPL token balances (like Reward Tokens), the system uses internal `checkUserTokenBalance` functions during operations like file registration.
+
+### Network Information
+The response includes network information in the `chain` field:
+
+| Network | Chain Value | Description |
+|---------|-------------|-------------|
+| **Devnet** | `"solana-devnet"` | Development network for testing |
+| **Testnet** | `"solana-testnet"` | Public testing network |
+| **Mainnet** | `"solana-mainnet-beta"` | Production network |
+| **Localnet** | `"solana-localnet"` | Local development cluster |
+
+---
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
+    Create new wallets that you can then check balances for
+  </Card>
+  
+  <Card title="Register Files" icon="file-plus" href="/essentials/register">
+    Requires sufficient token balance (checked internally)
+  </Card>
+  
+  <Card title="Mint Tokens" icon="coins" href="/api-reference/endpoint/create">
+    Add tokens to wallets (affects SPL token balance, not SOL)
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Complete API documentation and endpoints
+  </Card>
+</CardGroup>
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+<Accordion title="Invalid public key input">
+  - Ensure wallet address is valid Base58 format
+  - Check for typos or extra characters  
+  - Solana addresses are typically 32-44 characters
+  - Test with a known valid address first
+</Accordion>
+
+<Accordion title="Connection timeout">
+  - Check internet connectivity
+  - Verify RPC endpoint is accessible
+  - Try different RPC provider if persistent
+  - Check if firewall is blocking requests
+</Accordion>
+
+<Accordion title="Rate limit exceeded">
+  - Implement delays between requests (100ms minimum)
+  - Cache results when possible
+  - Consider upgrading rate limits for production use
+  - Use batch processing for multiple wallets
+</Accordion>
+
+<Accordion title="Server connection refused">
+  - Ensure Trust Engine server is running on port 3000
+  - Check if another service is using the port
+  - Verify environment variables are set correctly
+  - Check server logs for startup errors
+</Accordion>

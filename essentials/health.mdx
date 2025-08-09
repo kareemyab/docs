@@ -1,0 +1,107 @@
+---
+title: '/health'
+description: 'Checks the operational status of the Trust Engine API server.'
+icon: 'heart-pulse'
+openapi: 'GET /health'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#10b981', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>GET</span>
+  <code>/health</code>
+</div>
+
+<Info>
+**Rate Limit:** Unlimited (health checks are not rate limited)
+</Info>
+
+---
+
+## Quick Start
+
+### Complete Example
+
+```bash cURL
+curl -X GET http://localhost:3000/health
+```
+
+### Expected Response
+
+```json
+{
+  "status": "All systems operational!",
+  "timestamp": "2024-01-15T10:30:45.123Z"
+}
+```
+
+### Prerequisites
+
+<Check>None - This endpoint requires no authentication or parameters</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="None" type="-" required={false}>
+  This endpoint accepts no parameters or request body
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="status" type="string">
+  Operational status message
+  
+  Example: `"All systems operational!"`
+</ResponseField>
+
+<ResponseField name="timestamp" type="string">
+  Current server time in ISO 8601 format
+  
+  Example: `"2024-01-15T10:30:45.123Z"`
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Healthy Server (200, non-cURL)
+{
+  "status": "All systems operational!",
+  "timestamp": "2024-01-15T10:30:45.123Z"
+}
+```
+
+```text Healthy Server (200, cURL User-Agent)
+✅ TRUST ENGINE HEALTH CHECK
+Status   : All systems operational!
+Timestamp: 2024-01-15T10:30:45.123Z
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Server Status Check">
+    Confirms the Express.js server is running and responsive
+  </Step>
+  <Step title="Timestamp Generation">
+    Provides current server time for synchronization checks
+  </Step>
+  <Step title="Quick Response">
+    Returns immediately without complex system checks or database queries
+  </Step>
+</Steps>

@@ -1,0 +1,381 @@
+---
+title: '/search'
+description: 'Searches for existing on-chain registration records by uploading a file and matching its content hash.'
+icon: 'magnifying-glass'
+openapi: 'POST /search'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/search</code>
+</div>
+
+<Info>
+**Rate Limit:** 100 requests per 15 minutes  
+**File Size Limit:** 50 MB  
+**Content-Type:** `multipart/form-data`
+</Info>
+
+---
+
+## Quick Start
+
+### Complete Example
+
+```bash cURL
+curl -X POST http://localhost:3000/search \
+  -F "file=@document.pdf"
+```
+
+### Expected Response (Found)
+
+```json
+{
+  "message": "Found <N> record(s) for your file on the blockchain.",
+  "details": [
+    {
+      "contentHash": "<FILE_SHA256_HEX>",
+      "pdaAddress": "<CONTENT_REGISTRATION_PDA_BASE58>",
+      "onChainRegistration": {
+        "contentHash": [<32_BYTES>],
+        "creator": "<CREATOR_WALLET_BASE58>",
+        "ipfsCid": "<IPFS_CID>",
+        "totalVotes": <NUMBER_OR_BN>,
+        "yesVotes": <NUMBER_OR_BN>,
+        "noVotes": <NUMBER_OR_BN>,
+        "timestamp": <UNIX_SECONDS_NUMBER_OR_BN>,
+        "finalized": <true|false>,
+        "consensusPercentage": <0-100>,
+        "assignedValidators": ["<VALIDATOR_PUBKEY_BASE58>", "..."],
+        "validatorsWhoVoted": ["<VALIDATOR_PUBKEY_BASE58>", "..."]
+      },
+      "userID": "<USER_ID_OR_NULL>"
+    }
+  ]
+}
+```
+
+### Prerequisites
+
+<Check>File to search for registration records</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="file" type="File" required>
+  File to search for in the registry
+  
+  **Constraints:** Any file type, maximum 50MB
+  
+  **Supported Types:** PDF, DOC, TXT, images, JSON, archives, etc.
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="message" type="string">
+  Success confirmation with record count
+  
+  Example: `"Found 1 record(s) for your file on the blockchain."`
+</ResponseField>
+
+<ResponseField name="details" type="array">
+  Array of matching registration records
+  
+  <Expandable title="SearchRecord Object">
+    <ResponseField name="contentHash" type="string">
+      SHA256 hash of the file content (hex format)
+      
+      Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
+    </ResponseField>
+    
+    <ResponseField name="pdaAddress" type="string">
+      Solana Program Derived Address for this registration
+      
+      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+    </ResponseField>
+    
+    <ResponseField name="onChainRegistration" type="object">
+      Complete on-chain registration data
+      
+      <Expandable title="OnChainRegistration Object">
+        <ResponseField name="contentHash" type="array">
+          Content hash as byte array (used internally)
+        </ResponseField>
+        
+        <ResponseField name="creator" type="string">
+          Wallet address that registered the file
+        </ResponseField>
+        
+        <ResponseField name="ipfsCid" type="string">
+          IPFS Content Identifier for metadata storage
+        </ResponseField>
+        
+        <ResponseField name="totalVotes" type="number">
+          Total number of validator votes received
+        </ResponseField>
+        
+        <ResponseField name="yesVotes" type="number">
+          Number of positive verification votes
+        </ResponseField>
+        
+        <ResponseField name="noVotes" type="number">
+          Number of negative verification votes
+        </ResponseField>
+        
+        <ResponseField name="timestamp" type="number">
+          Unix timestamp when file was registered
+        </ResponseField>
+        
+        <ResponseField name="finalized" type="boolean">
+          Whether validation process is complete
+        </ResponseField>
+        
+        <ResponseField name="consensusPercentage" type="number">
+          Percentage of positive votes (yesVotes/totalVotes * 100)
+        </ResponseField>
+        
+        <ResponseField name="assignedValidators" type="array">
+          List of validators assigned to verify this file
+        </ResponseField>
+        
+        <ResponseField name="validatorsWhoVoted" type="array">
+          List of validators who have submitted votes
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    
+    <ResponseField name="userID" type="string">
+      Associated user ID (if available)
+      
+      Example: `"user_12345"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Found Records (200)
+{
+  "message": "Found <N> record(s) for your file on the blockchain.",
+  "details": [
+    {
+      "contentHash": "<FILE_SHA256_HEX>",
+      "pdaAddress": "<CONTENT_REGISTRATION_PDA_BASE58>",
+      "onChainRegistration": {
+        "creator": "<CREATOR_WALLET_BASE58>",
+        "ipfsCid": "<IPFS_CID>",
+        "totalVotes": <NUMBER_OR_BN>,
+        "yesVotes": <NUMBER_OR_BN>,
+        "noVotes": <NUMBER_OR_BN>,
+        "timestamp": <UNIX_SECONDS_NUMBER_OR_BN>,
+        "finalized": <true|false>,
+        "consensusPercentage": <0-100>
+      },
+      "userID": "<USER_ID_OR_NULL>"
+    }
+  ]
+}
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json No Records Found (404)
+{
+  "message": "An on-chain proof for this file does not exist, which means it has not been registered.",
+  "details": {
+    "Searched Content Hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
+  }
+}
+```
+
+```json Missing File (400)
+{
+  "message": "Oops! You need to upload a file to search for it. Please attach a file. 📂"
+}
+```
+
+```json Fetch/Processing Error (500)
+{
+  "message": "An error occurred while searching for registrations.",
+  "details": {
+    "error": "<reason>"
+  }
+}
+```
+
+```json Unexpected Error (500)
+{
+  "message": "Oh no! Something went wrong during the search. Our team is on it!",
+  "details": {
+    "error": "<reason>"
+  }
+}
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="File Processing">
+    Accepts the uploaded file and calculates its SHA256 content hash
+  </Step>
+  <Step title="On-Chain Search">
+    Queries the Solana blockchain for matching content registration records
+  </Step>
+  <Step title="Data Enrichment">
+    Fetches complete registration details and current validation status
+  </Step>
+  <Step title="User Lookup">
+    Attempts to find associated user IDs for the file creators
+  </Step>
+  <Step title="Result Formatting">
+    Returns comprehensive registration information with validation status
+  </Step>
+</Steps>
+
+## Common Errors
+
+| Error Message | Why It Happens | How to Fix |
+|---------------|----------------|------------|
+| `You need to upload a file to search for it.` | No file attached to request | Add `-F "file=@filename"` to your cURL command |
+| `An on-chain proof for this file does not exist.` | File has never been registered | Use `/register` endpoint to register the file first |
+| `Something went wrong during the search.` | Network or RPC connection issue | Retry the request; check server connectivity |
+| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
+
+---
+
+## Understanding Search Results
+
+### Validation Status
+
+<Tabs>
+  <Tab title="Verified">
+    **Status**: `finalized: true` with ≥67% consensus
+    
+    **Meaning**: Validators have completed verification and reached consensus that the file is authentic and valid.
+    
+    ```json
+    {
+      "finalized": true,
+      "consensusPercentage": 100,
+      "totalVotes": 3,
+      "yesVotes": 3,
+      "noVotes": 0
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Pending Verification">
+    **Status**: `finalized: false`
+    
+    **Meaning**: File is registered but validators are still in the process of verification.
+    
+    ```json
+    {
+      "finalized": false,
+      "consensusPercentage": 0,
+      "totalVotes": 0,
+      "yesVotes": 0,
+      "noVotes": 0
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Rejected">
+    **Status**: `finalized: true` with &lt;67% consensus
+    
+    **Meaning**: Validators completed verification but consensus was not reached for file validity.
+    
+    ```json
+    {
+      "finalized": true,
+      "consensusPercentage": 33,
+      "totalVotes": 3,
+      "yesVotes": 1,
+      "noVotes": 2
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Consensus Calculation
+
+<Info>
+**Consensus Formula**: `(yesVotes / totalVotes) * 100`
+
+- **≥67%**: File verification **PASSED** (consensus reached)
+- **&lt;67%**: File verification **FAILED** (consensus not reached)
+- **Pending**: Validators still voting (`totalVotes: 0`)
+</Info>
+
+---
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Register Files" icon="file-plus" href="/essentials/register">
+    Register files that can then be searched and verified
+  </Card>
+  
+  <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
+    Create wallets needed for file registration
+  </Card>
+  
+  <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
+    Verify wallet balances before registration
+  </Card>
+  
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Complete API documentation and endpoints
+  </Card>
+</CardGroup>
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+<Accordion title="File Missing Error">
+  - Ensure you're using `multipart/form-data` content type
+  - Check file path is correct and file exists
+  - Verify file is readable and not corrupted
+  - Use `-F "file=@filename"` format in cURL
+</Accordion>
+
+<Accordion title="File Not Registered (404)">
+  - File has never been uploaded to Trust Engine
+  - Use `/register` endpoint to register the file first
+  - Double-check you have the exact same file (identical content)
+  - Even minor changes will result in different hash
+</Accordion>
+
+<Accordion title="Network Errors">
+  - Check internet connectivity to Solana network
+  - Verify RPC endpoint is accessible and responsive
+  - Try different RPC provider if persistent issues
+  - Check firewall settings for outbound connections
+</Accordion>
+
+<Accordion title="Large File Timeouts">
+  - Files near 50MB limit may timeout during processing
+  - Consider compressing large files before searching
+  - Check network upload speed and stability
+  - Increase timeout values for large file handling
+</Accordion>
