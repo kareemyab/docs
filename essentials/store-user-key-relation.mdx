@@ -1,0 +1,352 @@
+---
+title: '/store-user-key-relation'
+description: 'Links a user ID to a Solana wallet address by creating an on-chain relationship record.'
+icon: 'link'
+openapi: 'POST /store-user-key-relation'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/store-user-key-relation</code>
+</div>
+
+<Info>
+**Rate Limit:** 100 requests per 15 minutes
+</Info>
+
+---
+
+## Quick Start
+
+### Complete Example
+
+<CodeGroup>
+```bash cURL
+curl -X POST http://localhost:3000/store-user-key-relation \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userID": "user_12345",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+  }'
+```
+
+```javascript JavaScript
+async function storeUserKeyRelation(userID, walletAddress) {
+  try {
+    const response = await fetch('http://localhost:3000/store-user-key-relation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userID, walletAddress })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('✅ User key relation created successfully');
+      console.log('Transaction:', data.details.transactionSignature);
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('❌ Failed to store user key relation:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+storeUserKeyRelation('user_12345', '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
+  .then(result => {
+    console.log('Relation stored:', result.details);
+  })
+  .catch(error => {
+    console.error('Error:', error.message);
+  });
+```
+
+```javascript Axios
+const axios = require('axios');
+
+async function storeUserKeyRelation(userID, walletAddress) {
+  try {
+    const response = await axios.post('http://localhost:3000/store-user-key-relation', {
+      userID,
+      walletAddress
+    });
+    
+    console.log('✅ User key relation stored successfully');
+    console.log('User ID:', response.data.details.userID);
+    console.log('Wallet:', response.data.details.walletAddress);
+    console.log('Transaction:', response.data.details.transactionSignature);
+    
+    return response.data;
+  } catch (error) {
+    if (error.response) {
+      const { status, data } = error.response;
+      
+      if (status === 400 && data.message.includes('already exists')) {
+        console.log('ℹ️ Relation already exists for this wallet');
+      } else if (status === 400 && data.details?.missingFields) {
+        console.error('❌ Missing fields:', data.details.missingFields);
+      } else {
+        console.error('❌ Error:', data.message);
+      }
+    } else {
+      console.error('❌ Network error:', error.message);
+    }
+    throw error;
+  }
+}
+```
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "message": "Success! The wallet address has been linked to the user ID.",
+  "details": {
+    "userID": "user_12345",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+
+### Prerequisites
+
+<Check>Valid user ID (any string identifier, max 50 characters)</Check>
+<Check>Valid Solana wallet address (Base58 format)</Check>
+<Check>Wallet must not already be linked to another user ID</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="userID" type="string" required>
+  Unique identifier for the user
+  
+  **Constraints:** Maximum 50 characters, can be any string format
+  
+  **Examples:** `"user_12345"`, `"alice@company.com"`, `"550e8400-e29b-41d4-a716-446655440000"`
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" required>
+  Valid Solana wallet address in Base58 format
+  
+  **Constraints:** Must be a valid Solana public key (32-44 characters)
+  
+  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="message" type="string">
+  Success confirmation message
+  
+  Example: `"Success! The wallet address has been linked to the user ID."`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Relationship creation details
+  
+  <Expandable title="Details Object">
+    <ResponseField name="userID" type="string">
+      The user ID that was linked
+      
+      Example: `"user_12345"`
+    </ResponseField>
+    
+    <ResponseField name="walletAddress" type="string">
+      The wallet address that was linked
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+    </ResponseField>
+    
+    <ResponseField name="transactionSignature" type="string">
+      Solana transaction hash for the relationship creation
+      
+      Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
+    </ResponseField>
+    
+    <ResponseField name="explorerUrl" type="string">
+      Direct link to view the transaction on Solana Explorer
+      
+      Example: `"https://explorer.solana.com/tx/...?cluster=devnet"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Success (200)
+{
+  "message": "Success! The wallet address has been linked to the user ID.",
+  "details": {
+    "userID": "user_12345",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/<TRANSACTION_SIGNATURE>?cluster=<EXPLORER_CLUSTER_PARAM>"
+  }
+}
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Missing Parameters (400)
+{
+  "message": "Hold on! We need a `userID` and `walletAddress` to proceed.",
+  "details": {
+    "missingFields": ["userID"]
+  }
+}
+```
+
+```json Relation Already Exists (400)
+{
+  "message": "User key relation already exists."
+}
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+
+```json Server Error (500)
+{
+  "message": "Oh no! Something went wrong while storing the user-key relation.",
+  "details": {
+    "error": "Invalid public key input"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Parameter Validation">
+    Validates user ID format and wallet address using Solana's Base58 encoding
+  </Step>
+  <Step title="PDA Generation">
+    Creates a Program Derived Address for the relationship using deterministic seeds
+  </Step>
+  <Step title="Duplicate Check">
+    Ensures the wallet isn't already linked to prevent conflicts
+  </Step>
+  <Step title="On-Chain Storage">
+    Creates an immutable record on the Solana blockchain
+  </Step>
+  <Step title="Server Sponsorship">
+    Transaction fees are paid by the Trust Engine server (no user cost)
+  </Step>
+</Steps>
+
+## Common Errors
+
+| Error Message | Why It Happens | How to Fix |
+|---------------|----------------|------------|
+| `We need a userID and walletAddress to proceed.` | Missing required parameters | Include both `userID` and `walletAddress` in request body |
+| `User key relation already exists.` | Wallet is already linked to a user ID | Use a different wallet or check existing relationship |
+| `Invalid public key input` | Malformed wallet address | Use a valid Base58-encoded Solana public key |
+| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
+
+---
+
+## Understanding User Key Relations
+
+### Purpose
+<Info>
+User key relations enable the Trust Engine to provide user-friendly experiences by linking human-readable identifiers to blockchain addresses.
+<Warning>
+**Permanent Records**: User key relations cannot be modified once created on the blockchain.
+</Warning>
+</Info>
+
+
+**This ensures:**
+- **One relationship per wallet** (enforced by PDA uniqueness)
+- **Deterministic lookups** (same wallet always maps to same PDA)
+- **Efficient queries** (no need to scan all accounts)
+
+---
+
+## Security Considerations
+
+**Security Features:**
+- **No user signing**: Server handles all blockchain interactions
+- **Immediate confirmation**: No waiting for user wallet approval
+- **Sponsored fees**: Users don't need SOL for transaction costs
+
+## Troubleshooting
+
+### Common Issues
+
+<Accordion title="User key relation already exists">
+  **Error**: `"User key relation already exists."`
+  
+  **Causes**:
+  - Wallet is already linked to a user ID
+  - Attempting to create duplicate relationship
+  
+  **Solutions**:
+  - Use `/search` to find existing relation
+  - Use different wallet address
+  - Handle gracefully in user onboarding flow
+</Accordion>
+
+<Accordion title="Invalid public key input">
+  **Error**: `"Invalid public key input"`
+  
+  **Causes**:
+  - Malformed wallet address
+  - Wrong encoding format
+  - Typos in wallet address
+  
+  **Solutions**:
+  - Ensure wallet address is valid Base58-encoded Solana public key
+  - Verify wallet address format (32-44 characters)
+  - Test with known valid addresses first
+</Accordion>
+
+<Accordion title="Missing required fields">
+  **Error**: `"Hold on! We need a userID and walletAddress to proceed."`
+  
+  **Causes**:
+  - Missing `userID` or `walletAddress` in request
+  - Empty string values
+  - Incorrect JSON structure
+  
+  **Solutions**:
+  - Include both parameters in JSON request body
+  - Ensure values are not empty or null
+  - Validate JSON structure before sending
+</Accordion>
+
+<Accordion title="Network timeouts">
+  **Error**: Connection timeouts or slow responses
+  
+  **Causes**:
+  - Solana RPC congestion
+  - Network connectivity issues
+  - Server overload
+  
+  **Solutions**:
+  - Retry the request after a delay
+  - Check RPC endpoint status
+  - Implement exponential backoff
+</Accordion>

@@ -1,0 +1,321 @@
+---
+title: '/register'
+description: 'Registers a file with the Trust Engine protocol, initiating the decentralized verification process.'
+icon: 'file-plus'
+openapi: 'POST /register'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/register</code>
+</div>
+
+<Info>
+**Rate Limit:** 10 requests per 60 minutes
+</Info>
+
+---
+
+## Accepted Types of Digital Media
+
+<Info>
+These are the primary digital media formats supported by the `/register` endpoint. If you need a format not listed under Supported, it is currently not accepted.
+</Info>
+
+#### Full Reference
+
+| Category | Extensions | MIME Types |
+|---|---|---|
+| Images | `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp` | `image/jpeg`, `image/png`, `image/gif`, `image/webp` |
+| Video | `.ts` | `video/mp2t` |
+| Documents | `.pdf`, `.docx`, `.txt`, `.md`, `.csv` | `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `text/plain`, `text/markdown`, `text/csv` |
+| Code/Data | `.json`, `.js`, `.ts` | `application/json`, `application/javascript`, `application/octet-stream` |
+| Archives | `.zip` | `application/zip` |
+| Cryptographic | `.zkey`, `.wasm` | `application/octet-stream` |
+
+#### Not Supported (Yet)
+
+<Warning>
+- Video: MP4, AVI, MOV, MKV, WebM
+- Audio: MP3, WAV, FLAC, AAC, OGG
+- Images: BMP, TIFF, SVG, HEIC
+</Warning>
+
+## Quick Start
+
+### Complete Example
+
+```bash cURL
+curl -X POST http://localhost:3000/register \
+  -F "file=@/path/to/your/document.pdf" \
+  -F "walletAddress=YourWalletAddressGoesHere" \
+  -F "contentTitle=My Awesome Document" \
+  -F "contentDescription=A description of my awesome document." \
+  -F "walletType=crossmint" \
+  -F 'metadata={"author":"John Doe","version":"1.0","category":"document"}'
+```
+
+### Expected Response
+
+```text
+✅ SUBMISSION ACCEPTED ✅
+--------------------------------------------------
+✅ Accepted! Your file has been submitted for verification via Crossmint.
+
+--- Details ---
+    Status              : Pending Verification
+    Transaction ID      : abc123def456ghi789jklmnop...
+    Content Registration PDA: xyz789abc123def456ghi...
+    IPFS CID            : QmExampleCidForYourFileMetadata...
+    Processing Fee      : ~0.000005000 SOL (5,000 lamports)
+    Solana Explorer     : https://explorer.solana.com/tx/abc123def456ghi789jklmnop...?cluster=devnet
+--------------------------------------------------
+```
+
+### Prerequisites
+
+<Check>Wallet with sufficient Reward Tokens</Check>
+<Check>Valid file within allowed types</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="file" type="File" required>
+  The file to be registered
+  
+  **Constraints:** Must be an allowed file type, virus-free
+  
+  **Supported Types:** PDF, DOC, DOCX, TXT, PNG, JPG, JPEG, etc.
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" required>
+  User's public Solana wallet address
+  
+  **Constraints:** Must be a valid Solana public key
+  
+  Example: `"B5k2yCBinet3dDsWGdkJeEsHAFoQgc3i6htHK6EBsVRa"`
+</ResponseField>
+
+<ResponseField name="contentTitle" type="string" required>
+  Title for the content being registered
+  
+  **Constraints:** Maximum 100 characters
+  
+  Example: `"My Important Document"`
+</ResponseField>
+
+<ResponseField name="contentDescription" type="string" required>
+  Brief description of the content
+  
+  **Constraints:** Maximum 500 characters
+  
+  Example: `"A comprehensive report on blockchain technology"`
+</ResponseField>
+
+<ResponseField name="walletType" type="string" required>
+  Wallet provider type used for registration
+  
+  **Constraints:** Currently supports only `crossmint`
+  
+  Example: `"crossmint"`
+</ResponseField>
+
+<ResponseField name="metadata" type="string" optional>
+  Stringified JSON object for additional metadata
+  
+  **Format:** Each key should have `value` and `visibility` properties
+  
+  **Constraints:** Max 5 public, 5 private metadata entries
+  
+  Example: `'{"author":{"value":"John Doe","visibility":"public"}}'`
+</ResponseField>
+
+---
+
+## Fees
+
+<Warning>
+**Fee Model Overview:** Token fees cover protocol charges and rent conversion; the on-chain network fee is charged in SOL and shown separately. Rent depends on Solana’s rent parameters and a fixed on-chain account size (it does not depend on the uploaded file size).
+</Warning>
+
+| Fee Component | Amount | Description |
+|---------------|--------|-------------|
+| **Base Service Fee** | 100 Tokens | Protocol usage fee |
+| **Rent Fee** | ~[dynamic] Tokens | Solana account rent converted to tokens for a fixed account size (independent of uploaded file size) |
+| **Transaction Surcharge** | 5 Tokens | Additional protocol surcharge (not the SOL network fee) |
+| **Total (Tokens)** | ~[sum of above] | Token total charged by server: 100 + rentInTokens + 5 |
+| **Network Fee (SOL)** | variable | Actual Solana fee in lamports/SOL; varies with congestion and is shown separately in the response |
+
+<Info>
+Token total is computed as: 100 (base) + rentInTokens + 5 (surcharge). rentInTokens = getMinimumBalanceForRentExemption(account_size) in SOL × SOL_TO_TOKEN_RATE. The SOL network fee is separate and shown in the response.
+</Info>
+
+---
+
+## Response Examples
+
+### Success Responses
+
+<CodeGroup>
+```text Success (202 Crossmint)
+✅ SUBMISSION ACCEPTED ✅
+--------------------------------------------------
+✅ Accepted! Your file has been submitted for verification via Crossmint.
+
+--- Details ---
+    Status                  : Pending Verification
+    Transaction ID          : <TRANSACTION_ID_HERE>
+    Content Registration PDA: <PDA_ADDRESS_HERE>
+    IPFS CID                : <IPFS_CID_HERE>
+    Processing Fee          : ~<SOL_AMOUNT> SOL (<LAMPORTS> lamports)
+    Solana Explorer         : https://explorer.solana.com/tx/<TRANSACTION_ID_HERE>?cluster=<cluster>
+--------------------------------------------------
+```
+
+```text Success (200 Standard Wallet)
+✅ TRANSACTION READY ✅
+--------------------------------------------------
+Transaction prepared. Please sign and submit via your wallet.
+
+--- Details ---
+    Status                  : Requires Client Signature
+    IPFS CID                : <IPFS_CID_HERE>
+    Content Registration PDA: <PDA_ADDRESS_HERE>
+    Transaction (Base64)    : <BASE64_TRANSACTION_HERE>
+--------------------------------------------------
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```text Missing File (400)
+🚫 FILE MISSING 🚫
+--------------------------------------------------
+Oops! It looks like you forgot to upload a file. Please attach a file to your request.
+--------------------------------------------------
+```
+
+```text File Validation Failed (400)
+🚫 FILE VALIDATION FAILED 🚫
+--------------------------------------------------
+File validation failed: File type not allowed: <mime/type>
+--------------------------------------------------
+```
+
+```text Missing Required Fields (400)
+🚫 MISSING REQUIRED FIELDS 🚫
+--------------------------------------------------
+Hold on! We need `contentTitle`, `contentDescription`, `walletAddress`, and `walletType` to proceed.
+
+--- Details ---
+    missingFields        : [contentTitle, contentDescription, walletAddress, walletType]
+--------------------------------------------------
+```
+
+```text Invalid Wallet Type (400)
+🚫 INVALID WALLET TYPE 🚫
+--------------------------------------------------
+Invalid `walletType`. It must be either 'standard' or 'crossmint'.
+--------------------------------------------------
+```
+
+```text No User-Key Relation (400)
+🚫 USER-KEY RELATION REQUIRED 🚫
+--------------------------------------------------
+This wallet address doesn't have a user ID relation. Please create one first.
+
+--- Details ---
+    Missing Requirement  : User-Key Relation
+    Suggestion           : Use the /store-user-key-relation endpoint
+    Alternative          : Use the /create-wallet endpoint
+--------------------------------------------------
+```
+
+```text Duplicate Registration (409)
+🚫 FILE ALREADY REGISTERED 🚫
+--------------------------------------------------
+Looks like you have already registered this file. Please use the /search endpoint to find the existing record.
+
+--- Details ---
+    contentHash          : <CONTENT_HASH_HEX>
+    pdaAddress           : <PDA_ADDRESS_HERE>
+    Suggestion           : Use the /search endpoint
+--------------------------------------------------
+```
+
+```text Token Error (400)
+🚫 INSUFFICIENT TOKEN BALANCE 🚫
+--------------------------------------------------
+Insufficient token balance to complete registration.
+
+--- Details ---
+    Required Tokens      : ~<REQUIRED_TOKENS> tokens
+    Your Balance         : <BALANCE_TOKENS> tokens
+    Deficit              : <DEFICIT_TOKENS> tokens
+    Suggestion           : Use the /mint-tokens endpoint
+--------------------------------------------------
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="File Validation">
+    Validates file type
+  </Step>
+  <Step title="Wallet Verification">
+    Checks wallet has sufficient Reward Tokens for fees
+  </Step>
+  <Step title="IPFS Upload">
+    Uploads file to IPFS and generates Content Identifier (CID)
+  </Step>
+  <Step title="On-Chain Registration">
+    Creates immutable proof record on Solana blockchain
+  </Step>
+  <Step title="Verification Process">
+    Initiates decentralized verification through validator network
+  </Step>
+</Steps>
+
+## Common Errors
+
+| Error Message | Why It Happens | How to Fix |
+|---------------|----------------|------------|
+| `File type not allowed` | Uploaded file type is not permitted | Use supported file types (PDF, DOC, TXT, images) |
+| `walletAddress is required` | Missing wallet address in request | Include valid Solana wallet address |
+| `File is required` | No file attached to request | Attach file using 'file' field name |
+| `NO_TOKEN_ACCOUNT` | Wallet doesn't have token account | Create token account for Reward Token |
+| `INSUFFICIENT_BALANCE` | Not enough tokens for fees | Add more Reward Tokens to wallet |
+| `Virus detected` | File failed security scan | Upload a clean file |
+
+---
+
+## Next Steps
+
+After registering a file:
+
+<CardGroup cols={2}>
+  <Card title="Check Verification Status" icon="magnifying-glass" href="/api-reference/endpoint/get">
+    Monitor the verification progress of your registered file
+  </Card>
+  
+  <Card title="View File Details" icon="file-text" href="/api-reference/endpoint/get">
+    Retrieve complete file information and proof data
+  </Card>
+  
+  <Card title="Wallet Balance" icon="wallet" href="/essentials/wallet-balance">
+    Check remaining token balance after registration
+  </Card>
+  
+  <Card title="Webhook Integration" icon="webhook" href="/api-reference/endpoint/webhook">
+    Set up webhooks for verification completion notifications
+  </Card>
+</CardGroup>
+
+<Tip>
+Save the IPFS CID and transaction signature from the response for future reference. These provide cryptographic proof of your file's registration.
+</Tip>
