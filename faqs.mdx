@@ -10,7 +10,7 @@ icon: 'circle-question'
   <Accordion title="Does Trust Engine determine who rightfully owns a digital media piece?">
     **No.** Trust Engine does NOT decide or arbitrate rightful ownership of digital media. **Instead, it provides the transparency and context needed for consumers to make informed judgments about rightful ownership.**
 
-    We don't dictate whether content is AI-generated, stolen, original, or rightfully owned. Rather, our system links the digital media piece to the entity who registered it on our protocol as an immutable, timestamped entry on our public registry.
+    We don't dictate whether digital media is AI-generated, stolen, original, or rightfully owned. Rather, our system links the digital media piece to the entity who registered it on our protocol as an immutable, timestamped entry on our public registry.
 
     - Trust Engine doesn't attempt to settle ownership disputes or certify originality. That’s not practical—or even possible—in an open digital ecosystem.
     - Even if a bad actor registers a stolen digital media piece before the “rightful” owner, our protocol still allows the “rightful” owner to register that same piece.
@@ -40,8 +40,8 @@ icon: 'circle-question'
     **Trust Engine's impact for creators, developers, verifiers, and consumers:**
     - ✅ Directly cryptographically proves registration and attribution—every record is impossible to edit, erase, or forge
     - ✅ Open, decentralized validator network means nobody (not even us) can rewrite history or exclude participants
-    - ✅ Content privacy is preserved by default; only hashes and provenance proofs are published, never private media
-    - ✅ Provenance info and trust signals travel with your content anywhere online—empowering platforms, consumers and creators regardless of where or how their work is shared
+    - ✅ Digital media privacy is preserved by default; only hashes and provenance proofs are published, never private media
+    - ✅ Provenance info and trust signals travel with your digital media piece anywhere online—empowering platforms, consumers and creators regardless of where or how their work is shared
   </Accordion>
 
   <Accordion title="Who can benefit from Trust Engine?">
@@ -99,7 +99,7 @@ icon: 'circle-question'
     **Resolution:**
     - Once the threshold is met, the decision is finalized and recorded immutably on-chain
     - The registry UI shows vote breakdown and consensus percentage
-    - You can resubmit a corrected asset (new content hash) if consensus failed previously
+    - You can resubmit a corrected asset (new digital media hash) if consensus failed previously
 
     <Tip>
     The two-thirds threshold (≥66.67%) is the canonical rule from our whitepaper, ensuring robust consensus while preventing deadlock scenarios.
@@ -118,7 +118,7 @@ icon: 'circle-question'
     **What we store (centrally):**
     - ✅ Cryptographic hash (e.g., SHA-256) of your file
     - ✅ Metadata you provide (title, description, custom fields)
-    - ✅ IPFS CIDs that reference what you registered (content and/or metadata)
+    - ✅ IPFS CIDs that reference what you registered (digital media and metadata)
     - ✅ Blockchain transaction references and timestamps
 
     **What we do not store (centrally):**
@@ -127,10 +127,10 @@ icon: 'circle-question'
     - ❌ Any separate copy of embedded file metadata (e.g., EXIF) — we don't extract or store it
 
     **Important clarifications:**
-    - **IPFS storage**: If you upload content, the file is pinned to IPFS under its CID so it can be independently verified. IPFS is a public, decentralized storage layer; anyone with the CID can retrieve the file. We do not maintain a proprietary central copy.
-    - **Embedded metadata**: If your file contains embedded metadata (like EXIF), it remains within the file on IPFS. We don't extract or store EXIF separately. If that's sensitive, strip it before uploading or encrypt the content prior to registration.
+    - **IPFS storage**: If you upload a digital media file, the file is pinned to IPFS under its CID so it can be independently verified. IPFS is a public, decentralized storage layer; anyone with the CID can retrieve the file. We do not maintain a proprietary central copy.
+    - **Embedded metadata**: If your file contains embedded metadata (like EXIF), it remains within the file on IPFS. We don't extract or store EXIF separately. If that's sensitive, strip it before uploading or encrypt the digital media file prior to registration.
     - **Permanence**: On-chain records (hashes, proof status, and timestamps) are permanent and immutable.
-    - **IPFS availability**: IPFS availability is governed by pinning/replication; we pin to keep your content available, but distribution follows IPFS network behavior.
+    - **IPFS availability**: IPFS availability is governed by pinning/replication; we pin to keep your digital media piece available, but distribution follows IPFS network behavior.
 
     <Warning>
     Server logs are minimal and rotated per policy; they don't include your raw media.
@@ -147,7 +147,7 @@ icon: 'circle-question'
 
     **During verification:**
     - Validators operate on cryptographic hashes/CIDs and on-chain records to determine consensus
-    - The protocol does not require validators to retain your raw media. They may check IPFS availability and metadata for verification; fetching full content is not required in standard flows
+    - The protocol does not allow verifiers to retain your raw media. They may check IPFS availability and metadata for verification; fetching full media is not required in standard flows
     - Because IPFS is public content-addressed storage, anyone with the CID can retrieve the file. We do not gate or re-host it centrally
 
     **Privacy tips:**
