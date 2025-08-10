@@ -18,9 +18,40 @@ openapi: 'POST /create-wallet'
 
 ## Quick Start
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ### Complete Example
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { createWallet } from 'trust-engine-sdk';
+
+async function createUserWallet() {
+  try {
+    const result = await createWallet({ 
+      userID: 'user_12345' 
+    });
+    
+    console.log('Wallet created:', result.details.walletAddress);
+    console.log('Transaction:', result.details.transactionSignature);
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to create wallet:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+createUserWallet()
+  .then(result => console.log('Success:', result))
+  .catch(error => console.error('Error:', error));
+```
+
 ```bash cURL
 curl -X POST http://localhost:3000/create-wallet \
   -H "Content-Type: application/json" \
@@ -29,7 +60,7 @@ curl -X POST http://localhost:3000/create-wallet \
   }'
 ```
 
-```javascript JavaScript
+```javascript Raw JavaScript
 async function createWallet(userID) {
   try {
     const response = await fetch('http://localhost:3000/create-wallet', {
@@ -59,28 +90,6 @@ createWallet('user_12345')
   .then(result => console.log('Success:', result))
   .catch(error => console.error('Failed:', error));
 ```
-
-```javascript Axios
-const axios = require('axios');
-
-async function createWallet(userID) {
-  try {
-    const response = await axios.post('http://localhost:3000/create-wallet', {
-      userID: userID
-    });
-    
-    console.log('Wallet Address:', response.data.details.walletAddress);
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error('Error:', error.response.data.message);
-    } else {
-      console.error('Network Error:', error.message);
-    }
-    throw error;
-  }
-}
-```
 </CodeGroup>
 
 ### Expected Response
@@ -97,9 +106,10 @@ async function createWallet(userID) {
 }
 ```
 
-### Prerequisite
+### Prerequisites
 
-<Check>Crossmint API key configured</Check>
+<Check>Crossmint API key configured on server</Check>
+<Check>Trust Engine SDK installed (for SDK usage)</Check>
 
 ---
 
@@ -212,16 +222,6 @@ async function createWallet(userID) {
   </Step>
 </Steps>
 
-## Common Errors
-
-| Error Message | Why It Happens | How to Fix |
-|---------------|----------------|------------|
-| `Hold on! We need a userID to proceed.` | Missing or empty `userID` in request | Include a valid `userID` string in request body |
-| `Oh no! Something went wrong while creating your wallet.` | Crossmint API error or network issue | Retry the request; check server logs for details |
-| `User key relation already exists.` | The `userID` is already linked to a wallet | Use a different `userID` or retrieve existing wallet |
-| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
-
-
 ---
 
 ## Next Steps
@@ -230,19 +230,19 @@ After creating a wallet:
 
 <CardGroup cols={2}>
   <Card title="Fund the Wallet" icon="coins" href="/essentials/wallet-balance">
-    Use `/validators/mint-tokens` to add tokens for transaction fees
+    Use `mintTokens()` SDK method or `/validators/mint-tokens` endpoint
   </Card>
   
   <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
-    Use `/wallet-balance` to verify token balance
+    Use `getWalletBalance()` SDK method or `/wallet-balance` endpoint
   </Card>
   
   <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Use `/register` to start uploading and verifying files
+    Use `registerFile()` SDK method or `/register` endpoint
   </Card>
   
-  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/create">
-    Use `/store-user-key-relation` if needed
+  <Card title="Find Wallet" icon="magnifying-glass" href="/api-reference/endpoint/find-wallet">
+    Use `findWallet()` SDK method to retrieve wallet by userID
   </Card>
 </CardGroup>
 

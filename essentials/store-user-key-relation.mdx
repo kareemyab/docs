@@ -18,9 +18,47 @@ openapi: 'POST /store-user-key-relation'
 
 ## Quick Start
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ### Complete Example
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { storeUserKeyRelation } from 'trust-engine-sdk';
+
+async function linkUserToWallet() {
+  try {
+    const result = await storeUserKeyRelation({
+      userID: 'user_12345',
+      walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+    });
+    
+    console.log('✅ User key relation created successfully');
+    console.log('User ID:', result.details.userID);
+    console.log('Wallet:', result.details.walletAddress);
+    console.log('Transaction:', result.details.transactionSignature);
+    
+    return result;
+  } catch (error) {
+    if (error.message.includes('already exists')) {
+      console.log('ℹ️ Relation already exists for this wallet');
+    } else {
+      console.error('❌ Failed to store relation:', error.message);
+    }
+    throw error;
+  }
+}
+
+// Usage
+linkUserToWallet()
+  .then(result => console.log('Relation stored:', result))
+  .catch(error => console.error('Error:', error));
+```
+
 ```bash cURL
 curl -X POST http://localhost:3000/store-user-key-relation \
   -H "Content-Type: application/json" \
@@ -30,7 +68,7 @@ curl -X POST http://localhost:3000/store-user-key-relation \
   }'
 ```
 
-```javascript JavaScript
+```javascript Raw JavaScript
 async function storeUserKeyRelation(userID, walletAddress) {
   try {
     const response = await fetch('http://localhost:3000/store-user-key-relation', {
@@ -48,6 +86,9 @@ async function storeUserKeyRelation(userID, walletAddress) {
       console.log('Transaction:', data.details.transactionSignature);
       return data;
     } else {
+      if (data.message.includes('already exists')) {
+        console.log('ℹ️ Relation already exists for this wallet');
+      }
       throw new Error(data.message);
     }
   } catch (error) {
@@ -58,47 +99,8 @@ async function storeUserKeyRelation(userID, walletAddress) {
 
 // Usage
 storeUserKeyRelation('user_12345', '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
-  .then(result => {
-    console.log('Relation stored:', result.details);
-  })
-  .catch(error => {
-    console.error('Error:', error.message);
-  });
-```
-
-```javascript Axios
-const axios = require('axios');
-
-async function storeUserKeyRelation(userID, walletAddress) {
-  try {
-    const response = await axios.post('http://localhost:3000/store-user-key-relation', {
-      userID,
-      walletAddress
-    });
-    
-    console.log('✅ User key relation stored successfully');
-    console.log('User ID:', response.data.details.userID);
-    console.log('Wallet:', response.data.details.walletAddress);
-    console.log('Transaction:', response.data.details.transactionSignature);
-    
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      const { status, data } = error.response;
-      
-      if (status === 400 && data.message.includes('already exists')) {
-        console.log('ℹ️ Relation already exists for this wallet');
-      } else if (status === 400 && data.details?.missingFields) {
-        console.error('❌ Missing fields:', data.details.missingFields);
-      } else {
-        console.error('❌ Error:', data.message);
-      }
-    } else {
-      console.error('❌ Network error:', error.message);
-    }
-    throw error;
-  }
-}
+  .then(result => console.log('Relation stored:', result.details))
+  .catch(error => console.error('Error:', error.message));
 ```
 </CodeGroup>
 
@@ -121,6 +123,7 @@ async function storeUserKeyRelation(userID, walletAddress) {
 <Check>Valid user ID (any string identifier, max 50 characters)</Check>
 <Check>Valid Solana wallet address (Base58 format)</Check>
 <Check>Wallet must not already be linked to another user ID</Check>
+
 
 ---
 
@@ -256,15 +259,6 @@ async function storeUserKeyRelation(userID, walletAddress) {
   </Step>
 </Steps>
 
-## Common Errors
-
-| Error Message | Why It Happens | How to Fix |
-|---------------|----------------|------------|
-| `We need a userID and walletAddress to proceed.` | Missing required parameters | Include both `userID` and `walletAddress` in request body |
-| `User key relation already exists.` | Wallet is already linked to a user ID | Use a different wallet or check existing relationship |
-| `Invalid public key input` | Malformed wallet address | Use a valid Base58-encoded Solana public key |
-| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
-
 ---
 
 ## Understanding User Key Relations
@@ -282,71 +276,3 @@ User key relations enable the Trust Engine to provide user-friendly experiences 
 - **One relationship per wallet** (enforced by PDA uniqueness)
 - **Deterministic lookups** (same wallet always maps to same PDA)
 - **Efficient queries** (no need to scan all accounts)
-
----
-
-## Security Considerations
-
-**Security Features:**
-- **No user signing**: Server handles all blockchain interactions
-- **Immediate confirmation**: No waiting for user wallet approval
-- **Sponsored fees**: Users don't need SOL for transaction costs
-
-## Troubleshooting
-
-### Common Issues
-
-<Accordion title="User key relation already exists">
-  **Error**: `"User key relation already exists."`
-  
-  **Causes**:
-  - Wallet is already linked to a user ID
-  - Attempting to create duplicate relationship
-  
-  **Solutions**:
-  - Use `/search` to find existing relation
-  - Use different wallet address
-  - Handle gracefully in user onboarding flow
-</Accordion>
-
-<Accordion title="Invalid public key input">
-  **Error**: `"Invalid public key input"`
-  
-  **Causes**:
-  - Malformed wallet address
-  - Wrong encoding format
-  - Typos in wallet address
-  
-  **Solutions**:
-  - Ensure wallet address is valid Base58-encoded Solana public key
-  - Verify wallet address format (32-44 characters)
-  - Test with known valid addresses first
-</Accordion>
-
-<Accordion title="Missing required fields">
-  **Error**: `"Hold on! We need a userID and walletAddress to proceed."`
-  
-  **Causes**:
-  - Missing `userID` or `walletAddress` in request
-  - Empty string values
-  - Incorrect JSON structure
-  
-  **Solutions**:
-  - Include both parameters in JSON request body
-  - Ensure values are not empty or null
-  - Validate JSON structure before sending
-</Accordion>
-
-<Accordion title="Network timeouts">
-  **Error**: Connection timeouts or slow responses
-  
-  **Causes**:
-  - Solana RPC congestion
-  - Network connectivity issues
-  - Server overload
-  
-  **Solutions**:
-  - Retry the request after a delay
-  - Check RPC endpoint status
-  - Implement exponential backoff
-</Accordion>

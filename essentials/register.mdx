@@ -14,15 +14,17 @@ openapi: 'POST /register'
 **Rate Limit:** 10 requests per 60 minutes
 </Info>
 
+## Quick Start
+
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ---
 
 ## Accepted Types of Digital Media
-
-<Info>
-These are the primary digital media formats supported by the `/register` endpoint. If you need a format not listed under Supported, it is currently not accepted.
-</Info>
-
-#### Full Reference
 
 | Category | Extensions | MIME Types |
 |---|---|---|
@@ -33,17 +35,48 @@ These are the primary digital media formats supported by the `/register` endpoin
 | Archives | `.zip` | `application/zip` |
 | Cryptographic | `.zkey`, `.wasm` | `application/octet-stream` |
 
-#### Not Supported (Yet)
-
-<Warning>
-- Video: MP4, AVI, MOV, MKV, WebM
-- Audio: MP3, WAV, FLAC, AAC, OGG
-- Images: BMP, TIFF, SVG, HEIC
-</Warning>
-
-## Quick Start
 
 ### Complete Example
+
+<CodeGroup>
+```typescript SDK (Recommended)
+import { registerFile } from 'trust-engine-sdk';
+
+async function registerDocument() {
+  // Get file from file input or create File object
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  const file = fileInput.files[0];
+  
+  try {
+    const result = await registerFile({
+      file: file,
+      contentTitle: "My Awesome Document",
+      contentDescription: "A description of my awesome document.",
+      walletAddress: "YourWalletAddressGoesHere",
+      walletType: "crossmint",
+      metadata: {
+        author: "John Doe",
+        version: "1.0",
+        category: "document"
+      }
+    });
+    
+    console.log('✅ Registration successful!');
+    console.log('Transaction ID:', result.details.transactionSignature);
+    console.log('IPFS CID:', result.details.ipfsCid);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Registration failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+registerDocument()
+  .then(result => console.log('File registered:', result))
+  .catch(error => console.error('Error:', error));
+```
 
 ```bash cURL
 curl -X POST http://localhost:3000/register \
@@ -54,6 +87,43 @@ curl -X POST http://localhost:3000/register \
   -F "walletType=crossmint" \
   -F 'metadata={"author":"John Doe","version":"1.0","category":"document"}'
 ```
+
+```javascript Raw JavaScript
+async function registerFile(fileInput, walletAddress, contentTitle, contentDescription) {
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('walletAddress', walletAddress);
+  formData.append('contentTitle', contentTitle);
+  formData.append('contentDescription', contentDescription);
+  formData.append('walletType', 'crossmint');
+  formData.append('metadata', JSON.stringify({
+    author: "John Doe",
+    version: "1.0",
+    category: "document"
+  }));
+
+  try {
+    const response = await fetch('http://localhost:3000/register', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.text(); // Register returns text, not JSON
+    
+    if (response.ok) {
+      console.log('✅ Registration successful!');
+      console.log(data);
+      return data;
+    } else {
+      throw new Error(data);
+    }
+  } catch (error) {
+    console.error('❌ Registration failed:', error.message);
+    throw error;
+  }
+}
+```
+</CodeGroup>
 
 ### Expected Response
 
@@ -71,6 +141,7 @@ curl -X POST http://localhost:3000/register \
     Solana Explorer     : https://explorer.solana.com/tx/abc123def456ghi789jklmnop...?cluster=devnet
 --------------------------------------------------
 ```
+
 
 ### Prerequisites
 
@@ -131,25 +202,6 @@ curl -X POST http://localhost:3000/register \
   Example: `'{"author":{"value":"John Doe","visibility":"public"}}'`
 </ResponseField>
 
----
-
-## Fees
-
-<Warning>
-**Fee Model Overview:** Token fees cover protocol charges and rent conversion; the on-chain network fee is charged in SOL and shown separately. Rent depends on Solana’s rent parameters and a fixed on-chain account size (it does not depend on the uploaded file size).
-</Warning>
-
-| Fee Component | Amount | Description |
-|---------------|--------|-------------|
-| **Base Service Fee** | 100 Tokens | Protocol usage fee |
-| **Rent Fee** | ~[dynamic] Tokens | Solana account rent converted to tokens for a fixed account size (independent of uploaded file size) |
-| **Transaction Surcharge** | 5 Tokens | Additional protocol surcharge (not the SOL network fee) |
-| **Total (Tokens)** | ~[sum of above] | Token total charged by server: 100 + rentInTokens + 5 |
-| **Network Fee (SOL)** | variable | Actual Solana fee in lamports/SOL; varies with congestion and is shown separately in the response |
-
-<Info>
-Token total is computed as: 100 (base) + rentInTokens + 5 (surcharge). rentInTokens = getMinimumBalanceForRentExemption(account_size) in SOL × SOL_TO_TOKEN_RATE. The SOL network fee is separate and shown in the response.
-</Info>
 
 ---
 
@@ -281,17 +333,6 @@ Insufficient token balance to complete registration.
   </Step>
 </Steps>
 
-## Common Errors
-
-| Error Message | Why It Happens | How to Fix |
-|---------------|----------------|------------|
-| `File type not allowed` | Uploaded file type is not permitted | Use supported file types (PDF, DOC, TXT, images) |
-| `walletAddress is required` | Missing wallet address in request | Include valid Solana wallet address |
-| `File is required` | No file attached to request | Attach file using 'file' field name |
-| `NO_TOKEN_ACCOUNT` | Wallet doesn't have token account | Create token account for Reward Token |
-| `INSUFFICIENT_BALANCE` | Not enough tokens for fees | Add more Reward Tokens to wallet |
-| `Virus detected` | File failed security scan | Upload a clean file |
-
 ---
 
 ## Next Steps
@@ -299,20 +340,20 @@ Insufficient token balance to complete registration.
 After registering a file:
 
 <CardGroup cols={2}>
-  <Card title="Check Verification Status" icon="magnifying-glass" href="/api-reference/endpoint/get">
-    Monitor the verification progress of your registered file
+  <Card title="Search for File" icon="magnifying-glass" href="/api-reference/endpoint/search">
+    Use `searchFile()` SDK method or `/search` endpoint to find your registered file
   </Card>
   
-  <Card title="View File Details" icon="file-text" href="/api-reference/endpoint/get">
-    Retrieve complete file information and proof data
+  <Card title="Check Wallet Balance" icon="wallet" href="/essentials/wallet-balance">
+    Use `getWalletBalance()` SDK method or `/wallet-balance` endpoint
   </Card>
   
-  <Card title="Wallet Balance" icon="wallet" href="/essentials/wallet-balance">
-    Check remaining token balance after registration
+  <Card title="Create More Wallets" icon="plus" href="/essentials/create-wallet">
+    Use `createWallet()` SDK method or `/create-wallet` endpoint
   </Card>
   
-  <Card title="Webhook Integration" icon="webhook" href="/api-reference/endpoint/webhook">
-    Set up webhooks for verification completion notifications
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/store-user-key-relation">
+    Use `storeUserKeyRelation()` SDK method if needed
   </Card>
 </CardGroup>
 
