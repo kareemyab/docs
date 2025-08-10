@@ -20,12 +20,89 @@ openapi: 'POST /search'
 
 ## Quick Start
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ### Complete Example
+
+<CodeGroup>
+```typescript SDK (Recommended)
+import { searchFile } from 'trust-engine-sdk';
+
+async function findFileRegistration() {
+  // Get file from file input or create File object
+  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  const file = fileInput.files[0];
+  
+  try {
+    const result = await searchFile(file);
+    
+    if (result.details && result.details.length > 0) {
+      console.log(`✅ Found ${result.details.length} registration(s)!`);
+      result.details.forEach((record, index) => {
+        console.log(`Record ${index + 1}:`);
+        console.log('- Creator:', record.onChainRegistration.creator);
+        console.log('- IPFS CID:', record.onChainRegistration.ipfsCid);
+        console.log('- Consensus:', record.onChainRegistration.consensusPercentage + '%');
+        console.log('- Finalized:', record.onChainRegistration.finalized);
+      });
+    }
+    
+    return result;
+  } catch (error) {
+    if (error.message.includes('does not exist')) {
+      console.log('ℹ️ File has not been registered yet');
+    } else {
+      console.error('❌ Search failed:', error.message);
+    }
+    throw error;
+  }
+}
+
+// Usage
+findFileRegistration()
+  .then(result => console.log('Search completed:', result))
+  .catch(error => console.error('Error:', error));
+```
 
 ```bash cURL
 curl -X POST http://localhost:3000/search \
   -F "file=@document.pdf"
 ```
+
+```javascript Raw JavaScript
+async function searchForFile(fileInput) {
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+
+  try {
+    const response = await fetch('http://localhost:3000/search', {
+      method: 'POST',
+      body: formData
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('✅ Search successful!');
+      console.log(`Found ${data.details.length} record(s)`);
+      return data;
+    } else {
+      if (response.status === 404) {
+        console.log('ℹ️ File not found in registry');
+      }
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('❌ Search failed:', error.message);
+    throw error;
+  }
+}
+```
+</CodeGroup>
 
 ### Expected Response (Found)
 
@@ -249,15 +326,6 @@ curl -X POST http://localhost:3000/search \
   </Step>
 </Steps>
 
-## Common Errors
-
-| Error Message | Why It Happens | How to Fix |
-|---------------|----------------|------------|
-| `You need to upload a file to search for it.` | No file attached to request | Add `-F "file=@filename"` to your cURL command |
-| `An on-chain proof for this file does not exist.` | File has never been registered | Use `/register` endpoint to register the file first |
-| `Something went wrong during the search.` | Network or RPC connection issue | Retry the request; check server connectivity |
-| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
-
 ---
 
 ## Understanding Search Results
@@ -330,52 +398,18 @@ curl -X POST http://localhost:3000/search \
 
 <CardGroup cols={2}>
   <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Register files that can then be searched and verified
+    Use `registerFile()` SDK method or `/register` endpoint to register files
   </Card>
   
   <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
-    Create wallets needed for file registration
+    Use `createWallet()` SDK method or `/create-wallet` endpoint
   </Card>
   
   <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
-    Verify wallet balances before registration
+    Use `getWalletBalance()` SDK method or `/wallet-balance` endpoint
   </Card>
   
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Complete API documentation and endpoints
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/store-user-key-relation">
+    Use `storeUserKeyRelation()` SDK method if needed
   </Card>
 </CardGroup>
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-<Accordion title="File Missing Error">
-  - Ensure you're using `multipart/form-data` content type
-  - Check file path is correct and file exists
-  - Verify file is readable and not corrupted
-  - Use `-F "file=@filename"` format in cURL
-</Accordion>
-
-<Accordion title="File Not Registered (404)">
-  - File has never been uploaded to Trust Engine
-  - Use `/register` endpoint to register the file first
-  - Double-check you have the exact same file (identical content)
-  - Even minor changes will result in different hash
-</Accordion>
-
-<Accordion title="Network Errors">
-  - Check internet connectivity to Solana network
-  - Verify RPC endpoint is accessible and responsive
-  - Try different RPC provider if persistent issues
-  - Check firewall settings for outbound connections
-</Accordion>
-
-<Accordion title="Large File Timeouts">
-  - Files near 50MB limit may timeout during processing
-  - Consider compressing large files before searching
-  - Check network upload speed and stability
-  - Increase timeout values for large file handling
-</Accordion>

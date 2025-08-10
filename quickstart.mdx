@@ -13,18 +13,20 @@ description: "Register your first file and verify its provenance in under 5 minu
 
 Before you begin, make sure you have:
 
-<CardGroup cols={2}>
-  <Card title="API Access" icon="key">
-    Trust Engine API server running locally or access to our hosted service
-  </Card>
-  
+<CardGroup cols={1}>
   <Card title="A File to Register" icon="file">
     Any digital media file (PDF, image, document, etc.) under 50MB
   </Card>
 </CardGroup>
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 <Warning>
-**Local Development**: This quickstart assumes you're running the Trust Engine server locally on `http://localhost:3000`. Adjust URLs accordingly for production environments.
+**Environment**: This quickstart uses our hosted service at `https://core-api-server.onrender.com` for production-ready examples.
 </Warning>
 
 ---
@@ -34,16 +36,42 @@ Before you begin, make sure you have:
 First, create a Solana wallet that will be linked to your user ID. This wallet will be used for all your provenance registrations.
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { createWallet } from 'trust-engine-sdk';
+
+async function setupWallet() {
+  try {
+    const result = await createWallet({ 
+      userID: 'quickstart_user_001' 
+    });
+    
+    console.log('✅ Wallet created successfully!');
+    console.log('Wallet Address:', result.details.walletAddress);
+    console.log('Transaction:', result.details.transactionSignature);
+    
+    // Save wallet address for next steps
+    const walletAddress = result.details.walletAddress;
+    return walletAddress;
+  } catch (error) {
+    console.error('❌ Wallet creation failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+const walletAddress = await setupWallet();
+```
+
 ```bash cURL
-curl -X POST http://localhost:3000/create-wallet \
+curl -X POST https://core-api-server.onrender.com/create-wallet \
   -H "Content-Type: application/json" \
   -d '{
     "userID": "quickstart_user_001"
   }'
 ```
 
-```javascript JavaScript
-const response = await fetch('http://localhost:3000/create-wallet', {
+```javascript Raw JavaScript
+const response = await fetch('https://core-api-server.onrender.com/create-wallet', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ 
@@ -74,6 +102,10 @@ console.log('Wallet created:', walletData.details.walletAddress);
 **Save your wallet address!** You'll need it for the next steps. The wallet is automatically funded with tokens needed for registration fees.
 </Tip>
 
+<Info>
+**Why Use the SDK?** The SDK provides type safety, automatic error handling, and cleaner code compared to raw HTTP calls. It handles all the complexity of API communication for you.
+</Info>
+
 ---
 
 ## Step 2: Register Your First File
@@ -81,8 +113,43 @@ console.log('Wallet created:', walletData.details.walletAddress);
 Now register a digital media file to establish its provenance. The file content is never exposed - only a cryptographic hash is used.
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { registerFile } from 'trust-engine-sdk';
+
+async function registerFirstFile(walletAddress: string, file: File) {
+  try {
+    const result = await registerFile({
+      file: file, // File object from input or drag-drop
+      contentTitle: 'My First Provenance Record',
+      contentDescription: 'Testing Trust Engine\'s provenance verification',
+      walletAddress: walletAddress,
+      walletType: 'crossmint',
+      metadata: {
+        author: 'Quickstart User',
+        category: 'test'
+      }
+    });
+    
+    console.log('✅ File registered successfully!');
+    console.log('Transaction ID:', result.details?.transactionSignature);
+    console.log('IPFS CID:', result.details?.ipfsCid);
+    console.log('Status:', result.message);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Registration failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage (assuming you have a file from an input)
+// const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+// const file = fileInput.files[0];
+// await registerFirstFile(walletAddress, file);
+```
+
 ```bash cURL
-curl -X POST http://localhost:3000/register \
+curl -X POST https://core-api-server.onrender.com/register \
   -F "file=@/path/to/your/document.pdf" \
   -F "walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   -F "contentTitle=My First Provenance Record" \
@@ -91,7 +158,7 @@ curl -X POST http://localhost:3000/register \
   -F 'metadata={"author":"Quickstart User","category":"test"}'
 ```
 
-```javascript JavaScript
+```javascript Raw JavaScript
 const formData = new FormData();
 formData.append('file', fileInput.files[0]); // Your file input
 formData.append('walletAddress', '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM');
@@ -103,7 +170,7 @@ formData.append('metadata', JSON.stringify({
   category: 'test'
 }));
 
-const response = await fetch('http://localhost:3000/register', {
+const response = await fetch('https://core-api-server.onrender.com/register', {
   method: 'POST',
   body: formData
 });
@@ -115,20 +182,44 @@ console.log('Registration result:', registrationData);
 
 ### Expected Response
 
-```text
-✅ SUBMISSION ACCEPTED ✅
---------------------------------------------------
-✅ Accepted! Your file has been submitted for verification via Crossmint.
+<Tabs>
+  <Tab title="SDK Response">
+    The SDK returns a structured JSON object:
+    ```json
+    {
+      "message": "Success! Your file has been registered.",
+      "details": {
+        "transactionSignature": "abc123def456ghi789jklmnop...",
+        "ipfsCid": "QmExampleCidForYourFileMetadata...",
+        "pdaAddress": "xyz789abc123def456ghi...",
+        "explorerUrl": "https://explorer.solana.com/tx/..."
+      }
+    }
+    ```
+  </Tab>
+  
+  <Tab title="HTTP/cURL Response">
+    The raw HTTP endpoint returns formatted text:
+    ```text
+    ✅ SUBMISSION ACCEPTED ✅
+    --------------------------------------------------
+    ✅ Accepted! Your file has been submitted for verification via Crossmint.
 
---- Details ---
-    Status              : Pending Verification
-    Transaction ID      : abc123def456ghi789jklmnop...
-    Content Registration PDA: xyz789abc123def456ghi...
-    IPFS CID            : QmExampleCidForYourFileMetadata...
-    Processing Fee      : ~0.000005000 SOL (5,000 lamports)
-    Solana Explorer     : https://explorer.solana.com/tx/...
---------------------------------------------------
-```
+    --- Details ---
+        Status              : Pending Verification
+        Transaction ID      : abc123def456ghi789jklmnop...
+        Content Registration PDA: xyz789abc123def456ghi...
+        IPFS CID            : QmExampleCidForYourFileMetadata...
+        Processing Fee      : ~0.000005000 SOL (5,000 lamports)
+        Solana Explorer     : https://explorer.solana.com/tx/...
+    --------------------------------------------------
+    ```
+  </Tab>
+</Tabs>
+
+<Info>
+**SDK Advantage**: The SDK automatically parses responses into structured objects, making it easier to extract specific values like transaction signatures and IPFS CIDs programmatically.
+</Info>
 
 <Steps>
   <Step title="File Uploaded">
@@ -149,16 +240,53 @@ console.log('Registration result:', registrationData);
 Search for your registered file to confirm its provenance record exists and check verification status.
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { searchFile } from 'trust-engine-sdk';
+
+async function verifyFileProvenance(file: File) {
+  try {
+    const result = await searchFile(file);
+    
+    if (result.details && result.details.length > 0) {
+      console.log(`✅ Found ${result.details.length} provenance record(s)!`);
+      
+      result.details.forEach((record, index) => {
+        console.log(`\n📄 Record ${index + 1}:`);
+        console.log(`   Creator: ${record.onChainRegistration.creator}`);
+        console.log(`   IPFS CID: ${record.onChainRegistration.ipfsCid}`);
+        console.log(`   Verification Status: ${record.onChainRegistration.finalized ? 'Finalized' : 'Pending'}`);
+        console.log(`   Consensus: ${record.onChainRegistration.consensusPercentage}%`);
+        console.log(`   User ID: ${record.userID || 'Not linked'}`);
+      });
+    } else {
+      console.log('ℹ️ No provenance records found for this file');
+    }
+    
+    return result;
+  } catch (error) {
+    if (error.message.includes('does not exist')) {
+      console.log('ℹ️ File has not been registered yet');
+    } else {
+      console.error('❌ Search failed:', error.message);
+    }
+    throw error;
+  }
+}
+
+// Usage
+// await verifyFileProvenance(file);
+```
+
 ```bash cURL
-curl -X POST http://localhost:3000/search \
+curl -X POST https://core-api-server.onrender.com/search \
   -F "file=@/path/to/your/document.pdf"
 ```
 
-```javascript JavaScript
+```javascript Raw JavaScript
 const searchForm = new FormData();
 searchForm.append('file', fileInput.files[0]); // Same file as before
 
-const response = await fetch('http://localhost:3000/search', {
+const response = await fetch('https://core-api-server.onrender.com/search', {
   method: 'POST',
   body: searchForm
 });
@@ -222,16 +350,47 @@ console.log('Provenance records found:', searchResults.details.length);
 Monitor your wallet's token balance to ensure you have sufficient funds for future registrations.
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { getWalletBalance } from 'trust-engine-sdk';
+
+async function checkWalletBalance(walletAddress: string) {
+  try {
+    const result = await getWalletBalance({ walletAddress });
+    
+    console.log('💰 Wallet Balance Information:');
+    console.log(`   Address: ${result.details.walletAddress}`);
+    console.log(`   Balance: ${result.details.balanceSOL} SOL`);
+    console.log(`   Lamports: ${result.details.balanceLamports.toLocaleString()}`);
+    console.log(`   Network: ${result.details.chain}`);
+    
+    // Check if balance is sufficient for registrations
+    if (result.details.balanceSOL > 0.01) {
+      console.log('✅ Sufficient balance for file registrations');
+    } else {
+      console.log('⚠️  Low balance - consider adding more SOL for registrations');
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Balance check failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+// await checkWalletBalance(walletAddress);
+```
+
 ```bash cURL
-curl -X POST http://localhost:3000/wallet-balance \
+curl -X POST https://core-api-server.onrender.com/wallet-balance \
   -H "Content-Type: application/json" \
   -d '{
     "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
   }'
 ```
 
-```javascript JavaScript
-const response = await fetch('http://localhost:3000/wallet-balance', {
+```javascript Raw JavaScript
+const response = await fetch('https://core-api-server.onrender.com/wallet-balance', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -295,56 +454,26 @@ You've successfully:
 ## Next Steps
 
 <CardGroup cols={2}>
+  <Card title="SDK Documentation" icon="code" href="/api-reference/sdk">
+    Complete SDK reference with all available methods and types
+  </Card>
+  
+  <Card title="API Reference" icon="terminal" href="/api-reference/introduction">
+    Explore all available endpoints and advanced features
+  </Card>
+  
   <Card title="How Verification Works" icon="magnifying-glass" href="/how-it-works">
     Learn about our three-party architecture and Proof of Verification
   </Card>
   
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Explore all available endpoints and advanced features
-  </Card>
-  
-  <Card title="Security & Privacy" icon="shield-halved" href="/security">
-    Understand our privacy guarantees and security model
-  </Card>
-  
   <Card title="Integration Examples" icon="puzzle-piece" href="/examples">
-    See how to integrate Trust Engine into your applications
+    See how to integrate Trust Engine SDK into your applications
   </Card>
 </CardGroup>
 
 ---
 
 ## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title="Server Connection Issues">
-    **Problem**: `Connection refused` or timeout errors
-    
-    **Solutions**:
-    - Ensure the Trust Engine server is running on port 3000
-    - Check your network connectivity
-    - Verify the server URL is correct for your environment
-  </Accordion>
-
-  <Accordion title="File Upload Failures">
-    **Problem**: File type not supported or size limit exceeded
-    
-    **Solutions**:
-    - Use supported file types (PDF, images, documents, etc.)
-    - Ensure files are under 50MB
-    - Check that files aren't corrupted or password-protected
-  </Accordion>
-
-  <Accordion title="Wallet Issues">
-    **Problem**: Insufficient balance or wallet errors
-    
-    **Solutions**:
-    - Check wallet balance using the `/wallet-balance` endpoint
-    - Ensure your user ID is correctly linked to the wallet
-    - Contact support if wallet creation fails
-  </Accordion>
-</AccordionGroup>
-
 <Note>
 **Need Help?** Join our developer community or check our FAQ section for common questions and solutions.
 </Note>

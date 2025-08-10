@@ -11,18 +11,73 @@ openapi: 'GET /health'
 </div>
 
 <Info>
-**Rate Limit:** Unlimited (health checks are not rate limited)
+**Rate Limit:** 100 requests per 15 mins
 </Info>
 
 ---
 
 ## Quick Start
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ### Complete Example
+
+<CodeGroup>
+```typescript SDK (Recommended)
+// Note: Health check is typically used for monitoring, not end-user applications
+// Most applications won't need to call this endpoint directly
+
+import { fetch } from 'node-fetch'; // or use built-in fetch in modern environments
+
+async function checkServerHealth() {
+  try {
+    const response = await fetch('https://core-api-server.onrender.com/health');
+    const data = await response.json();
+    
+    console.log('Server status:', data.status);
+    console.log('Timestamp:', data.timestamp);
+    
+    return data;
+  } catch (error) {
+    console.error('Health check failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+checkServerHealth()
+  .then(result => console.log('Server is healthy:', result))
+  .catch(error => console.error('Server health issue:', error));
+```
 
 ```bash cURL
 curl -X GET http://localhost:3000/health
 ```
+
+```javascript Raw JavaScript  
+async function checkHealth() {
+  try {
+    const response = await fetch('http://localhost:3000/health');
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('✅ Server is healthy');
+      console.log('Status:', data.status);
+      return data;
+    } else {
+      throw new Error('Health check failed');
+    }
+  } catch (error) {
+    console.error('❌ Health check error:', error.message);
+    throw error;
+  }
+}
+```
+</CodeGroup>
 
 ### Expected Response
 
@@ -32,10 +87,6 @@ curl -X GET http://localhost:3000/health
   "timestamp": "2024-01-15T10:30:45.123Z"
 }
 ```
-
-### Prerequisites
-
-<Check>None - This endpoint requires no authentication or parameters</Check>
 
 ---
 

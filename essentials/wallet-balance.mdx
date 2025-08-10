@@ -19,9 +19,43 @@ openapi: 'POST /wallet-balance'
 
 ## Quick Start
 
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
 ### Complete Example
 
 <CodeGroup>
+```typescript SDK (Recommended)
+import { getWalletBalance } from 'trust-engine-sdk';
+
+async function checkBalance() {
+  try {
+    const result = await getWalletBalance({
+      walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+    });
+    
+    console.log('✅ Balance retrieved successfully');
+    console.log(`Wallet: ${result.details.walletAddress}`);
+    console.log(`Balance: ${result.details.balanceSOL} SOL`);
+    console.log(`Lamports: ${result.details.balanceLamports.toLocaleString()}`);
+    console.log(`Network: ${result.details.chain}`);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to get balance:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+checkBalance()
+  .then(result => console.log('Balance check completed:', result))
+  .catch(error => console.error('Error:', error));
+```
+
 ```bash cURL
 curl -X POST http://localhost:3000/wallet-balance \
   -H "Content-Type: application/json" \
@@ -30,7 +64,7 @@ curl -X POST http://localhost:3000/wallet-balance \
   }'
 ```
 
-```javascript JavaScript
+```javascript Raw JavaScript
 async function checkWalletBalance(walletAddress) {
   try {
     const response = await fetch('http://localhost:3000/wallet-balance', {
@@ -44,52 +78,22 @@ async function checkWalletBalance(walletAddress) {
     const data = await response.json();
     
     if (response.ok) {
-      console.log(`Balance: ${data.details.balanceSOL} SOL`);
+      console.log(`✅ Balance: ${data.details.balanceSOL} SOL`);
       console.log(`Lamports: ${data.details.balanceLamports.toLocaleString()}`);
       return data;
     } else {
       throw new Error(data.message);
     }
   } catch (error) {
-    console.error('Error checking balance:', error.message);
+    console.error('❌ Error checking balance:', error.message);
     throw error;
   }
 }
 
 // Usage
 checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
-  .then(result => {
-    console.log('Wallet details:', result.details);
-  })
-  .catch(error => {
-    console.error('Failed to get balance:', error);
-  });
-```
-
-```javascript Axios
-const axios = require('axios');
-
-async function checkWalletBalance(walletAddress) {
-  try {
-    const response = await axios.post('http://localhost:3000/wallet-balance', {
-      walletAddress: walletAddress
-    });
-    
-    const { details } = response.data;
-    console.log(`Wallet: ${details.walletAddress}`);
-    console.log(`Balance: ${details.balanceSOL} SOL`);
-    console.log(`Network: ${details.chain}`);
-    
-    return response.data;
-  } catch (error) {
-    if (error.response) {
-      console.error('Error:', error.response.data.message);
-    } else {
-      console.error('Network Error:', error.message);
-    }
-    throw error;
-  }
-}
+  .then(result => console.log('Wallet details:', result.details))
+  .catch(error => console.error('Failed to get balance:', error));
 ```
 </CodeGroup>
 
@@ -108,7 +112,8 @@ async function checkWalletBalance(walletAddress) {
 ```
 
 ### Prerequisites
-<Check>You have either connected your wallet or created a wallet Crossmint wallet with us</Check>
+<Check>You have either connected your wallet or created a Crossmint wallet with us</Check>
+
 
 ---
 
@@ -227,17 +232,6 @@ async function checkWalletBalance(walletAddress) {
   </Step>
 </Steps>
 
-## Common Errors
-
-| Error Message | Why It Happens | How to Fix |
-|---------------|----------------|------------|
-| `Hold on! We need a walletAddress to check the balance.` | Missing `walletAddress` in request body | Include a valid `walletAddress` in your JSON request |
-| `Invalid public key input` | Malformed wallet address format | Use a valid Base58-encoded Solana public key |
-| `Connection timeout` | Solana RPC network connectivity issue | Retry the request; check network connectivity |
-| `Connection refused` | API server not running | Start the Trust Engine server on port 3000 |
-
----
-
 ## Understanding Solana Balances
 
 ### SOL vs Lamports
@@ -267,52 +261,18 @@ The response includes network information in the `chain` field:
 
 <CardGroup cols={2}>
   <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
-    Create new wallets that you can then check balances for
+    Use `createWallet()` SDK method or `/create-wallet` endpoint
   </Card>
   
   <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Requires sufficient token balance (checked internally)
+    Use `registerFile()` SDK method or `/register` endpoint (requires sufficient tokens)
   </Card>
   
-  <Card title="Mint Tokens" icon="coins" href="/api-reference/endpoint/create">
-    Add tokens to wallets (affects SPL token balance, not SOL)
+  <Card title="Mint Tokens" icon="coins" href="/api-reference/endpoint/mint-tokens">
+    Use `mintTokens()` SDK method or `/mint-tokens` endpoint
   </Card>
   
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Complete API documentation and endpoints
+  <Card title="Search Files" icon="magnifying-glass" href="/api-reference/endpoint/search">
+    Use `searchFile()` SDK method or `/search` endpoint
   </Card>
 </CardGroup>
-
----
-
-## Troubleshooting
-
-### Common Issues
-
-<Accordion title="Invalid public key input">
-  - Ensure wallet address is valid Base58 format
-  - Check for typos or extra characters  
-  - Solana addresses are typically 32-44 characters
-  - Test with a known valid address first
-</Accordion>
-
-<Accordion title="Connection timeout">
-  - Check internet connectivity
-  - Verify RPC endpoint is accessible
-  - Try different RPC provider if persistent
-  - Check if firewall is blocking requests
-</Accordion>
-
-<Accordion title="Rate limit exceeded">
-  - Implement delays between requests (100ms minimum)
-  - Cache results when possible
-  - Consider upgrading rate limits for production use
-  - Use batch processing for multiple wallets
-</Accordion>
-
-<Accordion title="Server connection refused">
-  - Ensure Trust Engine server is running on port 3000
-  - Check if another service is using the port
-  - Verify environment variables are set correctly
-  - Check server logs for startup errors
-</Accordion>
