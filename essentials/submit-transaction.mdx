@@ -1,0 +1,385 @@
+---
+title: '/submit-transaction'
+description: 'Submits a pre-signed transaction to the Solana blockchain with server-side fee payment and confirmation.'
+icon: 'paper-plane'
+openapi: 'POST /submit-transaction'
+---
+
+<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
+  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
+  <code>/submit-transaction</code>
+</div>
+
+<Info>
+**Rate Limit:** 100 requests per 15 minutes  
+**Content-Type:** `application/json`
+</Info>
+
+---
+
+## Quick Start
+
+### Installation
+
+```bash
+npm install trust-engine-sdk
+```
+
+### Complete Example
+
+<CodeGroup>
+```typescript SDK (Recommended)
+import { submitTransaction } from 'trust-engine-sdk';
+
+async function submitSignedTransaction() {
+  // This would typically come from a wallet signing process
+  const base64Transaction = 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'; // truncated for display
+  
+  try {
+    const result = await submitTransaction({
+      base64Transaction: base64Transaction
+    });
+    
+    console.log('✅ Transaction submitted successfully!');
+    console.log('Transaction Signature:', result.details.transactionSignature);
+    console.log('Explorer URL:', result.details.explorerUrl);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Transaction submission failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage
+submitSignedTransaction()
+  .then(result => console.log('Transaction confirmed:', result))
+  .catch(error => console.error('Error:', error));
+```
+
+```bash cURL
+curl -X POST http://localhost:3000/submit-transaction \
+  -H "Content-Type: application/json" \
+  -d '{
+    "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."
+  }'
+```
+
+```javascript Raw JavaScript
+async function submitTransaction(base64Transaction) {
+  try {
+    const response = await fetch('http://localhost:3000/submit-transaction', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        transaction: base64Transaction 
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      console.log('✅ Transaction submitted successfully!');
+      console.log('Signature:', data.details.transactionSignature);
+      return data;
+    } else {
+      throw new Error(data.message);
+    }
+  } catch (error) {
+    console.error('❌ Transaction submission failed:', error.message);
+    throw error;
+  }
+}
+
+// Usage with a pre-signed transaction
+const signedTransaction = 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...';
+submitTransaction(signedTransaction)
+  .then(result => console.log('Success:', result))
+  .catch(error => console.error('Failed:', error));
+```
+</CodeGroup>
+
+### Expected Response
+
+```json
+{
+  "message": "Transaction submitted and confirmed successfully!",
+  "details": {
+    "transactionSignature": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef",
+    "explorerUrl": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
+  }
+}
+```
+
+### Prerequisites
+
+<Check>Pre-signed Solana transaction (Base64 encoded)</Check>
+<Check>Transaction must be properly formatted and serialized</Check>
+<Check>Server has sufficient SOL for transaction fees</Check>
+
+---
+
+## Parameters
+
+<ResponseField name="transaction" type="string" required>
+  Base64-encoded serialized Solana transaction
+  
+  **Constraints:** Must be a valid, pre-signed Solana transaction
+  
+  **Format:** Base64 string representation of serialized transaction bytes
+  
+  Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
+</ResponseField>
+
+---
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="message" type="string">
+  Success confirmation message
+  
+  Example: `"Transaction submitted and confirmed successfully!"`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Transaction submission details
+  
+  <Expandable title="Details Object">
+    <ResponseField name="transactionSignature" type="string">
+      The confirmed transaction signature on Solana
+      
+      Example: `"5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef"`
+    </ResponseField>
+    
+    <ResponseField name="explorerUrl" type="string">
+      Direct link to view the transaction on Solana Explorer
+      
+      Example: `"https://explorer.solana.com/tx/...?cluster=devnet"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Success (200, JSON)
+{
+  "message": "Transaction submitted and confirmed successfully!",
+  "details": {
+    "transactionSignature": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef",
+    "explorerUrl": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
+  }
+}
+```
+
+```text Success (200, cURL User-Agent)
+✅ TRANSACTION SUBMITTED ✅
+--------------------------------------------------
+Transaction submitted and confirmed successfully!
+
+--- Details ---
+    Transaction Signature   : 5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef
+    Explorer URL            : https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet
+--------------------------------------------------
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Missing Transaction (400, JSON)
+{
+  "error": true,
+  "message": "Missing 'transaction' field in the request body."
+}
+```
+
+```text Missing Transaction (400, cURL)
+🚫 BAD REQUEST 🚫
+--------------------------------------------------
+Missing 'transaction' field in the request body.
+--------------------------------------------------
+```
+
+```json Transaction Submission Failed (500, JSON)
+{
+  "error": true,
+  "message": "Failed to submit the transaction.",
+  "details": {
+    "error": "Transaction simulation failed: Attempt to debit an account but found no record of a prior credit."
+  }
+}
+```
+
+```text Transaction Submission Failed (500, cURL)
+🚫 SUBMISSION FAILED 🚫
+--------------------------------------------------
+Failed to submit the transaction.
+
+--- Details ---
+    error                   : Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
+--------------------------------------------------
+```
+
+```json Invalid Transaction Format (500)
+{
+  "error": true,
+  "message": "Failed to submit the transaction.",
+  "details": {
+    "error": "Invalid transaction data"
+  }
+}
+```
+
+```json Network Error (500)
+{
+  "error": true,
+  "message": "Failed to submit the transaction.",
+  "details": {
+    "error": "Network request failed"
+  }
+}
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+</CodeGroup>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Transaction Deserialization">
+    Decodes the Base64 transaction string and deserializes it into a Solana Transaction object
+  </Step>
+  <Step title="Server-Side Signing">
+    Adds the server's fee payer signature to complete the transaction (partial signing)
+  </Step>
+  <Step title="Network Submission">
+    Submits the fully-signed transaction to the Solana network using `sendRawTransaction`
+  </Step>
+  <Step title="Transaction Confirmation">
+    Waits for and confirms the transaction on the blockchain with 'confirmed' commitment level
+  </Step>
+  <Step title="Result Formatting">
+    Returns the transaction signature and explorer link for verification
+  </Step>
+</Steps>
+
+---
+
+## Understanding Transaction Flow
+
+### Typical Workflow
+
+<Tabs>
+  <Tab title="Standard Wallet Flow">
+    **Client Side:**
+    1. Create transaction with instructions
+    2. User signs transaction with their wallet
+    3. Serialize and Base64 encode the signed transaction
+    4. Send to `/submit-transaction` endpoint
+    
+    **Server Side:**
+    1. Deserialize the transaction
+    2. Add server's fee payer signature
+    3. Submit to Solana network
+    4. Confirm and return signature
+  </Tab>
+  
+  <Tab title="Crossmint Wallet Flow">
+    **Crossmint Integration:**
+    1. Server creates transaction for user
+    2. Crossmint API signs the transaction
+    3. Server receives signed transaction
+    4. Server uses `/submit-transaction` to finalize
+    
+    **Note:** This endpoint handles the final submission step regardless of signing method.
+  </Tab>
+</Tabs>
+
+### Transaction States
+
+<Info>
+**Pre-Submission**: Transaction is signed but not yet on the blockchain
+
+**Submitted**: Transaction sent to network but not yet confirmed
+
+**Confirmed**: Transaction confirmed on blockchain with finality
+</Info>
+
+---
+
+## Integration Examples
+
+### With Register Endpoint
+
+When registering files with standard wallets, the flow typically involves:
+
+1. `/register` endpoint returns a prepared transaction (Base64)
+2. Client signs the transaction with their wallet
+3. Client calls `/submit-transaction` with the signed transaction
+
+```typescript
+// After receiving prepared transaction from /register
+const signedTransaction = await wallet.signTransaction(preparedTransaction);
+const serialized = signedTransaction.serialize();
+const base64Transaction = Buffer.from(serialized).toString('base64');
+
+const result = await submitTransaction({ base64Transaction });
+```
+
+### Error Handling Best Practices
+
+```typescript
+try {
+  const result = await submitTransaction({ base64Transaction });
+  console.log('Transaction confirmed:', result.details.transactionSignature);
+} catch (error) {
+  if (error.message.includes('simulation failed')) {
+    console.error('Transaction would fail - check account balances and permissions');
+  } else if (error.message.includes('Missing')) {
+    console.error('Invalid request format');
+  } else {
+    console.error('Network or server error:', error.message);
+  }
+}
+```
+
+---
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Register Files" icon="file-plus" href="/essentials/register">
+    Use `registerFile()` SDK method or `/register` endpoint - often returns transactions for signing
+  </Card>
+  
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/store-user-key-relation">
+    Use `storeUserKeyRelation()` SDK method - may generate transactions for submission
+  </Card>
+  
+  <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
+    Use `createWallet()` SDK method - creates wallets that can sign transactions
+  </Card>
+  
+  <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
+    Use `getWalletBalance()` SDK method to verify sufficient funds before transactions
+  </Card>
+</CardGroup>
+
+<Warning>
+**Important**: This endpoint requires pre-signed transactions. It does not handle transaction creation or user signing - those must be done client-side or through other endpoints first.
+</Warning>
+
+<Tip>
+Save the transaction signature from the response for future reference and use the explorer URL to verify the transaction was processed correctly on the blockchain.
+</Tip>

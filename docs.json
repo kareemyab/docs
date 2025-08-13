@@ -41,6 +41,7 @@
             "pages": [
               "essentials/create-wallet",
               "essentials/register",
+              "essentials/submit-transaction",
               "essentials/wallet-balance",
               "essentials/search",
               "essentials/health",
