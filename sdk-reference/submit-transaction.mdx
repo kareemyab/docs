@@ -1,0 +1,88 @@
+---
+title: Submit a Transaction
+description: 'Submits a pre-signed transaction to the Solana blockchain with server-side fee payment and confirmation.'
+---
+
+## Function Signature
+
+```typescript
+function submitTransaction(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#submittransaction-options)">
+  The options for submitting a transaction.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#submittransaction-response)>">
+  A promise that resolves with the response from submitting a transaction.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#submittransaction) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function TransactionSubmitter({ base64Transaction }: { base64Transaction: string }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const submissionResult = await sdk.submitTransaction({ base64Transaction });
+      setResult(submissionResult);
+    } catch (error) {
+      console.error('❌ Transaction submission failed:', error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleSubmit} disabled={isSubmitting}>
+        {isSubmitting ? 'Submitting...' : 'Submit Transaction'}
+      </button>
+      {result && <p>Success! Signature: {result.details.transactionSignature}</p>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+async function submitSignedTransaction() {
+  // This would typically come from a wallet signing process
+  const base64Transaction = 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'; // truncated for display
+  
+  try {
+    const result = await sdk.submitTransaction({
+      base64Transaction: base64Transaction
+    });
+    
+    console.log('✅ Transaction submitted successfully!');
+    console.log('Transaction Signature:', result.details.transactionSignature);
+    console.log('Explorer URL:', result.details.explorerUrl);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Transaction submission failed:', error.message);
+    throw error;
+  }
+}
+
+submitSignedTransaction();
+```
+</CodeGroup>

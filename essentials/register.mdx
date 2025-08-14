@@ -5,159 +5,36 @@ icon: 'file-plus'
 openapi: 'POST /register'
 ---
 
-<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
-  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
-  <code>/register</code>
-</div>
+## What This Endpoint Does
 
-<Info>
-**Rate Limit:** 10 requests per 60 minutes
-</Info>
-
-## Quick Start
-
-### Installation
-
-```bash
-npm install trust-engine-sdk
-```
-
----
-
-## Accepted Types of Digital Media
-
-| Category | Extensions | MIME Types |
-|---|---|---|
-| Images | `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp` | `image/jpeg`, `image/png`, `image/gif`, `image/webp` |
-| Video | `.ts` | `video/mp2t` |
-| Documents | `.pdf`, `.docx`, `.txt`, `.md`, `.csv` | `application/pdf`, `application/vnd.openxmlformats-officedocument.wordprocessingml.document`, `text/plain`, `text/markdown`, `text/csv` |
-| Code/Data | `.json`, `.js`, `.ts` | `application/json`, `application/javascript`, `application/octet-stream` |
-| Archives | `.zip` | `application/zip` |
-| Cryptographic | `.zkey`, `.wasm` | `application/octet-stream` |
-
-
-### Complete Example
-
-<CodeGroup>
-```typescript SDK (Recommended)
-import { registerFile } from 'trust-engine-sdk';
-
-async function registerDocument() {
-  // Get file from file input or create File object
-  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-  const file = fileInput.files[0];
-  
-  try {
-    const result = await registerFile({
-      file: file,
-      contentTitle: "My Awesome Document",
-      contentDescription: "A description of my awesome document.",
-      walletAddress: "YourWalletAddressGoesHere",
-      walletType: "crossmint",
-      metadata: {
-        author: "John Doe",
-        version: "1.0",
-        category: "document"
-      }
-    });
-    
-    console.log('✅ Registration successful!');
-    console.log('Transaction ID:', result.details.transactionSignature);
-    console.log('IPFS CID:', result.details.ipfsCid);
-    
-    return result;
-  } catch (error) {
-    console.error('❌ Registration failed:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-registerDocument()
-  .then(result => console.log('File registered:', result))
-  .catch(error => console.error('Error:', error));
-```
-
-```bash cURL
-curl -X POST http://localhost:3000/register \
-  -F "file=@/path/to/your/document.pdf" \
-  -F "walletAddress=YourWalletAddressGoesHere" \
-  -F "contentTitle=My Awesome Document" \
-  -F "contentDescription=A description of my awesome document." \
-  -F "walletType=crossmint" \
-  -F 'metadata={"author":"John Doe","version":"1.0","category":"document"}'
-```
-
-```javascript Raw JavaScript
-async function registerFile(fileInput, walletAddress, contentTitle, contentDescription) {
-  const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
-  formData.append('walletAddress', walletAddress);
-  formData.append('contentTitle', contentTitle);
-  formData.append('contentDescription', contentDescription);
-  formData.append('walletType', 'crossmint');
-  formData.append('metadata', JSON.stringify({
-    author: "John Doe",
-    version: "1.0",
-    category: "document"
-  }));
-
-  try {
-    const response = await fetch('http://localhost:3000/register', {
-      method: 'POST',
-      body: formData
-    });
-    
-    const data = await response.text(); // Register returns text, not JSON
-    
-    if (response.ok) {
-      console.log('✅ Registration successful!');
-      console.log(data);
-      return data;
-    } else {
-      throw new Error(data);
-    }
-  } catch (error) {
-    console.error('❌ Registration failed:', error.message);
-    throw error;
-  }
-}
-```
-</CodeGroup>
-
-### Expected Response
-
-```text
-✅ SUBMISSION ACCEPTED ✅
---------------------------------------------------
-✅ Accepted! Your file has been submitted for verification via Crossmint.
-
---- Details ---
-    Status              : Pending Verification
-    Transaction ID      : abc123def456ghi789jklmnop...
-    Content Registration PDA: xyz789abc123def456ghi...
-    IPFS CID            : QmExampleCidForYourFileMetadata...
-    Processing Fee      : ~0.000005000 SOL (5,000 lamports)
-    Solana Explorer     : https://explorer.solana.com/tx/abc123def456ghi789jklmnop...?cluster=devnet
---------------------------------------------------
-```
-
-
-### Prerequisites
-
-<Check>Wallet with sufficient Reward Tokens</Check>
-<Check>Valid file within allowed types</Check>
+<Steps>
+  <Step title="File Validation">
+    Validates file type
+  </Step>
+  <Step title="Wallet Verification">
+    Checks wallet has sufficient Reward Tokens for fees
+  </Step>
+  <Step title="IPFS Upload">
+    Uploads file to IPFS and generates Content Identifier (CID)
+  </Step>
+  <Step title="On-Chain Registration">
+    Creates immutable proof record on Solana blockchain
+  </Step>
+  <Step title="Verification Process">
+    Initiates decentralized verification through validator network
+  </Step>
+</Steps>
 
 ---
 
 ## Parameters
 
-<ResponseField name="file" type="File" required>
-  The file to be registered
+<ResponseField name="contentTitle" type="string" required>
+  Title for the content being registered
   
-  **Constraints:** Must be an allowed file type, virus-free
+  **Constraints:** Required field, maximum 100 characters
   
-  **Supported Types:** PDF, DOC, DOCX, TXT, PNG, JPG, JPEG, etc.
+  Example: `"My Important Document"`
 </ResponseField>
 
 <ResponseField name="walletAddress" type="string" required>
@@ -165,49 +42,223 @@ async function registerFile(fileInput, walletAddress, contentTitle, contentDescr
   
   **Constraints:** Must be a valid Solana public key
   
-  Example: `"B5k2yCBinet3dDsWGdkJeEsHAFoQgc3i6htHK6EBsVRa"`
-</ResponseField>
-
-<ResponseField name="contentTitle" type="string" required>
-  Title for the content being registered
-  
-  **Constraints:** Maximum 100 characters
-  
-  Example: `"My Important Document"`
-</ResponseField>
-
-<ResponseField name="contentDescription" type="string" required>
-  Brief description of the content
-  
-  **Constraints:** Maximum 500 characters
-  
-  Example: `"A comprehensive report on blockchain technology"`
+  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
 </ResponseField>
 
 <ResponseField name="walletType" type="string" required>
   Wallet provider type used for registration
   
-  **Constraints:** Currently supports only `crossmint`
+  **Constraints:** Must be either `"standard"` or `"crossmint"`
   
   Example: `"crossmint"`
 </ResponseField>
 
+<ResponseField name="contentHash" type="string" required>
+  SHA256 hash of the file content (hex encoded)
+  
+  **Constraints:** Must be a valid 64-character hex string
+  
+  Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
+</ResponseField>
+
+<ResponseField name="fileMetadata" type="object" optional>
+  Metadata about the file being registered
+  
+  <Expandable title="File Metadata Object">
+    <ResponseField name="fileName" type="string" optional>
+      Original name of the file
+      
+      Example: `"document.pdf"`
+    </ResponseField>
+    
+    <ResponseField name="fileSize" type="number" optional>
+      Size of the file in bytes
+      
+      Example: `12345`
+    </ResponseField>
+    
+    <ResponseField name="mimeType" type="string" optional>
+      MIME type of the file
+      
+      Example: `"application/pdf"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
 <ResponseField name="metadata" type="string" optional>
-  Stringified JSON object for additional metadata
+  Additional metadata about the file
   
-  **Format:** Each key should have `value` and `visibility` properties
+  **Constraints:** Maximum 500 characters
   
-  **Constraints:** Max 5 public, 5 private metadata entries
+  Example: `"This document was created for project verification purposes"`
+</ResponseField>
+
+<ResponseField name="claimHash" type="string" optional>
+  SHA256 hash for secret verification (hex encoded)
   
-  Example: `'{"author":{"value":"John Doe","visibility":"public"}}'`
+  **Constraints:** Optional 64-character hex string for claim verification
+  
+  Example: `"110f211f367825834d6897c0efd0b05b35adb744a5836dcd478d384d2a938f15"`
 </ResponseField>
 
 
 ---
 
+
+
 ## Response Examples
 
-### Success Responses
+#### Success Response (202 - Crossmint)
+
+<ResponseField name="message" type="string">
+  Success confirmation message for Crossmint wallet transactions
+  
+  Example: `"✅ SUBMISSION ACCEPTED ✅"`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Registration submission details for Crossmint wallets
+  
+  <Expandable title="Details Object">
+    <ResponseField name="status" type="string">
+      Current status of the registration
+      
+      Example: `"Pending Verification"`
+    </ResponseField>
+    
+    <ResponseField name="crossmintTransactionId" type="string">
+      Crossmint transaction identifier
+      
+      Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
+    </ResponseField>
+    
+    <ResponseField name="contentRegistrationPDA" type="string">
+      Program Derived Address for the content registration
+      
+      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+    </ResponseField>
+    
+    <ResponseField name="ipfsCid" type="string">
+      IPFS Content Identifier for the file metadata
+      
+      Example: `"QmExampleCidForYourFileMetadata..."`
+    </ResponseField>
+    
+    <ResponseField name="processingFee" type="string">
+      Transaction fee information in SOL and lamports
+      
+      Example: `"~0.000005000 SOL (5,000 lamports)"`
+    </ResponseField>
+    
+    <ResponseField name="solanaExplorer" type="string">
+      Direct link to view the transaction on Solana Explorer
+      
+      Example: `"https://explorer.solana.com/tx/<TRANSACTION_ID>?cluster=devnet"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Success Response (200 - Standard Wallet)
+
+<ResponseField name="message" type="string">
+  Success confirmation message for standard wallet transactions
+  
+  Example: `"✅ TRANSACTION READY ✅"`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Transaction preparation details for standard wallets
+  
+  <Expandable title="Details Object">
+    <ResponseField name="status" type="string">
+      Current status requiring client action
+      
+      Example: `"Requires Client Signature"`
+    </ResponseField>
+    
+    <ResponseField name="ipfsCid" type="string">
+      IPFS Content Identifier for the file metadata
+      
+      Example: `"QmExampleCidForYourFileMetadata..."`
+    </ResponseField>
+    
+    <ResponseField name="contentRegistrationPDA" type="string">
+      Program Derived Address for the content registration
+      
+      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+    </ResponseField>
+    
+    <ResponseField name="transaction" type="string">
+      Base64-encoded transaction ready for client signing
+      
+      Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Error Response (400 - Missing File)
+
+<ResponseField name="error" type="boolean">
+  Error flag indicating request failure
+  
+  Example: `true`
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error description for missing file
+  
+  Example: `"🚫 FILE MISSING 🚫"`
+</ResponseField>
+
+<ResponseField name="details" type="string">
+  Additional error context and guidance
+  
+  Example: `"Oops! It looks like you forgot to upload a file. Please attach a file to your request."`
+</ResponseField>
+
+#### Error Response (409 - Duplicate Registration)
+
+<ResponseField name="error" type="boolean">
+  Error flag indicating duplicate registration
+  
+  Example: `true`
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Error description for duplicate file
+  
+  Example: `"🚫 FILE ALREADY REGISTERED 🚫"`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Duplicate registration details
+  
+  <Expandable title="Details Object">
+    <ResponseField name="contentHash" type="string">
+      SHA256 hash of the already registered file
+      
+      Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
+    </ResponseField>
+    
+    <ResponseField name="pdaAddress" type="string">
+      Program Derived Address of existing registration
+      
+      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+    </ResponseField>
+    
+    <ResponseField name="suggestion" type="string">
+      Recommended action for the user
+      
+      Example: `"Use the /search endpoint"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## Code Examples
+
+### Raw Response Formats
 
 <CodeGroup>
 ```text Success (202 Crossmint)
@@ -239,7 +290,7 @@ Transaction prepared. Please sign and submit via your wallet.
 ```
 </CodeGroup>
 
-### Common Error Responses
+### Raw Error Formats
 
 <CodeGroup>
 ```text Missing File (400)
@@ -280,7 +331,7 @@ This wallet address doesn't have a user ID relation. Please create one first.
 
 --- Details ---
     Missing Requirement  : User-Key Relation
-    Suggestion           : Use the /store-user-key-relation endpoint
+    Suggestion           : Use the /link-wallet endpoint
     Alternative          : Use the /create-wallet endpoint
 --------------------------------------------------
 ```
@@ -313,23 +364,74 @@ Insufficient token balance to complete registration.
 
 ---
 
-## What This Endpoint Does
+## Prerequisites
+
+Before registering a file, ensure you have:
+
+<Check>**Wallet with user-key relation**: Use [`/create-wallet`](/essentials/create-wallet) or [`/link-wallet`](/essentials/link-wallet)</Check>
+<Check>**File content hash**: Calculate SHA256 hash of your file content</Check>
+<Check>**File metadata**: Name, size, and MIME type of your file</Check>
+<Check>**Content title**: Descriptive title for your registration</Check>
+
+<Warning>
+**Common Issue**: If you get "User-Key Relation Required" error, create a wallet first using [`/create-wallet`](/essentials/create-wallet) or link an existing one with [`/link-wallet`](/essentials/link-wallet).
+</Warning>
+
+---
+
+## Complete Example
+
+Here's a full example of registering a file from start to finish:
 
 <Steps>
-  <Step title="File Validation">
-    Validates file type
+  <Step title="Create Wallet (if needed)">
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/create-wallet \
+      -H "Content-Type: application/json" \
+      -d '{"userID": "my-user-123"}'
+    ```
+    
+    Save the `walletAddress` from the response.
   </Step>
-  <Step title="Wallet Verification">
-    Checks wallet has sufficient Reward Tokens for fees
+  
+  <Step title="Prepare File">
+    Calculate your file's SHA256 hash:
+    
+    ```bash
+    # Unix/Mac
+    shasum -a 256 document.pdf
+    
+    # Output: abc123def456... document.pdf
+    ```
   </Step>
-  <Step title="IPFS Upload">
-    Uploads file to IPFS and generates Content Identifier (CID)
+  
+  <Step title="Register File">
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/register \
+      -H "Content-Type: application/json" \
+      -d '{
+        "contentTitle": "Important Contract",
+        "walletAddress": "YOUR_WALLET_ADDRESS",
+        "walletType": "crossmint",
+        "contentHash": "abc123def456...",
+        "fileMetadata": {
+          "fileName": "contract.pdf",
+          "fileSize": 245760,
+          "mimeType": "application/pdf"
+        },
+        "metadata": "Legal contract for project X"
+      }'
+    ```
   </Step>
-  <Step title="On-Chain Registration">
-    Creates immutable proof record on Solana blockchain
-  </Step>
-  <Step title="Verification Process">
-    Initiates decentralized verification through validator network
+  
+  <Step title="Verify Registration">
+    Check that your file was registered:
+    
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/search \
+      -H "Content-Type: application/json" \
+      -d '{"contentHash": "abc123def456..."}'
+    ```
   </Step>
 </Steps>
 
@@ -341,19 +443,19 @@ After registering a file:
 
 <CardGroup cols={2}>
   <Card title="Search for File" icon="magnifying-glass" href="/api-reference/endpoint/search">
-    Use `searchFile()` SDK method or `/search` endpoint to find your registered file
+    Use the `/search` endpoint to find your registered file
   </Card>
   
   <Card title="Check Wallet Balance" icon="wallet" href="/essentials/wallet-balance">
-    Use `getWalletBalance()` SDK method or `/wallet-balance` endpoint
+    Use the `/wallet-balance` endpoint
   </Card>
   
   <Card title="Create More Wallets" icon="plus" href="/essentials/create-wallet">
-    Use `createWallet()` SDK method or `/create-wallet` endpoint
+    Use the `/create-wallet` endpoint
   </Card>
   
-  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/store-user-key-relation">
-    Use `storeUserKeyRelation()` SDK method if needed
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/link-wallet">
+    Use the `/link-wallet` endpoint if needed
   </Card>
 </CardGroup>
 

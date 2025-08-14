@@ -122,24 +122,44 @@ Trust Engine provides **privacy-preserving <Tooltip tip="A record of who registe
 ## Getting Started
 
 <Info>
-Ready to add verifiable provenance to your digital media? Follow our quickstart guide to register your first file in under 5 minutes.
+Ready to add verifiable provenance to your digital media? Choose your path below to get started in minutes.
 </Info>
 
+### Quick Start Options
+
+<CardGroup cols={3}>
+  <Card title="🚀 5-Minute Quickstart" icon="rocket" href="/quickstart" color="#16A34A">
+    **New to Trust Engine?** Register your first file and see verification in action.
+    
+    Perfect for: First-time users, proof-of-concepts
+  </Card>
+  
+  <Card title="⚡ Try the API" icon="code" href="/essentials/register" color="#0EA5E9">
+    **Ready to code?** Jump straight to the API and start building.
+    
+    Perfect for: Experienced developers, quick integration
+  </Card>
+  
+  <Card title="📦 Use the SDK" icon="box" href="/sdk-reference" color="#8B5CF6">
+    **Building a JavaScript app?** Use our TypeScript SDK for easier integration.
+    
+    Perfect for: Web apps, Node.js services
+  </Card>
+</CardGroup>
+
+### Developer Resources
+
 <CardGroup cols={2}>
-  <Card title="Quickstart Guide" icon="rocket" href="/quickstart">
-    Get up and running with your first API call
+  <Card title="API Reference" icon="code" href="/api-overview">
+    **Complete API documentation** with endpoints, examples, and best practices
   </Card>
   
-  <Card title="How Verification Works" icon="magnifying-glass" href="/how-it-works">
-    Deep dive into our verification process and core concepts
-  </Card>
-  
-  <Card title="API Reference" icon="code" href="/api-reference/introduction">
-    Complete endpoint documentation with examples
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    **Common issues** and solutions when working with Trust Engine
   </Card>
   
   <Card title="Security & Privacy" icon="shield-halved" href="/security">
-    Learn about our privacy guarantees and threat model
+    **Privacy guarantees** and threat model explanation
   </Card>
 </CardGroup>
 
@@ -211,6 +231,91 @@ Traditional solutions like watermarks or centralized databases are **prone to fo
 
 ## Ready to Build?
 
-<Card title="Start with our Quickstart" icon="play" href="/quickstart">
-  Create your first wallet, register a file, and verify its provenance in minutes
-</Card>
+<CardGroup cols={2}>
+  <Card title="🚀 Complete Quickstart" icon="rocket" href="/quickstart">
+    **5-minute tutorial**: Create your first wallet, register a file, and verify its provenance
+    
+    Perfect for: First-time users, understanding the flow
+  </Card>
+  
+  <Card title="⚡ Jump to API" icon="zap" href="/api-overview">
+    **Skip the intro**: Direct access to API documentation and endpoints
+    
+    Perfect for: Experienced developers, quick reference
+  </Card>
+</CardGroup>
+
+### By Developer Type
+
+<Tabs>
+  <Tab title="Frontend Developers">
+    **Building a web app?** Start with our JavaScript SDK:
+    
+    ```bash
+    npm install @trust-engine/sdk
+    ```
+    
+    <CardGroup cols={2}>
+      <Card title="SDK Documentation" icon="box" href="/sdk-reference">
+        Complete TypeScript SDK reference
+      </Card>
+      
+      <Card title="SDK Examples" icon="react" href="/sdk-reference">
+        Complete SDK usage examples
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="Backend Developers">
+    **Building an API or service?** Use our REST endpoints directly:
+    
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/register \
+      -H "Content-Type: application/json" \
+      -d '{"contentTitle": "My File", ...}'
+    ```
+    
+    <CardGroup cols={2}>
+      <Card title="API Reference" icon="code" href="/api-overview">
+        Complete REST API documentation
+      </Card>
+      
+      <Card title="API Examples" icon="puzzle-piece" href="/api-overview">
+        Complete REST API documentation and examples
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="DevOps/Infrastructure">
+    **Automating workflows?** Use our CLI tool:
+    
+    ```bash
+    npm install -g @trust-engine/cli
+    core-api-cli register --file document.pdf --wallet-type crossmint
+    ```
+    
+    <CardGroup cols={2}>
+      <Card title="CLI Reference" icon="terminal" href="/cli-reference">
+        Complete command-line documentation
+      </Card>
+      
+      <Card title="CLI Examples" icon="robot" href="/cli-reference">
+        Command-line automation and scripting
+      </Card>
+    </CardGroup>
+  </Tab>
+  
+  <Tab title="Product Managers">
+    **Evaluating Trust Engine?** Understand the concepts first:
+    
+    <CardGroup cols={2}>
+      <Card title="How It Works" icon="lightbulb" href="/how-it-works">
+        Deep dive into verification process
+      </Card>
+      
+      <Card title="Use Cases" icon="briefcase" href="#common-use-cases">
+        Real-world applications and benefits
+      </Card>
+    </CardGroup>
+  </Tab>
+</Tabs>

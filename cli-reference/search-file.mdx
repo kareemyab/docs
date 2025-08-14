@@ -1,0 +1,180 @@
+---
+title: 'search-file'
+description: 'Search for a file by its content hash'
+---
+
+# search-file
+
+Search for a file in the Trust Engine registry by uploading the file and checking if its content hash exists on the blockchain.
+
+## Usage
+
+```bash
+core-api-cli search-file [options]
+```
+
+## Required Options
+
+<ParamField path="--file, -f" type="string" required>
+  Path to the file to search for
+</ParamField>
+
+## Optional Options
+
+<ParamField path="--json" type="boolean">
+  Output the result as JSON instead of formatted text
+</ParamField>
+
+## Examples
+
+### Search for a File
+
+```bash
+core-api-cli search-file --file ./document.pdf
+```
+
+### JSON Output for Automation
+
+```bash
+core-api-cli search-file --file ./document.pdf --json
+```
+
+## Response
+
+### Success Response (Formatted) - File Found
+
+```
+✅ Found 1 record(s) for your file on the blockchain.
+
+Registration Details:
+  - Creator: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+  - IPFS CID: QmExampleCidForYourFileMetadata...
+  - Registration PDA: xyz789abc123def456ghi...
+  - Timestamp: 1/15/2024, 10:30:45 AM
+```
+
+### Success Response (Formatted) - File Not Found
+
+```
+✅ No records found for your file on the blockchain.
+```
+
+### JSON Response - File Found
+
+```json
+{
+  "message": "Found 1 record(s) for your file on the blockchain.",
+  "details": {
+    "isRegistered": true,
+    "creator": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "ipfsCid": "QmExampleCidForYourFileMetadata...",
+    "pdaAddress": "xyz789abc123def456ghi...",
+    "timestamp": 1705308645,
+    "contentHash": "sha256:abc123...",
+    "userID": "user_12345"
+  }
+}
+```
+
+### JSON Response - File Not Found
+
+```json
+{
+  "message": "No records found for your file on the blockchain.",
+  "details": {
+    "isRegistered": false
+  }
+}
+```
+
+## Error Handling
+
+Common error scenarios:
+
+- **File not found**: Ensure the file path is correct and accessible
+- **File read error**: Check file permissions and ensure the file isn't corrupted
+- **Network issues**: Check your internet connection and API availability
+
+## Use Cases
+
+### Verify File Authenticity
+
+```bash
+# Check if a received file matches the registered version
+core-api-cli search-file --file ./received_document.pdf
+```
+
+### Batch File Verification
+
+```bash
+#!/bin/bash
+files_dir="./documents"
+
+for file in "$files_dir"/*; do
+  echo "Checking: $(basename "$file")"
+  result=$(core-api-cli search-file --file "$file" --json)
+  
+  if echo "$result" | jq -e '.details.isRegistered' > /dev/null; then
+    creator=$(echo "$result" | jq -r '.details.creator')
+    echo "  ✅ Registered by: $creator"
+  else
+    echo "  ❌ Not registered"
+  fi
+  echo
+done
+```
+
+### Provenance Tracking
+
+```bash
+#!/bin/bash
+file_path="$1"
+
+if [ -z "$file_path" ]; then
+  echo "Usage: $0 <file_path>"
+  exit 1
+fi
+
+result=$(core-api-cli search-file --file "$file_path" --json)
+
+if echo "$result" | jq -e '.details.isRegistered' > /dev/null; then
+  echo "File Provenance Information:"
+  echo "  Creator: $(echo "$result" | jq -r '.details.creator')"
+  echo "  Registration Date: $(date -d @$(echo "$result" | jq -r '.details.timestamp'))"
+  echo "  IPFS CID: $(echo "$result" | jq -r '.details.ipfsCid')"
+  echo "  User ID: $(echo "$result" | jq -r '.details.userID')"
+else
+  echo "This file has no registered provenance."
+fi
+```
+
+### Content Integrity Check
+
+```bash
+#!/bin/bash
+original_file="./original.pdf"
+downloaded_file="./downloaded.pdf"
+
+echo "Checking original file..."
+original_result=$(core-api-cli search-file --file "$original_file" --json)
+
+echo "Checking downloaded file..."
+downloaded_result=$(core-api-cli search-file --file "$downloaded_file" --json)
+
+original_hash=$(echo "$original_result" | jq -r '.details.contentHash // "not_found"')
+downloaded_hash=$(echo "$downloaded_result" | jq -r '.details.contentHash // "not_found"')
+
+if [ "$original_hash" = "$downloaded_hash" ] && [ "$original_hash" != "not_found" ]; then
+  echo "✅ Files are identical and registered"
+else
+  echo "❌ Files differ or are not registered"
+fi
+```
+
+## Notes
+
+- The search is based on the file's content hash (SHA-256)
+- Even minor changes to a file will result in a different hash
+- The search will find the original registration details including creator and timestamp
+- This is perfect for verifying document authenticity and provenance
+- Large files are supported but upload time may vary based on file size and network speed

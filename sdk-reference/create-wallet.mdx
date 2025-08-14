@@ -1,0 +1,84 @@
+---
+title: Create a Wallet
+description: 'Creates a new Solana wallet using Crossmint service and links it to a user ID for easy management.'
+---
+
+## Function Signature
+
+```typescript
+function createWallet(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#createwallet-options)">
+  The options for creating a wallet.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#createwallet-response)>">
+  A promise that resolves with the response from creating a wallet.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#createwallet) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function WalletCreator() {
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleCreateWallet = async () => {
+    setIsLoading(true);
+    try {
+      const result = await sdk.createWallet({ userID: 'user_12345' });
+      setWalletAddress(result.details.walletAddress);
+    } catch (error) {
+      console.error('Failed to create wallet:', error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleCreateWallet} disabled={isLoading}>
+        {isLoading ? 'Creating...' : 'Create Wallet'}
+      </button>
+      {walletAddress && <p>Wallet Created: {walletAddress}</p>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+async function createUserWallet() {
+  try {
+    const result = await sdk.createWallet({ 
+      userID: 'user_12345' 
+    });
+    
+    console.log('Wallet created:', result.details.walletAddress);
+    console.log('Transaction:', result.details.transactionSignature);
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to create wallet:', error.message);
+    throw error;
+  }
+}
+
+createUserWallet();
+```
+</CodeGroup>

@@ -1,0 +1,111 @@
+---
+title: Search for a File
+description: 'Searches for existing on-chain registration records by uploading a file and matching its content hash.'
+---
+
+## Function Signature
+
+```typescript
+function searchFile(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#searchfile-options)">
+  The options for searching for a file.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#searchfile-response)>">
+  A promise that resolves with the response from searching for a file.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#searchfile) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function FileSearch() {
+  const [file, setFile] = useState<File | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleSearch = async () => {
+    if (!file) return;
+    setIsSearching(true);
+    try {
+      const searchResult = await sdk.searchFile(file);
+      setResult(searchResult);
+    } catch (error) {
+      console.error('❌ Search failed:', error.message);
+      setResult({ error: error.message });
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleSearch} disabled={!file || isSearching}>
+        {isSearching ? 'Searching...' : 'Search for File'}
+      </button>
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { promises as fs } from 'fs';
+import { File } from 'buffer';
+
+const sdk = new CoreApiSDK();
+
+async function findFileRegistration() {
+  try {
+    const fileContent = await fs.readFile('path/to/your/file.txt');
+    const file = new File([fileContent], 'file.txt');
+
+    const result = await sdk.searchFile(file);
+    
+    if (result.details && result.details.length > 0) {
+      console.log(`✅ Found ${result.details.length} registration(s)!`);
+      result.details.forEach((record, index) => {
+        console.log(`Record ${index + 1}:`);
+        console.log('- Creator:', record.onChainRegistration.creator);
+        console.log('- IPFS CID:', record.onChainRegistration.ipfsCid);
+        console.log('- Consensus:', record.onChainRegistration.consensusPercentage + '%');
+        console.log('- Finalized:', record.onChainRegistration.finalized);
+      });
+    } else {
+      console.log('No records found for this file.');
+    }
+    
+    return result;
+  } catch (error) {
+    if (error.message.includes('does not exist')) {
+      console.log('ℹ️ File has not been registered yet');
+    } else {
+      console.error('❌ Search failed:', error.message);
+    }
+    throw error;
+  }
+}
+
+findFileRegistration();
+```
+</CodeGroup>

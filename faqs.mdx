@@ -202,6 +202,141 @@ icon: 'circle-question'
 
 ---
 
+## Developer Questions
+
+<AccordionGroup>
+  <Accordion title="What's the difference between content hash and claim hash?">
+    **Content Hash**: SHA256 of your file content, used for registration and searching
+    
+    **Claim Hash**: Optional SHA256 of (content hash + secret), used for future ownership proof
+    
+    ```javascript
+    // Content hash (always required)
+    const contentHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+    
+    // Claim hash (optional, for secret verification)
+    const secret = "my-secret-phrase-2024";
+    const combined = contentHash + secret;
+    const claimHash = crypto.createHash('sha256').update(combined).digest('hex');
+    ```
+    
+    **Use claim hash when**: You want to prove ownership later without revealing a secret upfront.
+  </Accordion>
+
+  <Accordion title="Why do I need a user-wallet relationship?">
+    Trust Engine requires linking user IDs to wallet addresses for:
+    
+    - **Searchability**: Find content by user ID or wallet address
+    - **Attribution**: Connect registrations to identifiable users  
+    - **Access control**: Prevent unauthorized wallet usage
+    
+    **Create the relationship**:
+    ```bash
+    # Option 1: Create new wallet (automatically links)
+    curl -X POST /create-wallet -d '{"userID": "user123"}'
+    
+    # Option 2: Link existing wallet
+    curl -X POST /link-wallet -d '{"userID": "user123", "walletAddress": "..."}'
+    ```
+  </Accordion>
+
+  <Accordion title="How long does validation take?">
+    **Typical timeline**: 5-15 minutes for complete validation
+    
+    **Process**:
+    1. **Instant**: Registration written to blockchain
+    2. **0-5 minutes**: Validators assigned to review
+    3. **5-15 minutes**: Validators submit votes and reach consensus
+    
+    **Check status**: Use `/search` endpoint to poll verification progress
+    
+    ```javascript
+    const pollStatus = async (contentHash) => {
+      const result = await fetch('/search', {
+        method: 'POST',
+        body: JSON.stringify({ contentHash }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      const data = await result.json();
+      
+      if (data.details[0]?.onChainRegistration?.finalized) {
+        return 'complete';
+      }
+      return 'pending';
+    };
+    ```
+  </Accordion>
+
+  <Accordion title="What are the rate limits?">
+    **Current limits per IP address**:
+    
+    - **General endpoints**: 100 requests per 15 minutes
+    - **File registration**: 10 requests per hour  
+    - **Validator data**: 50 requests per 5 minutes
+    
+    **Handling rate limits**:
+    ```javascript
+    const makeRequestWithBackoff = async (apiCall, maxRetries = 3) => {
+      for (let i = 0; i < maxRetries; i++) {
+        try {
+          return await apiCall();
+        } catch (error) {
+          if (error.statusCode === 429 && i < maxRetries - 1) {
+            const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+          throw error;
+        }
+      }
+    };
+    ```
+  </Accordion>
+
+  <Accordion title="Can I register the same file multiple times?">
+    **No** - each unique content hash can only be registered once.
+    
+    **Why**: Prevents duplicate registrations and ensures unique provenance records
+    
+    **Workaround**: If you need multiple registrations:
+    1. Modify the file slightly (add metadata, change filename in content)
+    2. This creates a different hash, allowing new registration
+    3. Or use different metadata in the same registration
+    
+    **Check for existing registration**:
+    ```bash
+    curl -X POST /search -d '{"contentHash": "your-hash"}'
+    ```
+  </Accordion>
+
+  <Accordion title="What file types and sizes are supported?">
+    **File types**: All file types supported (PDF, images, videos, documents, code, etc.)
+    
+    **Size limits**: 
+    - **API uploads**: Up to 100MB per file
+    - **Hash-only registration**: No size limit (you calculate hash locally)
+    
+    **Best practices**:
+    - For large files (>100MB): Calculate hash locally, register hash-only
+    - For sensitive files: Always use hash-only registration
+    - For public content: Either method works
+    
+    **Hash-only registration** (recommended for large/sensitive files):
+    ```javascript
+    // Calculate hash locally, don't upload file
+    const hash = await calculateFileHash(largeFile);
+    await sdk.registerFile({
+      contentHash: hash,
+      contentTitle: 'My Large Video',
+      walletAddress: wallet,
+      walletType: 'crossmint'
+    });
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
 ## Business & Legal
 
 <AccordionGroup>

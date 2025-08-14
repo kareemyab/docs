@@ -1,0 +1,42 @@
+To calculate the SHA256 hash of your file:
+
+<CodeGroup>
+```bash Unix/Mac
+shasum -a 256 your-file.pdf
+```
+
+```powershell Windows (PowerShell)
+Get-FileHash your-file.pdf -Algorithm SHA256
+```
+
+```javascript Node.js
+import crypto from 'crypto';
+import fs from 'fs';
+
+const fileBuffer = fs.readFileSync('your-file.pdf');
+const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+console.log(hash); // 64-character hex string
+```
+
+```python Python
+import hashlib
+
+with open('your-file.pdf', 'rb') as f:
+    content = f.read()
+    hash_value = hashlib.sha256(content).hexdigest()
+    print(hash_value)  # 64-character hex string
+```
+
+```javascript Browser
+// For files from input element
+const calculateHash = async (file) => {
+  const arrayBuffer = await file.arrayBuffer();
+  const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
+// Usage
+const hash = await calculateHash(fileInput.files[0]);
+```
+</CodeGroup>

@@ -1,0 +1,138 @@
+---
+title: 'find-wallet'
+description: 'Find a wallet by user ID or wallet address'
+---
+
+# find-wallet
+
+Find a wallet by searching with either a user ID or wallet address.
+
+## Usage
+
+```bash
+core-api-cli find-wallet [options]
+```
+
+## Options
+
+<ParamField path="--userID, -u" type="string">
+  User ID to search for (optional if walletAddress is provided)
+</ParamField>
+
+<ParamField path="--walletAddress, -w" type="string">
+  Wallet address to search for (optional if userID is provided)
+</ParamField>
+
+<ParamField path="--json" type="boolean">
+  Output the result as JSON instead of formatted text
+</ParamField>
+
+<Note>
+You must provide exactly one of `userID` or `walletAddress` (not both).
+</Note>
+
+## Examples
+
+### Find by User ID
+
+```bash
+core-api-cli find-wallet --userID "user_12345"
+```
+
+### Find by Wallet Address
+
+```bash
+core-api-cli find-wallet \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+```
+
+### JSON Output for Automation
+
+```bash
+core-api-cli find-wallet \
+  --userID "user_12345" \
+  --json
+```
+
+## Response
+
+### Success Response (Formatted) - Found
+
+```
+✅ Wallet association found.
+
+Wallet Association:
+  - User ID: user_12345
+  - Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+```
+
+### Success Response (Formatted) - Not Found
+
+```
+✅ No wallet association found for the provided criteria.
+```
+
+### JSON Response
+
+```json
+{
+  "success": true,
+  "message": "Wallet association found.",
+  "data": {
+    "searchType": "userID",
+    "searchValue": "user_12345",
+    "relation": {
+      "userId": "user_12345",
+      "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "createdAt": "2024-01-15T10:30:45.123Z",
+      "relationPDA": "xyz789abc123def456ghi..."
+    }
+  }
+}
+```
+
+## Error Handling
+
+Common error scenarios:
+
+- **No search criteria**: You must provide exactly one of user ID or wallet address
+- **Both criteria provided**: Cannot search with both user ID and wallet address simultaneously
+- **Invalid input format**: Ensure wallet addresses are valid Solana addresses
+- **Network issues**: Check your internet connection and API availability
+
+## Use Cases
+
+### Verify User-Wallet Association
+
+```bash
+# Check if a specific user has a wallet
+core-api-cli find-wallet --userID "user_12345"
+```
+
+### Lookup User by Wallet
+
+```bash
+# Find which user owns a specific wallet
+core-api-cli find-wallet \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+```
+
+### Automation Scripts
+
+```bash
+#!/bin/bash
+result=$(core-api-cli find-wallet --userID "$1" --json)
+if echo "$result" | jq -e '.data.relation' > /dev/null; then
+  echo "User has associated wallet"
+  echo "$result" | jq -r '.data.relation.walletAddress'
+else
+  echo "No wallet found for user"
+fi
+```
+
+## Notes
+
+- This command searches for existing associations created by the `link-wallet` command
+- The search works bidirectionally - you can find a user by wallet or wallet by user
+- Results include metadata about when the association was created
+- The relation PDA is the blockchain address where this association is stored

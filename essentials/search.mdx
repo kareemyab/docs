@@ -5,150 +5,41 @@ icon: 'magnifying-glass'
 openapi: 'POST /search'
 ---
 
-<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
-  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
-  <code>/search</code>
-</div>
+## What This Endpoint Does
 
-<Info>
-**Rate Limit:** 100 requests per 15 minutes  
-**File Size Limit:** 50 MB  
-**Content-Type:** `multipart/form-data`
-</Info>
-
----
-
-## Quick Start
-
-### Installation
-
-```bash
-npm install trust-engine-sdk
-```
-
-### Complete Example
-
-<CodeGroup>
-```typescript SDK (Recommended)
-import { searchFile } from 'trust-engine-sdk';
-
-async function findFileRegistration() {
-  // Get file from file input or create File object
-  const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-  const file = fileInput.files[0];
-  
-  try {
-    const result = await searchFile(file);
-    
-    if (result.details && result.details.length > 0) {
-      console.log(`✅ Found ${result.details.length} registration(s)!`);
-      result.details.forEach((record, index) => {
-        console.log(`Record ${index + 1}:`);
-        console.log('- Creator:', record.onChainRegistration.creator);
-        console.log('- IPFS CID:', record.onChainRegistration.ipfsCid);
-        console.log('- Consensus:', record.onChainRegistration.consensusPercentage + '%');
-        console.log('- Finalized:', record.onChainRegistration.finalized);
-      });
-    }
-    
-    return result;
-  } catch (error) {
-    if (error.message.includes('does not exist')) {
-      console.log('ℹ️ File has not been registered yet');
-    } else {
-      console.error('❌ Search failed:', error.message);
-    }
-    throw error;
-  }
-}
-
-// Usage
-findFileRegistration()
-  .then(result => console.log('Search completed:', result))
-  .catch(error => console.error('Error:', error));
-```
-
-```bash cURL
-curl -X POST http://localhost:3000/search \
-  -F "file=@document.pdf"
-```
-
-```javascript Raw JavaScript
-async function searchForFile(fileInput) {
-  const formData = new FormData();
-  formData.append('file', fileInput.files[0]);
-
-  try {
-    const response = await fetch('http://localhost:3000/search', {
-      method: 'POST',
-      body: formData
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-      console.log('✅ Search successful!');
-      console.log(`Found ${data.details.length} record(s)`);
-      return data;
-    } else {
-      if (response.status === 404) {
-        console.log('ℹ️ File not found in registry');
-      }
-      throw new Error(data.message);
-    }
-  } catch (error) {
-    console.error('❌ Search failed:', error.message);
-    throw error;
-  }
-}
-```
-</CodeGroup>
-
-### Expected Response (Found)
-
-```json
-{
-  "message": "Found <N> record(s) for your file on the blockchain.",
-  "details": [
-    {
-      "contentHash": "<FILE_SHA256_HEX>",
-      "pdaAddress": "<CONTENT_REGISTRATION_PDA_BASE58>",
-      "onChainRegistration": {
-        "contentHash": [<32_BYTES>],
-        "creator": "<CREATOR_WALLET_BASE58>",
-        "ipfsCid": "<IPFS_CID>",
-        "totalVotes": <NUMBER_OR_BN>,
-        "yesVotes": <NUMBER_OR_BN>,
-        "noVotes": <NUMBER_OR_BN>,
-        "timestamp": <UNIX_SECONDS_NUMBER_OR_BN>,
-        "finalized": <true|false>,
-        "consensusPercentage": <0-100>,
-        "assignedValidators": ["<VALIDATOR_PUBKEY_BASE58>", "..."],
-        "validatorsWhoVoted": ["<VALIDATOR_PUBKEY_BASE58>", "..."]
-      },
-      "userID": "<USER_ID_OR_NULL>"
-    }
-  ]
-}
-```
-
-### Prerequisites
-
-<Check>File to search for registration records</Check>
+<Steps>
+  <Step title="Hash Validation">
+    Validates the provided content hash format
+  </Step>
+  <Step title="On-Chain Search">
+    Queries the Solana blockchain for matching content registration records
+  </Step>
+  <Step title="Data Enrichment">
+    Fetches complete registration details and current validation status
+  </Step>
+  <Step title="User Lookup">
+    Attempts to find associated user IDs for the file creators
+  </Step>
+  <Step title="Result Formatting">
+    Returns comprehensive registration information with validation status
+  </Step>
+</Steps>
 
 ---
 
 ## Parameters
 
-<ResponseField name="file" type="File" required>
-  File to search for in the registry
+<ResponseField name="contentHash" type="string" required>
+  SHA256 hash of the file content (hex encoded)
   
-  **Constraints:** Any file type, maximum 50MB
+  **Constraints:** Must be a valid 64-character hex string
   
-  **Supported Types:** PDF, DOC, TXT, images, JSON, archives, etc.
+  Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
 </ResponseField>
 
 ---
+
+
 
 ## Response Examples
 
@@ -234,95 +125,62 @@ async function searchForFile(fileInput) {
   </Expandable>
 </ResponseField>
 
-### Success Responses
+---
 
-<CodeGroup>
-```json Found Records (200)
-{
-  "message": "Found <N> record(s) for your file on the blockchain.",
-  "details": [
-    {
-      "contentHash": "<FILE_SHA256_HEX>",
-      "pdaAddress": "<CONTENT_REGISTRATION_PDA_BASE58>",
-      "onChainRegistration": {
-        "creator": "<CREATOR_WALLET_BASE58>",
-        "ipfsCid": "<IPFS_CID>",
-        "totalVotes": <NUMBER_OR_BN>,
-        "yesVotes": <NUMBER_OR_BN>,
-        "noVotes": <NUMBER_OR_BN>,
-        "timestamp": <UNIX_SECONDS_NUMBER_OR_BN>,
-        "finalized": <true|false>,
-        "consensusPercentage": <0-100>
-      },
-      "userID": "<USER_ID_OR_NULL>"
-    }
-  ]
-}
+## Prerequisites
+
+Before searching, you need:
+
+<Check>**Content hash**: SHA256 hash of the file you want to search for</Check>
+
+<Info>
+**Don't have the hash?** You can calculate it from your file:
+
+```bash
+# Unix/Mac
+shasum -a 256 your-file.pdf
+
+# Windows (PowerShell)
+Get-FileHash your-file.pdf -Algorithm SHA256
+
+# Node.js
+const crypto = require('crypto');
+const fs = require('fs');
+const hash = crypto.createHash('sha256').update(fs.readFileSync('your-file.pdf')).digest('hex');
 ```
-</CodeGroup>
-
-### Common Error Responses
-
-<CodeGroup>
-```json No Records Found (404)
-{
-  "message": "An on-chain proof for this file does not exist, which means it has not been registered.",
-  "details": {
-    "Searched Content Hash": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9"
-  }
-}
-```
-
-```json Missing File (400)
-{
-  "message": "Oops! You need to upload a file to search for it. Please attach a file. 📂"
-}
-```
-
-```json Fetch/Processing Error (500)
-{
-  "message": "An error occurred while searching for registrations.",
-  "details": {
-    "error": "<reason>"
-  }
-}
-```
-
-```json Unexpected Error (500)
-{
-  "message": "Oh no! Something went wrong during the search. Our team is on it!",
-  "details": {
-    "error": "<reason>"
-  }
-}
-```
-
-```json Rate Limit (429)
-{
-  "message": "Too many requests, please try again later."
-}
-```
-</CodeGroup>
+</Info>
 
 ---
 
-## What This Endpoint Does
+## Complete Example
 
 <Steps>
-  <Step title="File Processing">
-    Accepts the uploaded file and calculates its SHA256 content hash
+  <Step title="Calculate File Hash">
+    First, get the SHA256 hash of your file:
+    
+    ```bash
+    shasum -a 256 document.pdf
+    # Output: a7b2c3d4e5f6789... document.pdf
+    ```
   </Step>
-  <Step title="On-Chain Search">
-    Queries the Solana blockchain for matching content registration records
+  
+  <Step title="Search Trust Engine">
+    Use the hash to search for registrations:
+    
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/search \
+      -H "Content-Type: application/json" \
+      -d '{"contentHash": "a7b2c3d4e5f6789..."}'
+    ```
   </Step>
-  <Step title="Data Enrichment">
-    Fetches complete registration details and current validation status
-  </Step>
-  <Step title="User Lookup">
-    Attempts to find associated user IDs for the file creators
-  </Step>
-  <Step title="Result Formatting">
-    Returns comprehensive registration information with validation status
+  
+  <Step title="Interpret Results">
+    The response tells you if the file is registered and its verification status:
+    
+    - **Found + Verified**: File is registered with consensus ≥67%
+    - **Found + Pending**: File is registered but validation in progress  
+    - **Found + Disputed**: File is registered but consensus 67%
+    - **Not Found**: File has never been registered
   </Step>
 </Steps>
 
@@ -398,18 +256,18 @@ async function searchForFile(fileInput) {
 
 <CardGroup cols={2}>
   <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Use `registerFile()` SDK method or `/register` endpoint to register files
+    Use the `/register` endpoint to register files
   </Card>
   
   <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
-    Use `createWallet()` SDK method or `/create-wallet` endpoint
+    Use the `/create-wallet` endpoint
   </Card>
   
   <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
-    Use `getWalletBalance()` SDK method or `/wallet-balance` endpoint
+    Use the `/wallet-balance` endpoint
   </Card>
   
-  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/store-user-key-relation">
-    Use `storeUserKeyRelation()` SDK method if needed
+  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/link-wallet">
+    Use the `/link-wallet` endpoint if needed
   </Card>
 </CardGroup>
