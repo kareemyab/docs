@@ -7,12 +7,17 @@ description: 'Searches for existing on-chain registration records by uploading a
 
 ```typescript
 function searchFile(
-  options: Options
+  file: File,
+  walletAddress?: string
 ): Promise<Response>;
 ```
 
-<ResponseField name="options" type="[Options](/sdk-reference/types#searchfile-options)">
-  The options for searching for a file.
+<ResponseField name="file" type="File" required>
+  The file to search for.
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" optional>
+  Optional wallet address to filter search results to specific registrations.
 </ResponseField>
 
 <ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#searchfile-response)>">
@@ -20,7 +25,11 @@ function searchFile(
 </ResponseField>
 
 <Info>
-**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#searchfile) page.
+**Search Modes:**
+- **File only**: Returns all registrations for this file hash
+- **File + Wallet**: Returns specific registration by this wallet for this file hash
+
+**Type Definitions**: For detailed type information, visit the [Types](/sdk-reference/types#searchfile) page.
 </Info>
 
 ## Usage
@@ -47,7 +56,12 @@ export default function FileSearch() {
     if (!file) return;
     setIsSearching(true);
     try {
+      // Search all registrations for this file
       const searchResult = await sdk.searchFile(file);
+      
+      // Or search for specific wallet's registration:
+      // const searchResult = await sdk.searchFile(file, 'specific-wallet-address');
+      
       setResult(searchResult);
     } catch (error) {
       console.error('❌ Search failed:', error.message);
@@ -80,22 +94,29 @@ async function findFileRegistration() {
     const fileContent = await fs.readFile('path/to/your/file.txt');
     const file = new File([fileContent], 'file.txt');
 
-    const result = await sdk.searchFile(file);
+    // Search for all registrations of this file
+    console.log('🔍 Searching for all registrations...');
+    const allResults = await sdk.searchFile(file);
     
-    if (result.details && result.details.length > 0) {
-      console.log(`✅ Found ${result.details.length} registration(s)!`);
-      result.details.forEach((record, index) => {
+    // Search for specific wallet's registration
+    console.log('🔍 Searching for specific wallet registration...');
+    const specificResult = await sdk.searchFile(file, '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM');
+    
+    if (allResults.registrations && allResults.registrations.length > 0) {
+      console.log(`✅ Found ${allResults.totalResults} registration(s)!`);
+      allResults.registrations.forEach((record, index) => {
         console.log(`Record ${index + 1}:`);
-        console.log('- Creator:', record.onChainRegistration.creator);
-        console.log('- IPFS CID:', record.onChainRegistration.ipfsCid);
-        console.log('- Consensus:', record.onChainRegistration.consensusPercentage + '%');
-        console.log('- Finalized:', record.onChainRegistration.finalized);
+        console.log('- Registered by:', record.registeredBy);
+        console.log('- User ID:', record.userID);
+        console.log('- IPFS CID:', record.ipfsCid);
+        console.log('- Status:', record.validationStatus);
+        console.log('- Consensus:', record.consensus);
       });
     } else {
       console.log('No records found for this file.');
     }
     
-    return result;
+    return { all: allResults, specific: specificResult };
   } catch (error) {
     if (error.message.includes('does not exist')) {
       console.log('ℹ️ File has not been registered yet');

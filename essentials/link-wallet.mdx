@@ -123,9 +123,15 @@ openapi: 'POST /link-wallet'
 }
 ```
 
-```json Relation Already Exists (400)
+```json User ID Relation Already Exists (409)
 {
-  "message": "User key relation already exists."
+  "message": "User ID already linked to an existing wallet."
+}
+```
+
+```json Wallet Relation Already Exists (409)
+{
+  "message": "Wallet address already linked to an existing User ID"
 }
 ```
 

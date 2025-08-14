@@ -74,6 +74,20 @@ core-api-cli create-wallet \
 **⚠️ ONE-TIME OPERATION**: This wallet creation step should only be performed **once per user**. The Crossmint wallet that gets generated will be used for **all future file registrations** by this user. Save the `walletAddress` from the response and reuse it for subsequent registrations instead of creating new wallets. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
 </Warning>
 
+**Expected Response:**
+```json
+{
+  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "chain": "solana",
+    "transactionSignature": "5J7X...",
+    "explorerUrl": "https://explorer.solana.com/tx/5J7X...?cluster=devnet",
+    "emailLinkedToWallet": "hadi@trustengine.org"
+  }
+}
+```
+
 **Save the wallet address** from the response - you'll need it for the next step!
 
 ---
@@ -165,7 +179,7 @@ core-api-cli register \
 </CodeGroup>
 
 <Info>
-**Note**: We're using Crossmint wallets which handle transaction signing automatically. For standard wallets, additional signing steps are required.
+**Note**: We're using Crossmint wallets which handle transaction signing automatically. For standard wallets, such as in Metamask, Phantom, etc., additional signing steps are required, and is not available in the CLI.
 </Info>
 
 **Expected Response (Crossmint):**
@@ -192,7 +206,10 @@ Search for your registered file to confirm it's in the system:
 ```bash cURL
 curl -X POST https://core-api-server.onrender.com/search \
   -H "Content-Type: application/json" \
-  -d '{"contentHash": "a7b2c3d4e5f6789abcdef..."}'
+  -d '{
+    "contentHash": "a7b2c3d4e5f6789abcdef...", 
+    "walletAddress": "0x139dn9ndi9nf9h3b9rb33igji3b3"
+  }'
 ```
 
 ```javascript JavaScript (SDK)
@@ -210,19 +227,25 @@ core-api-cli search-file \
 **Expected Response:**
 ```json
 {
-  "message": "Found 1 record(s) for your file on the blockchain.",
-  "details": [
+  "searchMode": "content_hash_and_wallet",
+  "message": "Found the specific registration for this content hash and wallet address.",
+  "searchCriteria": {
+    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+  },
+  "totalResults": 1,
+  "registrations": [
     {
-      "contentHash": "a7b2c3d4...",
-      "pdaAddress": "xyz789...",
-      "onChainRegistration": {
-        "creator": "YOUR_WALLET_ADDRESS",
-        "ipfsCid": "QmExample...",
-        "timestamp": 1640995200,
-        "finalized": false,
-        "consensusPercentage": 0
-      },
-      "userID": "my-unique-id-123"
+      "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+      "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+      "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+      "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "userID": "user_123456789",
+      "timestamp": "2024-01-15T14:30:25.000Z",
+      "validationStatus": "Verified",
+      "consensus": "85%",
+      "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
+      "onChainData": { /* Raw blockchain data */ }
     }
   ]
 }
@@ -242,40 +265,16 @@ core-api-cli search-file \
 ## What's Next?
 
 <CardGroup cols={2}>
-  <Card title="Integration Guide" icon="code" href="/guides/integration">
-    Learn how to integrate Trust Engine into your application
+  <Card title="API Documentation" icon="code" href="/api-overview">
+    Use our API endpoints for direct calling
   </Card>
   
   <Card title="SDK Documentation" icon="box" href="/sdk-reference">
     Use our JavaScript/TypeScript SDK for easier integration
   </Card>
   
-  <Card title="Advanced Features" icon="gear" href="/guides/advanced-features">
-    Explore claim hashes, custom metadata, and validator networks
-  </Card>
-  
-  <Card title="Production Setup" icon="server" href="/guides/production">
-    Deploy Trust Engine in production environments
-  </Card>
-</CardGroup>
-
-## Need Help?
-
-<CardGroup cols={2}>
-  <Card title="FAQ" icon="circle-question" href="/faqs">
-    Common questions and answers
-  </Card>
-  
-  <Card title="Discord Community" icon="discord" href="https://discord.gg/your-invite">
-    Get help from our community
-  </Card>
-  
-  <Card title="Support" icon="envelope" href="mailto:kareem@trustengine.org">
-    Contact our team directly
-  </Card>
-  
-  <Card title="Troubleshooting" icon="wrench" href="/guides/troubleshooting">
-    Common issues and solutions
+  <Card title="CLI Documentaiton" icon="gear" href="/guides/advanced-features">
+    Use our CLI for easy interaction with our server
   </Card>
 </CardGroup>
 

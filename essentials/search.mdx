@@ -37,6 +37,20 @@ openapi: 'POST /search'
   Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
 </ResponseField>
 
+<ResponseField name="walletAddress" type="string" optional>
+  Wallet address to filter search results to specific registrations
+  
+  **Constraints:** Must be a valid Solana public key
+  
+  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+</ResponseField>
+
+<Info>
+**Search Modes:**
+- **Content Hash Only**: Returns all registrations for this file hash
+- **Content Hash + Wallet**: Returns specific registration by this wallet for this file hash
+</Info>
+
 ---
 
 
@@ -45,209 +59,225 @@ openapi: 'POST /search'
 
 ### Success Response (200)
 
-<ResponseField name="message" type="string">
-  Success confirmation with record count
+<ResponseField name="searchMode" type="string">
+  The type of search performed
   
-  Example: `"Found 1 record(s) for your file on the blockchain."`
+  Example: `"content_hash_only"` or `"content_hash_and_wallet"`
 </ResponseField>
 
-<ResponseField name="details" type="array">
+<ResponseField name="message" type="string">
+  Success confirmation with search details
+  
+  Example: `"Found the specific registration for this content hash and wallet address."`
+</ResponseField>
+
+<ResponseField name="searchCriteria" type="object">
+  The search parameters that were used
+  
+  <Expandable title="SearchCriteria Object">
+    <ResponseField name="contentHash" type="string">
+      The content hash that was searched for
+      
+      Example: `"a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234"`
+    </ResponseField>
+    
+    <ResponseField name="walletAddress" type="string" optional>
+      The wallet address filter (if provided)
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="totalResults" type="number">
+  Number of registration records found
+  
+  Example: `1`
+</ResponseField>
+
+<ResponseField name="registrations" type="array">
   Array of matching registration records
   
-  <Expandable title="SearchRecord Object">
+  <Expandable title="Registration Object">
     <ResponseField name="contentHash" type="string">
-      SHA256 hash of the file content (hex format)
+      SHA256 hash of the file content
       
-      Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
+      Example: `"a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234"`
     </ResponseField>
     
     <ResponseField name="pdaAddress" type="string">
       Solana Program Derived Address for this registration
       
-      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+      Example: `"8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY"`
     </ResponseField>
     
-    <ResponseField name="onChainRegistration" type="object">
-      Complete on-chain registration data
+    <ResponseField name="ipfsCid" type="string">
+      IPFS Content Identifier for metadata storage
       
-      <Expandable title="OnChainRegistration Object">
-        <ResponseField name="contentHash" type="array">
-          Content hash as byte array (used internally)
-        </ResponseField>
-        
-        <ResponseField name="creator" type="string">
-          Wallet address that registered the file
-        </ResponseField>
-        
-        <ResponseField name="ipfsCid" type="string">
-          IPFS Content Identifier for metadata storage
-        </ResponseField>
-        
-        <ResponseField name="totalVotes" type="number">
-          Total number of validator votes received
-        </ResponseField>
-        
-        <ResponseField name="yesVotes" type="number">
-          Number of positive verification votes
-        </ResponseField>
-        
-        <ResponseField name="noVotes" type="number">
-          Number of negative verification votes
-        </ResponseField>
-        
-        <ResponseField name="timestamp" type="number">
-          Unix timestamp when file was registered
-        </ResponseField>
-        
-        <ResponseField name="finalized" type="boolean">
-          Whether validation process is complete
-        </ResponseField>
-        
-        <ResponseField name="consensusPercentage" type="number">
-          Percentage of positive votes (yesVotes/totalVotes * 100)
-        </ResponseField>
-        
-        <ResponseField name="assignedValidators" type="array">
-          List of validators assigned to verify this file
-        </ResponseField>
-        
-        <ResponseField name="validatorsWhoVoted" type="array">
-          List of validators who have submitted votes
-        </ResponseField>
-      </Expandable>
+      Example: `"QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz"`
+    </ResponseField>
+    
+    <ResponseField name="registeredBy" type="string">
+      Wallet address that registered the file
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
     </ResponseField>
     
     <ResponseField name="userID" type="string">
-      Associated user ID (if available)
+      Associated user ID
       
-      Example: `"user_12345"`
+      Example: `"user_123456789"`
+    </ResponseField>
+    
+    <ResponseField name="timestamp" type="string">
+      ISO timestamp when file was registered
+      
+      Example: `"2024-01-15T14:30:25.000Z"`
+    </ResponseField>
+    
+    <ResponseField name="validationStatus" type="string">
+      Current validation status
+      
+      Example: `"Verified"`, `"Pending"`, or `"Rejected"`
+    </ResponseField>
+    
+    <ResponseField name="consensus" type="string">
+      Consensus percentage from validators
+      
+      Example: `"85%"`
+    </ResponseField>
+    
+    <ResponseField name="explorerUrl" type="string">
+      Link to view on Solana Explorer
+      
+      Example: `"https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet"`
+    </ResponseField>
+    
+    <ResponseField name="onChainData" type="object">
+      Raw blockchain data (implementation details)
     </ResponseField>
   </Expandable>
 </ResponseField>
 
----
+### Error Response (404)
 
-## Prerequisites
+<ResponseField name="error" type="boolean">
+  Error flag indicating no records found
+  
+  Example: `true`
+</ResponseField>
 
-Before searching, you need:
+<ResponseField name="message" type="string">
+  Error description for not found
+  
+  Example: `"No records found for the provided content hash."`
+</ResponseField>
 
-<Check>**Content hash**: SHA256 hash of the file you want to search for</Check>
+## Example Responses
 
-<Info>
-**Don't have the hash?** You can calculate it from your file:
-
-```bash
-# Unix/Mac
-shasum -a 256 your-file.pdf
-
-# Windows (PowerShell)
-Get-FileHash your-file.pdf -Algorithm SHA256
-
-# Node.js
-const crypto = require('crypto');
-const fs = require('fs');
-const hash = crypto.createHash('sha256').update(fs.readFileSync('your-file.pdf')).digest('hex');
+<CodeGroup>
+```json Content Hash + Wallet Search (200)
+{
+  "searchMode": "content_hash_and_wallet",
+  "message": "Found the specific registration for this content hash and wallet address.",
+  "searchCriteria": {
+    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+  },
+  "totalResults": 1,
+  "registrations": [
+    {
+      "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+      "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+      "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+      "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "userID": "user_123456789",
+      "timestamp": "2024-01-15T14:30:25.000Z",
+      "validationStatus": "Verified",
+      "consensus": "85%",
+      "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
+      "onChainData": { /* Raw blockchain data */ }
+    }
+  ]
+}
 ```
-</Info>
 
----
-
-## Complete Example
-
-<Steps>
-  <Step title="Calculate File Hash">
-    First, get the SHA256 hash of your file:
-    
-    ```bash
-    shasum -a 256 document.pdf
-    # Output: a7b2c3d4e5f6789... document.pdf
-    ```
-  </Step>
-  
-  <Step title="Search Trust Engine">
-    Use the hash to search for registrations:
-    
-    ```bash
-    curl -X POST https://core-api-server.onrender.com/search \
-      -H "Content-Type: application/json" \
-      -d '{"contentHash": "a7b2c3d4e5f6789..."}'
-    ```
-  </Step>
-  
-  <Step title="Interpret Results">
-    The response tells you if the file is registered and its verification status:
-    
-    - **Found + Verified**: File is registered with consensus ≥67%
-    - **Found + Pending**: File is registered but validation in progress  
-    - **Found + Disputed**: File is registered but consensus 67%
-    - **Not Found**: File has never been registered
-  </Step>
-</Steps>
-
----
-
-## Understanding Search Results
-
-### Validation Status
+```json Content Hash Only Search (200)
+{
+  "searchMode": "content_hash_only",
+  "message": "Found 2 registration(s) for this content hash.",
+  "searchCriteria": {
+    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234"
+  },
+  "totalResults": 2,
+  "registrations": [
+    {
+      "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+      "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+      "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+      "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "userID": "user_123456789",
+      "timestamp": "2024-01-15T14:30:25.000Z",
+      "validationStatus": "Verified",
+      "consensus": "85%",
+      "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet"
+    },
+    {
+      "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+      "pdaAddress": "9mPv3gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtX",
+      "ipfsCid": "QmY8St9VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYa",
+      "registeredBy": "7XzEYwCbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWN",
+      "userID": "user_987654321",
+      "timestamp": "2024-01-16T09:15:10.000Z",
+      "validationStatus": "Pending",
+      "consensus": "0%",
+      "explorerUrl": "https://explorer.solana.com/address/9mPv3gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtX?cluster=devnet"
+    }
+  ]
+}
+```
+</CodeGroup>
 
 <Tabs>
-  <Tab title="Verified">
-    **Status**: `finalized: true` with ≥67% consensus
-    
-    **Meaning**: Validators have completed verification and reached consensus that the file is authentic and valid.
-    
+  <Tab title="Not Found (404)">
     ```json
     {
-      "finalized": true,
-      "consensusPercentage": 100,
-      "totalVotes": 3,
-      "yesVotes": 3,
-      "noVotes": 0
+      "error": true,
+      "message": "No records found for the provided content hash."
     }
     ```
   </Tab>
-  
-  <Tab title="Pending Verification">
-    **Status**: `finalized: false`
-    
-    **Meaning**: File is registered but validators are still in the process of verification.
-    
+  <Tab title="Invalid Hash (400)">
     ```json
     {
-      "finalized": false,
-      "consensusPercentage": 0,
-      "totalVotes": 0,
-      "yesVotes": 0,
-      "noVotes": 0
+      "error": true,
+      "message": "Invalid content hash format. Must be a 64-character hex string."
     }
     ```
   </Tab>
-  
-  <Tab title="Rejected">
-    **Status**: `finalized: true` with &lt;67% consensus
-    
-    **Meaning**: Validators completed verification but consensus was not reached for file validity.
-    
+  <Tab title="Invalid Wallet (400)">
     ```json
     {
-      "finalized": true,
-      "consensusPercentage": 33,
-      "totalVotes": 3,
-      "yesVotes": 1,
-      "noVotes": 2
+      "error": true,
+      "message": "Invalid wallet address format. Must be a valid Solana public key."
     }
     ```
   </Tab>
 </Tabs>
 
-### Consensus Calculation
+---
+
+## Understanding Validation Status
 
 <Info>
-**Consensus Formula**: `(yesVotes / totalVotes) * 100`
-
-- **≥67%**: File verification **PASSED** (consensus reached)
-- **&lt;67%**: File verification **FAILED** (consensus not reached)
-- **Pending**: Validators still voting (`totalVotes: 0`)
+**Validation Status Values:**
+- **"Verified"**: File passed validation with ≥67% consensus
+- **"Pending"**: Validation still in progress
+- **"Rejected"**: File failed validation with &lt;67% consensus
 </Info>
+
+<Tip>
+**Pro Tip**: Use the `walletAddress` parameter to find specific registrations when multiple users have registered the same file.
+</Tip>
 
 

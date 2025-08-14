@@ -144,25 +144,6 @@ openapi: 'POST /validators/data'
   }
 }
 ```
-
-```text Success (200, cURL User-Agent)
-✅ VALIDATOR DATA RETRIEVED ✅
---------------------------------------------------
-Validator data retrieved successfully.
-
---- Details ---
-    Validator Address       : 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-    Validator PDA           : xyz789abc123def456ghi...
-    Staked Amount           : 1000000
-    Reputation Score        : 95
-    Total Votes             : 100
-    Honest Votes            : 95
-    Dishonest Votes         : 5
-    Accuracy                : 95.0%
-    Last Active             : 2024-01-15T10:30:45.123Z
-    Solana Explorer         : https://explorer.solana.com/address/xyz789abc123def456ghi...?cluster=devnet
---------------------------------------------------
-```
 </CodeGroup>
 
 ### Common Error Responses
@@ -175,13 +156,6 @@ Validator data retrieved successfully.
 }
 ```
 
-```text Missing Wallet Address (400, cURL)
-🚫 MISSING WALLET ADDRESS 🚫
---------------------------------------------------
-Hold on! We need a `walletAddress` to fetch validator data.
---------------------------------------------------
-```
-
 ```json Validator Not Found (404, JSON)
 {
   "error": true,
@@ -192,18 +166,6 @@ Hold on! We need a `walletAddress` to fetch validator data.
     "suggestion": "Initialize the validator using the /validators/initialize endpoint first."
   }
 }
-```
-
-```text Validator Not Found (404, cURL)
-🚫 VALIDATOR NOT FOUND 🚫
---------------------------------------------------
-Validator account not found. This validator may not be initialized.
-
---- Details ---
-    Wallet Address          : 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-    Expected PDA            : xyz789abc123def456ghi...
-    Suggestion              : Initialize the validator using the /validators/initialize endpoint first.
---------------------------------------------------
 ```
 
 ```json Rate Limit (429)
@@ -283,91 +245,6 @@ Validator account not found. This validator may not be initialized.
 </Info>
 
 ---
-
-## Integration Examples
-
-### Validator Performance Monitoring
-
-```typescript
-async function assessValidatorPerformance(walletAddress: string) {
-  const response = await fetch('/validators/data', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ walletAddress })
-  });
-  
-  const data = await response.json();
-  const { details } = data;
-  
-  return {
-    address: details.validatorAddress,
-    performance: {
-      reputation: details.reputationScore,
-      accuracy: details.accuracyPercentage,
-      totalVotes: details.totalVotes,
-      isActive: Date.now() - (details.lastActiveTime * 1000) < 86400000, // 24 hours
-      grade: getPerformanceGrade(details.accuracyPercentage)
-    }
-  };
-}
-
-function getPerformanceGrade(accuracy: number): string {
-  if (accuracy >= 95) return 'A+';
-  if (accuracy >= 85) return 'A';
-  if (accuracy >= 70) return 'B';
-  return 'C';
-}
-```
-
-### Validator Selection System
-
-```typescript
-async function selectBestValidators(candidateAddresses: string[], minAccuracy: number = 85) {
-  const validatorPromises = candidateAddresses.map(async (address) => {
-    try {
-      const response = await fetch('/validators/data', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ walletAddress: address })
-      });
-      
-      if (!response.ok) return null;
-      
-      const data = await response.json();
-      return {
-        address,
-        ...data.details,
-        score: calculateValidatorScore(data.details)
-      };
-    } catch (error) {
-      return null;
-    }
-  });
-  
-  const validators = (await Promise.all(validatorPromises))
-    .filter(v => v !== null && v.accuracyPercentage >= minAccuracy)
-    .sort((a, b) => b.score - a.score);
-  
-  return validators;
-}
-
-function calculateValidatorScore(validator: any): number {
-  const accuracyWeight = 0.4;
-  const reputationWeight = 0.3;
-  const activityWeight = 0.2;
-  const stakeWeight = 0.1;
-  
-  const activityScore = Date.now() - (validator.lastActiveTime * 1000) < 86400000 ? 100 : 50;
-  const stakeScore = Math.min(validator.stakedAmount / 1000000 * 100, 100);
-  
-  return (
-    validator.accuracyPercentage * accuracyWeight +
-    validator.reputationScore * reputationWeight +
-    activityScore * activityWeight +
-    stakeScore * stakeWeight
-  );
-}
-```
 
 <Warning>
 **Data Freshness**: Validator data is updated based on on-chain activity. Recent validation votes may take a few minutes to be reflected in the metrics.

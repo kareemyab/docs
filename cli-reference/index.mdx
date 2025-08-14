@@ -40,9 +40,6 @@ The CLI provides the following commands:
   <Card title="find-wallet" icon="search" href="/cli-reference/find-wallet">
     Find a wallet by user ID or wallet address
   </Card>
-  <Card title="wallet-balance" icon="coins" href="/cli-reference/wallet-balance">
-    Get the SOL balance of a wallet address
-  </Card>
   <Card title="search-file" icon="magnifying-glass" href="/cli-reference/search-file">
     Search for a file by its content hash
   </Card>
@@ -71,8 +68,8 @@ core-api-cli register \
 
 ### JSON Output for Scripting
 ```bash
-core-api-cli wallet-balance \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+core-api-cli create-wallet \
+  --userID "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   --json
 ```
 
