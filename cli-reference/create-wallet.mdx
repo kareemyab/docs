@@ -1,0 +1,82 @@
+---
+title: 'create-wallet'
+description: 'Create a new wallet for a user'
+---
+
+# create-wallet
+
+Create a new wallet for a user using the Trust Engine Core API.
+
+## Usage
+
+```bash
+core-api-cli create-wallet [options]
+```
+
+## Required Options
+
+<ParamField path="--userID, -u" type="string" required>
+  User ID for the new wallet
+</ParamField>
+
+## Optional Options
+
+<ParamField path="--json" type="boolean">
+  Output the result as JSON instead of formatted text
+</ParamField>
+
+## Examples
+
+### Basic Wallet Creation
+
+```bash
+core-api-cli create-wallet --userID "user_12345"
+```
+
+### JSON Output for Automation
+
+```bash
+core-api-cli create-wallet --userID "user_12345" --json
+```
+
+## Response
+
+### Success Response (Formatted)
+
+```
+✅ Success! Your Crossmint wallet has been created and linked to your user ID.
+
+Wallet Details:
+  - User ID: user_12345
+  - Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+```
+
+### JSON Response
+
+```json
+{
+  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "details": {
+    "userID": "user_12345",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "chain": "solana",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+
+## Error Handling
+
+Common error scenarios:
+
+- **Missing User ID**: Ensure you provide a valid user ID
+- **User ID already exists**: The user may already have a wallet associated
+- **Network issues**: Check your internet connection and API availability
+
+## Notes
+
+- Each user ID can only have one wallet associated with it
+- The created wallet is a Crossmint wallet on the Solana blockchain
+- The wallet is automatically linked to the provided user ID
+- Save the wallet address for future operations

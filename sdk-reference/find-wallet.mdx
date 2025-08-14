@@ -1,0 +1,97 @@
+---
+title: Find Wallet
+description: 'Finds a wallet by user ID or wallet address.'
+---
+
+## Function Signature
+
+```typescript
+function findWallet(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#findwallet-options)">
+  The options for finding a wallet.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#findwallet-response)>">
+  A promise that resolves with the response from finding a wallet.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#findwallet) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function WalletFinder() {
+  const [searchValue, setSearchValue] = useState('');
+  const [searchType, setSearchType] = useState<'userID' | 'walletAddress'>('userID');
+  const [isFinding, setIsFinding] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleFind = async () => {
+    if (!searchValue) return;
+    setIsFinding(true);
+    try {
+      const findResult = await sdk.findWallet({ [searchType]: searchValue });
+      setResult(findResult);
+    } catch (error) {
+      console.error('❌ Failed to find wallet:', error.message);
+      setResult({ error: error.message });
+    } finally {
+      setIsFinding(false);
+    }
+  };
+
+  return (
+    <div>
+      <select value={searchType} onChange={(e) => setSearchType(e.target.value as any)}>
+        <option value="userID">User ID</option>
+        <option value="walletAddress">Wallet Address</option>
+      </select>
+      <input 
+        type="text" 
+        value={searchValue} 
+        onChange={(e) => setSearchValue(e.target.value)}
+        placeholder={`Enter ${searchType === 'userID' ? 'User ID' : 'Wallet Address'}`}
+      />
+      <button onClick={handleFind} disabled={isFinding}>
+        {isFinding ? 'Finding...' : 'Find Wallet'}
+      </button>
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+async function findWallet() {
+  try {
+    // Find by user ID
+    const byUser = await sdk.findWallet({ userID: 'user_12345' });
+    console.log('Found by user ID:', byUser);
+    
+    // Find by wallet address
+    const byAddress = await sdk.findWallet({ walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM' });
+    console.log('Found by wallet address:', byAddress);
+
+  } catch (error) {
+    console.error('❌ Failed to find wallet:', error.message);
+  }
+}
+
+findWallet();
+```
+</CodeGroup>

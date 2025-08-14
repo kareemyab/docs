@@ -1,0 +1,107 @@
+---
+title: Register a File
+description: 'Registers a file with the Trust Engine protocol, initiating the decentralized verification process.'
+---
+
+## Function Signature
+
+```typescript
+function registerFile(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#registerfile-options)">
+  The options for registering a file.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#registerfile-response)>">
+  A promise that resolves with the response from registering a file.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#registerfile) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function FileRegistrar() {
+  const [file, setFile] = useState<File | null>(null);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+    }
+  };
+
+  const handleRegister = async () => {
+    if (!file) return;
+    setIsRegistering(true);
+    try {
+      const registrationResult = await sdk.registerFile({
+        file,
+        contentTitle: "My Awesome Document",
+        walletAddress: "YourWalletAddressGoesHere",
+        walletType: "crossmint"
+      });
+      setResult(registrationResult);
+    } catch (error) {
+      console.error('❌ Registration failed:', error.message);
+    } finally {
+      setIsRegistering(false);
+    }
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      <button onClick={handleRegister} disabled={!file || isRegistering}>
+        {isRegistering ? 'Registering...' : 'Register File'}
+      </button>
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { promises as fs } from 'fs';
+import { File } from 'buffer';
+
+const sdk = new CoreApiSDK();
+
+async function registerDocument() {
+  try {
+    const fileContent = await fs.readFile('path/to/your/file.txt');
+    const file = new File([fileContent], 'file.txt');
+    
+    const result = await sdk.registerFile({
+      file: file,
+      contentTitle: "My Awesome Document",
+      walletAddress: "YourWalletAddressGoesHere",
+      walletType: "crossmint"
+    });
+    
+    console.log('✅ Registration successful!');
+    console.log('Transaction ID:', result.details.transactionSignature);
+    console.log('IPFS CID:', result.details.ipfsCid);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Registration failed:', error.message);
+    throw error;
+  }
+}
+
+registerDocument();
+```
+</CodeGroup>

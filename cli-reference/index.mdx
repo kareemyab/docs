@@ -1,0 +1,89 @@
+---
+title: 'CLI Overview'
+description: 'Command-line interface for the Trust Engine Core API'
+---
+
+# CLI Reference
+
+The Trust Engine CLI is a command-line tool that provides direct access to all Core API functionality. It's perfect for automation, scripting, and quick operations without writing code.
+
+## Installation
+
+Install the CLI globally using npm:
+
+```bash
+npm install -g @trust-engine/cli
+```
+
+## Getting Started
+
+Once installed, you can use the CLI with the `core-api-cli` command:
+
+```bash
+core-api-cli --help
+```
+
+## Available Commands
+
+The CLI provides the following commands:
+
+<CardGroup cols={2}>
+  <Card title="register" icon="file-plus" href="/cli-reference/register">
+    Register a file with the Trust Engine
+  </Card>
+  <Card title="create-wallet" icon="wallet" href="/cli-reference/create-wallet">
+    Create a new wallet for a user
+  </Card>
+  <Card title="link-wallet" icon="link" href="/cli-reference/link-wallet">
+    Link a wallet to a user ID
+  </Card>
+  <Card title="find-wallet" icon="search" href="/cli-reference/find-wallet">
+    Find a wallet by user ID or wallet address
+  </Card>
+  <Card title="wallet-balance" icon="coins" href="/cli-reference/wallet-balance">
+    Get the SOL balance of a wallet address
+  </Card>
+  <Card title="search-file" icon="magnifying-glass" href="/cli-reference/search-file">
+    Search for a file by its content hash
+  </Card>
+  <Card title="get-validator-data" icon="server" href="/cli-reference/get-validator-data">
+    Get validator data for a wallet address
+  </Card>
+</CardGroup>
+
+## Global Options
+
+All commands support these global options:
+
+- `--json` - Output results in JSON format for programmatic use
+- `--help` - Show help information for any command
+
+## Examples
+
+### Quick File Registration
+```bash
+core-api-cli register \
+  --file ./document.pdf \
+  --contentTitle "Important Document" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "crossmint"
+```
+
+### JSON Output for Scripting
+```bash
+core-api-cli wallet-balance \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --json
+```
+
+## Configuration
+
+The CLI connects to `http://localhost:3005` by default. This assumes you have a local development server running. For production usage, you may need to modify the source code to point to your production API endpoint.
+
+## Error Handling
+
+All commands return appropriate exit codes:
+- `0` - Success
+- `1` - Error (check the error message for details)
+
+This makes the CLI perfect for use in shell scripts and automation pipelines.

@@ -5,88 +5,19 @@ icon: 'heart-pulse'
 openapi: 'GET /health'
 ---
 
-<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
-  <span style={{backgroundColor: '#10b981', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>GET</span>
-  <code>/health</code>
-</div>
+## What This Endpoint Does
 
-<Info>
-**Rate Limit:** 100 requests per 15 mins
-</Info>
-
----
-
-## Quick Start
-
-### Installation
-
-```bash
-npm install trust-engine-sdk
-```
-
-### Complete Example
-
-<CodeGroup>
-```typescript SDK (Recommended)
-// Note: Health check is typically used for monitoring, not end-user applications
-// Most applications won't need to call this endpoint directly
-
-import { fetch } from 'node-fetch'; // or use built-in fetch in modern environments
-
-async function checkServerHealth() {
-  try {
-    const response = await fetch('https://core-api-server.onrender.com/health');
-    const data = await response.json();
-    
-    console.log('Server status:', data.status);
-    console.log('Timestamp:', data.timestamp);
-    
-    return data;
-  } catch (error) {
-    console.error('Health check failed:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-checkServerHealth()
-  .then(result => console.log('Server is healthy:', result))
-  .catch(error => console.error('Server health issue:', error));
-```
-
-```bash cURL
-curl -X GET http://localhost:3000/health
-```
-
-```javascript Raw JavaScript  
-async function checkHealth() {
-  try {
-    const response = await fetch('http://localhost:3000/health');
-    const data = await response.json();
-    
-    if (response.ok) {
-      console.log('✅ Server is healthy');
-      console.log('Status:', data.status);
-      return data;
-    } else {
-      throw new Error('Health check failed');
-    }
-  } catch (error) {
-    console.error('❌ Health check error:', error.message);
-    throw error;
-  }
-}
-```
-</CodeGroup>
-
-### Expected Response
-
-```json
-{
-  "status": "All systems operational!",
-  "timestamp": "2024-01-15T10:30:45.123Z"
-}
-```
+<Steps>
+  <Step title="Server Status Check">
+    Confirms the Express.js server is running and responsive
+  </Step>
+  <Step title="Timestamp Generation">
+    Provides current server time for synchronization checks
+  </Step>
+  <Step title="Quick Response">
+    Returns immediately without complex system checks or database queries
+  </Step>
+</Steps>
 
 ---
 
@@ -97,6 +28,8 @@ async function checkHealth() {
 </ResponseField>
 
 ---
+
+
 
 ## Response Examples
 
@@ -140,19 +73,3 @@ Timestamp: 2024-01-15T10:30:45.123Z
 }
 ```
 </CodeGroup>
-
----
-
-## What This Endpoint Does
-
-<Steps>
-  <Step title="Server Status Check">
-    Confirms the Express.js server is running and responsive
-  </Step>
-  <Step title="Timestamp Generation">
-    Provides current server time for synchronization checks
-  </Step>
-  <Step title="Quick Response">
-    Returns immediately without complex system checks or database queries
-  </Step>
-</Steps>

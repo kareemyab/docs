@@ -1,0 +1,319 @@
+---
+title: Types
+---
+
+# Type Definitions
+
+This page provides detailed information about the type definitions used in the Trust Engine SDK.
+
+## `createWallet`
+
+### Options
+
+<ResponseField name="userID" type="string" required>
+  Unique identifier for the user.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the details of the created wallet.
+  <Expandable>
+    <ResponseField name="walletAddress" type="string">
+      The address of the new wallet.
+    </ResponseField>
+    <ResponseField name="chain" type="string">
+      The blockchain the wallet was created on.
+    </ResponseField>
+    <ResponseField name="transactionSignature" type="string">
+      The signature of the transaction that created the wallet.
+    </ResponseField>
+    <ResponseField name="explorerUrl" type="string">
+      A URL to view the transaction on a block explorer.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `registerFile`
+
+### Options
+
+<ResponseField name="file" type="File" required>
+  The file to register.
+</ResponseField>
+
+<ResponseField name="contentTitle" type="string" required>
+  The title of the content.
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" required>
+  The address of the wallet to register the file with.
+</ResponseField>
+
+<ResponseField name="walletType" type="'standard' | 'crossmint'" required>
+  The type of wallet to use.
+</ResponseField>
+
+<ResponseField name="metadata" type="string" optional>
+  Additional metadata to store with the file.
+</ResponseField>
+
+<ResponseField name="secret" type="string" optional>
+  A secret to use for creating a claim hash.
+</ResponseField>
+
+<ResponseField name="signTransaction" type="(transaction: Transaction) => Promise<Transaction>" optional>
+  A function to sign a transaction.
+</ResponseField>
+
+### Response
+
+The response from registering a file. This can vary depending on whether the wallet type is `'standard'` or `'crossmint'`.
+
+#### For Crossmint Wallets (202 Accepted)
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the details of the registration.
+  <Expandable>
+    <ResponseField name="status" type="string">
+      The status of the registration.
+    </ResponseField>
+    <ResponseField name="crossmintTransactionId" type="string">
+      The ID of the Crossmint transaction.
+    </ResponseField>
+    <ResponseField name="contentRegistrationPDA" type="string">
+      The Program Derived Address for the registration.
+    </ResponseField>
+    <ResponseField name="ipfsCid" type="string">
+      The IPFS CID of the file.
+    </ResponseField>
+    <ResponseField name="processingFee" type="string">
+      The fee for processing the registration.
+    </ResponseField>
+    <ResponseField name="explorerUrl" type="string">
+      A URL to view the transaction on a block explorer.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### For Standard Wallets (200 OK)
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the details of the registration.
+  <Expandable>
+    <ResponseField name="status" type="string">
+      The status of the registration.
+    </ResponseField>
+    <ResponseField name="ipfsCid" type="string">
+      The IPFS CID of the file.
+    </ResponseField>
+    <ResponseField name="contentRegistrationPDA" type="string">
+      The Program Derived Address for the registration.
+    </ResponseField>
+    <ResponseField name="transaction" type="string">
+      A base64 encoded transaction that needs to be signed by the client.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `searchFile`
+
+### Options
+
+<ResponseField name="file" type="File" required>
+  The file to search for.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  A message indicating how many records were found.
+</ResponseField>
+
+<ResponseField name="details" type="Array<object>">
+  An array of objects, where each object contains the details of a registration record.
+  <Expandable>
+    <ResponseField name="contentHash" type="string">
+      The SHA256 hash of the file content.
+    </ResponseField>
+    <ResponseField name="pdaAddress" type="string">
+      The Program Derived Address for the registration.
+    </ResponseField>
+    <ResponseField name="onChainRegistration" type="object">
+        The full on-chain registration data.
+        <Expandable>
+            <ResponseField name="contentHash" type="Array<number>">
+                The content hash as a byte array.
+            </ResponseField>
+            <ResponseField name="creator" type="string">
+                The wallet address that registered the file.
+            </ResponseField>
+            <ResponseField name="ipfsCid" type="string">
+                The IPFS CID for the metadata.
+            </ResponseField>
+            <ResponseField name="totalVotes" type="number">
+                The total number of validator votes.
+            </ResponseField>
+            <ResponseField name="yesVotes" type="number">
+                The number of "yes" votes.
+            </ResponseField>
+            <ResponseField name="noVotes" type="number">
+                The number of "no" votes.
+            </ResponseField>
+            <ResponseField name="timestamp" type="number">
+                The Unix timestamp of the registration.
+            </ResponseField>
+            <ResponseField name="finalized" type="boolean">
+                Whether the validation process is complete.
+            </ResponseField>
+            <ResponseField name="consensusPercentage" type="number">
+                The percentage of "yes" votes.
+            </ResponseField>
+            <ResponseField name="assignedValidators" type="Array<string>">
+                A list of validators assigned to verify the file.
+            </ResponseField>
+            <ResponseField name="validatorsWhoVoted" type="Array<string>">
+                A list of validators who have voted.
+            </ResponseField>
+        </Expandable>
+    </ResponseField>
+    <ResponseField name="userID" type="string">
+      The user ID associated with the creator of the file.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `storeUserKeyRelation`
+
+### Options
+
+<ResponseField name="userID" type="string" required>
+  The user's ID.
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" required>
+  The user's wallet address.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the details of the user-key relation.
+  <Expandable>
+    <ResponseField name="userID" type="string">
+      The user's ID.
+    </ResponseField>
+    <ResponseField name="walletAddress" type="string">
+      The user's wallet address.
+    </ResponseField>
+    <ResponseField name="transactionSignature" type="string">
+      The signature of the transaction that stored the user-key relation.
+    </ResponseField>
+    <ResponseField name="explorerUrl" type="string">
+      A URL to view the transaction on a block explorer.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `submitTransaction`
+
+### Options
+
+<ResponseField name="base64Transaction" type="string" required>
+  A base64 encoded transaction.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the details of the transaction.
+  <Expandable>
+    <ResponseField name="transactionSignature" type="string">
+      The signature of the transaction.
+    </ResponseField>
+    <ResponseField name="explorerUrl" type="string">
+      A URL to view the transaction on a block explorer.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `findWallet`
+
+### Options
+
+<ResponseField name="userID" type="string" optional>
+  The user's ID.
+</ResponseField>
+
+<ResponseField name="walletAddress" type="string" optional>
+  The user's wallet address.
+</ResponseField>
+
+### Response
+
+<ResponseField name="success" type="boolean">
+    Whether the request was successful.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+    A message describing the result of the request.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+    An object containing the details of the found wallet.
+    <Expandable>
+        <ResponseField name="searchType" type="string">
+            The type of search that was performed.
+        </ResponseField>
+        <ResponseField name="searchValue" type="string">
+            The value that was searched for.
+        </ResponseField>
+        <ResponseField name="relation" type="object">
+            An object containing the details of the wallet relation.
+            <Expandable>
+                <ResponseField name="userId" type="string">
+                    The user's ID.
+                </ResponseField>
+                <ResponseField name="walletAddress" type="string">
+                    The user's wallet address.
+                </ResponseField>
+                <ResponseField name="createdAt" type="string">
+                    The date the relation was created.
+                </ResponseField>
+                <ResponseField name="relationPDA" type="string">
+                    The Program Derived Address for the relation.
+                </ResponseField>
+            </Expandable>
+        </ResponseField>
+    </Expandable>
+</ResponseField>

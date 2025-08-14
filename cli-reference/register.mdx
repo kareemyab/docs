@@ -1,0 +1,137 @@
+---
+title: 'register'
+description: 'Register a file with the Trust Engine Core API'
+---
+
+# register
+
+Register a file with the Trust Engine Core API for blockchain verification and provenance tracking.
+
+## Usage
+
+```bash
+core-api-cli register [options]
+```
+
+## Required Options
+
+<ParamField path="--file, -f" type="string" required>
+  Path to the file to register
+</ParamField>
+
+<ParamField path="--contentTitle, -t" type="string" required>
+  Title for the content being registered
+</ParamField>
+
+<ParamField path="--walletAddress, -w" type="string" required>
+  User wallet address that will own the registered content
+</ParamField>
+
+<ParamField path="--walletType, -y" type="string" required>
+  Wallet type: either 'standard' or 'crossmint'
+</ParamField>
+
+## Optional Options
+
+<ParamField path="--metadata, -m" type="string">
+  Public metadata as a string (default: empty string)
+</ParamField>
+
+<ParamField path="--secret, -s" type="string">
+  Optional raw text secret for claim hash generation
+</ParamField>
+
+<ParamField path="--json" type="boolean">
+  Output the result as JSON instead of formatted text
+</ParamField>
+
+## Examples
+
+### Basic File Registration
+
+```bash
+core-api-cli register \
+  --file ./document.pdf \
+  --contentTitle "Important Legal Document" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "crossmint"
+```
+
+### Registration with Metadata
+
+```bash
+core-api-cli register \
+  --file ./photo.jpg \
+  --contentTitle "Event Photography" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "standard" \
+  --metadata "event:conference2024,photographer:john_doe"
+```
+
+### Registration with Secret
+
+```bash
+core-api-cli register \
+  --file ./contract.pdf \
+  --contentTitle "Confidential Contract" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "crossmint" \
+  --secret "my_secret_verification_phrase"
+```
+
+### JSON Output for Automation
+
+```bash
+core-api-cli register \
+  --file ./data.csv \
+  --contentTitle "Research Data" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "crossmint" \
+  --json
+```
+
+## Response
+
+### Success Response (Formatted)
+
+```
+✅ ✅ Accepted! Your file has been submitted and is being processed by Crossmint.
+
+Key Information:
+  - Status: processing
+  - Crossmint Transaction Id: abc123def456ghi789jklmnop...
+  - Content Registration PDA: xyz789abc123def456ghi...
+  - Content Hash: abc123def456789...
+  - Ipfs Cid: QmExampleCidForYourFileMetadata...
+```
+
+### JSON Response
+
+```json
+{
+  "message": "✅ Accepted! Your file has been submitted and is being processed by Crossmint.",
+  "details": {
+    "status": "processing",
+    "crossmintTransactionId": "abc123def456ghi789jklmnop...",
+    "contentRegistrationPDA": "xyz789abc123def456ghi...",
+    "contentHash": "abc123def456789...",
+    "ipfsCid": "QmExampleCidForYourFileMetadata..."
+  }
+}
+```
+
+## Error Handling
+
+Common error scenarios:
+
+- **File not found**: Ensure the file path is correct and accessible
+- **Invalid wallet address**: Verify the wallet address format
+- **Invalid wallet type**: Must be either 'standard' or 'crossmint'
+- **Network issues**: Check your internet connection and API availability
+
+## Notes
+
+- The registration process is asynchronous and may take a few moments to complete
+- Once registered, the file's hash and metadata are permanently stored on the blockchain
+- The IPFS CID provides decentralized access to the file metadata
+- Processing fees are automatically calculated and displayed

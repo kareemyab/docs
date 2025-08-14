@@ -1,8 +1,8 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
+    "title": "Trust Engine API",
+    "description": "API for the Trust Engine protocol, providing services for file registration, verification, and wallet management.",
     "license": {
       "name": "MIT"
     },
@@ -10,85 +10,47 @@
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
-    }
-  ],
-  "security": [
-    {
-      "bearerAuth": []
+      "url": "https://core-api-server.onrender.com"
     }
   ],
   "paths": {
-    "/plants": {
+    "/health": {
       "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
+        "summary": "Health Check",
+        "description": "Checks the operational status of the Trust Engine API server.",
+        "tags": ["Health"],
+        "x-code-samples": [
           {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
+            "lang": "cURL",
+            "source": "curl -X GET 'https://core-api-server.onrender.com/health'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/health', {\n  method: 'GET'\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.get('https://core-api-server.onrender.com/health')\ndata = response.json()\nprint(data)"
           }
         ],
         "responses": {
           "200": {
-            "description": "Plant response",
+            "description": "API is healthy",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "All systems operational!"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-01-15T10:30:45.123Z"
+                    }
                   }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "description": "Creates a new plant in the store",
-        "requestBody": {
-          "description": "Plant to add to the store",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/NewPlant"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Plant"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
                 }
               }
             }
@@ -96,121 +58,956 @@
         }
       }
     },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
-          },
-          "400": {
-            "description": "unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  },
-  "webhooks": {
-    "/plant/webhook": {
+    "/create-wallet": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "summary": "Create Wallet",
+        "description": "Create a new wallet for a user.",
+        "tags": ["Wallet"],
         "requestBody": {
-          "description": "Plant added to the store",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/CreateWalletRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/create-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"userID\": \"user-12345\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/create-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    userID: 'user-12345'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/create-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Wallet created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWalletResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "409": {
+            "description": "User already has a wallet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/register": {
+      "post": {
+        "summary": "Register File",
+        "description": "Register a new file using its content hash and metadata.",
+        "tags": ["File Operations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterFileRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\",\n    \"fileMetadata\": {\n      \"fileName\": \"document.pdf\",\n      \"fileSize\": 245760,\n      \"mimeType\": \"application/pdf\"\n    },\n    \"metadata\": \"Important legal document for verification\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'crossmint',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n    fileMetadata: {\n      fileName: 'document.pdf',\n      fileSize: 245760,\n      mimeType: 'application/pdf'\n    },\n    metadata: 'Important legal document for verification'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'crossmint',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n        'fileMetadata': {\n            'fileName': 'document.pdf',\n            'fileSize': 245760,\n            'mimeType': 'application/pdf'\n        },\n        'metadata': 'Important legal document for verification'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction prepared for standard wallet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterFileStandardResponse"
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Registration accepted for Crossmint wallet",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterFileCrossmintResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "409": {
+            "description": "File already registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/search": {
+      "post": {
+        "summary": "Search",
+        "description": "Search for a file by its content hash.",
+        "tags": ["File Operations"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/search' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/search', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/search',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No records found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/find-wallet": {
+      "post": {
+        "summary": "Find Wallet",
+        "description": "Find a wallet by user ID or wallet address.",
+        "tags": ["Wallet"],
+        "x-code-samples": [
+          {
+            "lang": "cURL (by userID)",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/find-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"userID\": \"user-12345\"\n  }'"
+          },
+          {
+            "lang": "cURL (by walletAddress)",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/find-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
+          },
+          {
+            "lang": "JavaScript (by userID)",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/find-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    userID: 'user-12345'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "JavaScript (by walletAddress)",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/find-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python (by userID)",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/find-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={'userID': 'user-12345'}\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "Python (by walletAddress)",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/find-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'}\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FindWalletRequest"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "The wallet was found.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindWalletResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "404": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/link-wallet": {
+      "post": {
+        "summary": "Link Wallet",
+        "description": "Link a wallet to a user ID.",
+        "tags": ["Wallet"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkWalletRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/link-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"userID\": \"user-12345\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/link-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    userID: 'user-12345',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/link-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet linked successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkWalletResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "409": {
+            "description": "Wallet or user ID already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/transactions": {
+      "post": {
+        "summary": "Submit Transaction",
+        "description": "Submit a pre-signed transaction.",
+        "tags": ["Transactions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitTransactionRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/transactions' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"transaction\": \"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/transactions', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    transaction: 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/transactions',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'transaction': 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTransactionResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/wallet-balance": {
+      "post": {
+        "summary": "Get Wallet Balance",
+        "description": "Get the SOL balance of a wallet address.",
+        "tags": ["Wallet"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalletBalanceRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/wallet-balance' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/wallet-balance', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/wallet-balance',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet balance retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WalletBalanceResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
+          }
+        }
+      }
+    },
+    "/validators/data": {
+      "post": {
+        "summary": "Get Validator Data",
+        "description": "Get validator data for a wallet address.",
+        "tags": ["Validators"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidatorDataRequest"
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST 'https://core-api-server.onrender.com/validators/data' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
+          },
+          {
+            "lang": "JavaScript",
+            "source": "const response = await fetch('https://core-api-server.onrender.com/validators/data', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/validators/data',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Validator data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorDataResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Validator not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ErrorResponse"
+          },
+          "500": {
+            "$ref": "#/components/responses/ErrorResponse"
           }
         }
       }
     }
   },
   "components": {
-    "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
-        "type": "object",
-        "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
-          },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
-          }
-        }
-      },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
+    "responses": {
+      "ErrorResponse": {
+        "description": "An error response.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
             }
-          }
-        ]
-      },
-      "Error": {
-        "required": [
-          "error",
-          "message"
-        ],
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "message": {
-            "type": "string"
           }
         }
       }
     },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object"
+          }
+        }
+      },
+      "CreateWalletRequest": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "example": "user_12345"
+          }
+        },
+        "required": ["userID"]
+      },
+      "CreateWalletResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Success! Your Crossmint wallet has been created and linked to your user ID."
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "walletAddress": {
+                "type": "string",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "chain": {
+                "type": "string",
+                "example": "solana"
+              },
+              "transactionSignature": {
+                "type": "string",
+                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "example": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+              }
+            }
+          }
+        }
+      },
+      "SearchRequest": {
+        "type": "object",
+        "properties": {
+          "contentHash": {
+            "type": "string",
+            "description": "SHA256 hash of the file content (hex encoded)",
+            "example": "abc123def456789..."
+          }
+        },
+        "required": ["contentHash"]
+      },
+      "SearchResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Found 1 record(s) for your file on the blockchain."
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SearchRecord"
+            }
+          }
+        }
+      },
+      "SearchRecord": {
+        "type": "object",
+        "properties": {
+          "contentHash": {
+            "type": "string"
+          },
+          "pdaAddress": {
+            "type": "string"
+          },
+          "onChainRegistration": {
+            "type": "object"
+          },
+          "userID": {
+            "type": "string"
+          }
+        }
+      },
+      "RegisterFileRequest": {
+        "type": "object",
+        "properties": {
+          "contentTitle": {
+            "type": "string",
+            "description": "Title for the content being registered",
+            "example": "My Important Document"
+          },
+          "walletAddress": {
+            "type": "string",
+            "description": "User's public Solana wallet address",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          },
+          "walletType": {
+            "type": "string",
+            "description": "Wallet provider type",
+            "enum": ["standard", "crossmint"],
+            "example": "crossmint"
+          },
+          "contentHash": {
+            "type": "string",
+            "description": "SHA256 hash of the file content (hex encoded)",
+            "example": "a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789"
+          },
+          "fileMetadata": {
+            "type": "object",
+            "description": "Metadata about the file being registered",
+            "properties": {
+              "fileName": {
+                "type": "string",
+                "example": "document.pdf"
+              },
+              "fileSize": {
+                "type": "number",
+                "example": 245760
+              },
+              "mimeType": {
+                "type": "string",
+                "example": "application/pdf"
+              }
+            }
+          },
+          "metadata": {
+            "type": "string",
+            "description": "Additional metadata about the file",
+            "example": "Important legal document for verification"
+          },
+          "claimHash": {
+            "type": "string",
+            "description": "SHA256 hash for secret verification (hex encoded)",
+            "example": "110f211f367825834d6897c0efd0b05b35adb744a5836dcd478d384d2a938f15"
+          }
+        },
+        "required": ["contentTitle", "walletAddress", "walletType", "contentHash"]
+      },
+      "RegisterFileStandardResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "✅ TRANSACTION READY ✅"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "Requires Client Signature"
+              },
+              "ipfsCid": {
+                "type": "string",
+                "example": "QmExampleCidForYourFileMetadata..."
+              },
+              "contentRegistrationPDA": {
+                "type": "string",
+                "example": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+              },
+              "transaction": {
+                "type": "string",
+                "example": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."
+              }
+            }
+          }
+        }
+      },
+      "RegisterFileCrossmintResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "✅ SUBMISSION ACCEPTED ✅"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "Pending Verification"
+              },
+              "crossmintTransactionId": {
+                "type": "string",
+                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
+              },
+              "contentRegistrationPDA": {
+                "type": "string",
+                "example": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
+              },
+              "ipfsCid": {
+                "type": "string",
+                "example": "QmExampleCidForYourFileMetadata..."
+              },
+              "processingFee": {
+                "type": "string",
+                "example": "~0.000005000 SOL (5,000 lamports)"
+              },
+              "solanaExplorer": {
+                "type": "string",
+                "example": "https://explorer.solana.com/tx/<TRANSACTION_ID>?cluster=devnet"
+              }
+            }
+          }
+        }
+      },
+      "FindWalletRequest": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string",
+            "description": "User ID to search for (provide either this OR walletAddress)",
+            "example": "user_12345"
+          },
+          "walletAddress": {
+            "type": "string",
+            "description": "Wallet address to search for (provide either this OR userID)",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          }
+        }
+      },
+      "LinkWalletRequest": {
+        "type": "object",
+        "properties": {
+          "userID": {
+            "type": "string",
+            "example": "user_12345"
+          },
+          "walletAddress": {
+            "type": "string",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          }
+        },
+        "required": ["userID", "walletAddress"]
+      },
+      "LinkWalletResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Success! The wallet address has been linked to the user ID."
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "userID": {
+                "type": "string",
+                "example": "user_12345"
+              },
+              "walletAddress": {
+                "type": "string",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "transactionSignature": {
+                "type": "string",
+                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "example": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+              }
+            }
+          }
+        }
+      },
+      "SubmitTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "transaction": {
+            "type": "string",
+            "description": "Base64 encoded transaction",
+            "example": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."
+          }
+        },
+        "required": ["transaction"]
+      },
+      "SubmitTransactionResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Transaction submitted and confirmed successfully!"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "transactionSignature": {
+                "type": "string",
+                "example": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "example": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
+              }
+            }
+          }
+        }
+      },
+      "FindWalletResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "searchType": {
+                "type": "string"
+              },
+              "searchValue": {
+                "type": "string"
+              },
+              "relation": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string"
+                  },
+                  "walletAddress": {
+                    "type": "string"
+                  },
+                  "createdAt": {
+                    "type": "string"
+                  },
+                  "relationPDA": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "All systems operational!"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2024-01-15T10:30:45.123Z"
+          }
+        }
+      },
+      "WalletBalanceRequest": {
+        "type": "object",
+        "properties": {
+          "walletAddress": {
+            "type": "string",
+            "description": "Wallet address to check balance for",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          }
+        },
+        "required": ["walletAddress"]
+      },
+      "WalletBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Wallet balance retrieved successfully."
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "walletAddress": {
+                "type": "string",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "balanceSOL": {
+                "type": "number",
+                "example": 1.5
+              },
+              "balanceLamports": {
+                "type": "number",
+                "example": 1500000000
+              },
+              "chain": {
+                "type": "string",
+                "example": "solana-devnet"
+              }
+            }
+          }
+        }
+      },
+      "ValidatorDataRequest": {
+        "type": "object",
+        "properties": {
+          "walletAddress": {
+            "type": "string",
+            "description": "Validator wallet address",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          }
+        },
+        "required": ["walletAddress"]
+      },
+      "ValidatorDataResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Validator data retrieved successfully."
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "validatorAddress": {
+                "type": "string",
+                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+              },
+              "validatorPDA": {
+                "type": "string",
+                "example": "xyz789abc123def456ghi..."
+              },
+              "stakedAmount": {
+                "type": "number",
+                "example": 1000000
+              },
+              "reputationScore": {
+                "type": "number",
+                "example": 95
+              },
+              "totalVotes": {
+                "type": "number",
+                "example": 100
+              },
+              "honestVotes": {
+                "type": "number",
+                "example": 95
+              },
+              "dishonestVotes": {
+                "type": "number",
+                "example": 5
+              },
+              "accuracyPercentage": {
+                "type": "number",
+                "example": 95.0
+              },
+              "lastActiveTime": {
+                "type": "number",
+                "example": 1640995200
+              },
+              "lastActiveDate": {
+                "type": "string",
+                "example": "2024-01-15T10:30:45.123Z"
+              }
+            }
+          }
+        }
       }
     }
   }

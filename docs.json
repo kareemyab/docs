@@ -18,9 +18,21 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
               "index",
+              "quickstart"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": [
+              "troubleshooting"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
               "faqs",
               "security"
             ]
@@ -31,21 +43,100 @@
         "tab": "API reference",
         "groups": [
           {
-            "group": "Getting Started",
+            "group": "Overview",
             "pages": [
-              "quickstart"
+              "api-overview"
             ]
           },
           {
-            "group": "Endpoints",
+            "group": "Wallet",
             "pages": [
               "essentials/create-wallet",
+              "essentials/link-wallet",
+              "essentials/find-wallet",
+              "essentials/wallet-balance"
+            ]
+          },
+          {
+            "group": "File Operations",
+            "pages": [
               "essentials/register",
               "essentials/submit-transaction",
-              "essentials/wallet-balance",
-              "essentials/search",
-              "essentials/health",
-              "essentials/store-user-key-relation"
+              "essentials/search"
+            ]
+          },
+          {
+            "group": "Validators",
+            "pages": [
+              "essentials/validators-data"
+            ]
+          },
+          {
+            "group": "Server",
+            "pages": [
+              "essentials/health"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SDK Reference",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "sdk-reference/index"
+            ]
+          },
+          {
+            "group": "Functions",
+            "pages": [
+              "sdk-reference/create-wallet",
+              "sdk-reference/register",
+              "sdk-reference/submit-transaction",
+              "sdk-reference/search",
+              "sdk-reference/link-wallet",
+              "sdk-reference/find-wallet",
+              "sdk-reference/health"
+            ]
+          },
+          {
+            "group": "Types",
+            "pages": [
+              "sdk-reference/types"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "CLI Reference",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "cli-reference/index"
+            ]
+          },
+          {
+            "group": "Wallet Commands",
+            "pages": [
+              "cli-reference/create-wallet",
+              "cli-reference/link-wallet",
+              "cli-reference/find-wallet",
+              "cli-reference/wallet-balance"
+            ]
+          },
+          {
+            "group": "File Operations",
+            "pages": [
+              "cli-reference/register",
+              "cli-reference/search-file"
+            ]
+          },
+          {
+            "group": "Advanced",
+            "pages": [
+              "cli-reference/get-validator-data"
             ]
           }
         ]
@@ -95,6 +186,7 @@
      "vscode"
    ]
   },
+  "openapi": "api-reference/openapi.json",
   "footer": {
     "socials": {
       "x": "https://x.com/TrustEngineDAO",

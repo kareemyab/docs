@@ -1,0 +1,400 @@
+---
+title: '/validators/data'
+description: 'Retrieves comprehensive validator data including reputation, voting history, and performance metrics.'
+icon: 'server'
+openapi: 'POST /validators/data'
+---
+
+<Info>
+**Rate Limit:** 50 requests per 5 minutes  
+**Content-Type:** `application/json`
+</Info>
+
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Validator Lookup">
+    Finds the validator account using the provided wallet address
+  </Step>
+  <Step title="PDA Resolution">
+    Resolves the Program Derived Address for the validator record
+  </Step>
+  <Step title="Data Retrieval">
+    Fetches comprehensive validator statistics from the blockchain
+  </Step>
+  <Step title="Metrics Calculation">
+    Calculates accuracy percentage and formats performance data
+  </Step>
+  <Step title="Response Formatting">
+    Returns structured validator information with explorer links
+  </Step>
+</Steps>
+
+---
+
+## Parameters
+
+<ResponseField name="walletAddress" type="string" required>
+  Validator's wallet address to retrieve data for
+  
+  **Constraints:** Must be a valid Solana public key (Base58 format)
+  
+  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+</ResponseField>
+
+---
+
+
+
+## Response Examples
+
+### Success Response (200)
+
+<ResponseField name="message" type="string">
+  Success confirmation message
+  
+  Example: `"Validator data retrieved successfully."`
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Comprehensive validator information
+  
+  <Expandable title="Details Object">
+    <ResponseField name="validatorAddress" type="string">
+      The validator's wallet address
+      
+      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+    </ResponseField>
+    
+    <ResponseField name="validatorPDA" type="string">
+      Program Derived Address for the validator record
+      
+      Example: `"xyz789abc123def456ghi..."`
+    </ResponseField>
+    
+    <ResponseField name="stakedAmount" type="number">
+      Total amount staked by the validator
+      
+      Example: `1000000`
+    </ResponseField>
+    
+    <ResponseField name="reputationScore" type="number">
+      Current reputation score based on performance
+      
+      Example: `95`
+    </ResponseField>
+    
+    <ResponseField name="totalVotes" type="number">
+      Total number of validation votes cast
+      
+      Example: `100`
+    </ResponseField>
+    
+    <ResponseField name="honestVotes" type="number">
+      Number of honest/correct validation votes
+      
+      Example: `95`
+    </ResponseField>
+    
+    <ResponseField name="dishonestVotes" type="number">
+      Number of dishonest/incorrect validation votes
+      
+      Example: `5`
+    </ResponseField>
+    
+    <ResponseField name="accuracyPercentage" type="number">
+      Calculated accuracy percentage (honestVotes/totalVotes * 100)
+      
+      Example: `95.0`
+    </ResponseField>
+    
+    <ResponseField name="lastActiveTime" type="number">
+      Unix timestamp of last validator activity
+      
+      Example: `1640995200`
+    </ResponseField>
+    
+    <ResponseField name="lastActiveDate" type="string">
+      Human-readable date of last activity
+      
+      Example: `"2024-01-15T10:30:45.123Z"`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Success Responses
+
+<CodeGroup>
+```json Success (200, JSON)
+{
+  "message": "Validator data retrieved successfully.",
+  "details": {
+    "validatorAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "validatorPDA": "xyz789abc123def456ghi...",
+    "stakedAmount": 1000000,
+    "reputationScore": 95,
+    "totalVotes": 100,
+    "honestVotes": 95,
+    "dishonestVotes": 5,
+    "accuracyPercentage": 95.0,
+    "lastActiveTime": 1640995200,
+    "lastActiveDate": "2024-01-15T10:30:45.123Z"
+  }
+}
+```
+
+```text Success (200, cURL User-Agent)
+✅ VALIDATOR DATA RETRIEVED ✅
+--------------------------------------------------
+Validator data retrieved successfully.
+
+--- Details ---
+    Validator Address       : 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+    Validator PDA           : xyz789abc123def456ghi...
+    Staked Amount           : 1000000
+    Reputation Score        : 95
+    Total Votes             : 100
+    Honest Votes            : 95
+    Dishonest Votes         : 5
+    Accuracy                : 95.0%
+    Last Active             : 2024-01-15T10:30:45.123Z
+    Solana Explorer         : https://explorer.solana.com/address/xyz789abc123def456ghi...?cluster=devnet
+--------------------------------------------------
+```
+</CodeGroup>
+
+### Common Error Responses
+
+<CodeGroup>
+```json Missing Wallet Address (400, JSON)
+{
+  "error": true,
+  "message": "Hold on! We need a `walletAddress` to fetch validator data."
+}
+```
+
+```text Missing Wallet Address (400, cURL)
+🚫 MISSING WALLET ADDRESS 🚫
+--------------------------------------------------
+Hold on! We need a `walletAddress` to fetch validator data.
+--------------------------------------------------
+```
+
+```json Validator Not Found (404, JSON)
+{
+  "error": true,
+  "message": "Validator account not found. This validator may not be initialized.",
+  "details": {
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "expectedPDA": "xyz789abc123def456ghi...",
+    "suggestion": "Initialize the validator using the /validators/initialize endpoint first."
+  }
+}
+```
+
+```text Validator Not Found (404, cURL)
+🚫 VALIDATOR NOT FOUND 🚫
+--------------------------------------------------
+Validator account not found. This validator may not be initialized.
+
+--- Details ---
+    Wallet Address          : 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+    Expected PDA            : xyz789abc123def456ghi...
+    Suggestion              : Initialize the validator using the /validators/initialize endpoint first.
+--------------------------------------------------
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
+}
+```
+
+```json Server Error (500)
+{
+  "error": true,
+  "message": "Oh no! Something went wrong while fetching validator data.",
+  "details": {
+    "error": "Network connection failed"
+  }
+}
+```
+</CodeGroup>
+
+---
+
+## Prerequisites
+
+<Check>Valid validator wallet address</Check>
+<Check>Validator must be initialized in the system</Check>
+
+---
+
+## Understanding Validator Metrics
+
+### Performance Indicators
+
+<Tabs>
+  <Tab title="Reputation Score">
+    **Range**: 0-100
+    
+    **Calculation**: Based on historical voting accuracy and stake amount
+    
+    **Interpretation**:
+    - **90-100**: Excellent validator with high trust
+    - **70-89**: Good validator with solid performance
+    - **50-69**: Average validator, monitor closely
+    - **Below 50**: Poor performance, consider replacement
+  </Tab>
+  
+  <Tab title="Accuracy Percentage">
+    **Formula**: `(honestVotes / totalVotes) * 100`
+    
+    **Meaning**: Percentage of correct validation decisions
+    
+    **Quality Levels**:
+    - **≥95%**: Exceptional accuracy
+    - **85-94%**: Good accuracy
+    - **70-84%**: Acceptable accuracy
+    - Poor accuracy, needs improvement
+  </Tab>
+  
+  <Tab title="Activity Status">
+    **Last Active Time**: Unix timestamp of most recent validation
+    
+    **Status Interpretation**:
+    - **Recent (< 1 hour)**: Active validator
+    - **Moderate (1-24 hours)**: Occasionally active
+    - **Stale (> 24 hours)**: Inactive, may need attention
+    - **Never**: Validator initialized but never participated
+  </Tab>
+</Tabs>
+
+### Voting History
+
+<Info>
+**Total Votes**: Complete count of all validation decisions made
+
+**Honest Votes**: Votes that aligned with network consensus (correct decisions)
+
+**Dishonest Votes**: Votes that conflicted with consensus (incorrect decisions)
+</Info>
+
+---
+
+## Integration Examples
+
+### Validator Performance Monitoring
+
+```typescript
+async function assessValidatorPerformance(walletAddress: string) {
+  const response = await fetch('/validators/data', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ walletAddress })
+  });
+  
+  const data = await response.json();
+  const { details } = data;
+  
+  return {
+    address: details.validatorAddress,
+    performance: {
+      reputation: details.reputationScore,
+      accuracy: details.accuracyPercentage,
+      totalVotes: details.totalVotes,
+      isActive: Date.now() - (details.lastActiveTime * 1000) < 86400000, // 24 hours
+      grade: getPerformanceGrade(details.accuracyPercentage)
+    }
+  };
+}
+
+function getPerformanceGrade(accuracy: number): string {
+  if (accuracy >= 95) return 'A+';
+  if (accuracy >= 85) return 'A';
+  if (accuracy >= 70) return 'B';
+  return 'C';
+}
+```
+
+### Validator Selection System
+
+```typescript
+async function selectBestValidators(candidateAddresses: string[], minAccuracy: number = 85) {
+  const validatorPromises = candidateAddresses.map(async (address) => {
+    try {
+      const response = await fetch('/validators/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress: address })
+      });
+      
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      return {
+        address,
+        ...data.details,
+        score: calculateValidatorScore(data.details)
+      };
+    } catch (error) {
+      return null;
+    }
+  });
+  
+  const validators = (await Promise.all(validatorPromises))
+    .filter(v => v !== null && v.accuracyPercentage >= minAccuracy)
+    .sort((a, b) => b.score - a.score);
+  
+  return validators;
+}
+
+function calculateValidatorScore(validator: any): number {
+  const accuracyWeight = 0.4;
+  const reputationWeight = 0.3;
+  const activityWeight = 0.2;
+  const stakeWeight = 0.1;
+  
+  const activityScore = Date.now() - (validator.lastActiveTime * 1000) < 86400000 ? 100 : 50;
+  const stakeScore = Math.min(validator.stakedAmount / 1000000 * 100, 100);
+  
+  return (
+    validator.accuracyPercentage * accuracyWeight +
+    validator.reputationScore * reputationWeight +
+    activityScore * activityWeight +
+    stakeScore * stakeWeight
+  );
+}
+```
+
+---
+
+## Related Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Validator Registration" icon="user-plus" href="/validators/register">
+    Initialize new validators in the system
+  </Card>
+  
+  <Card title="Stake Management" icon="coins" href="/validators/stake">
+    Manage validator stake amounts
+  </Card>
+  
+  <Card title="Validator Search" icon="search" href="/validators/search">
+    Find validators by various criteria
+  </Card>
+  
+  <Card title="Network Stats" icon="chart-line" href="/validators/network">
+    View overall network validator statistics
+  </Card>
+</CardGroup>
+
+<Warning>
+**Data Freshness**: Validator data is updated based on on-chain activity. Recent validation votes may take a few minutes to be reflected in the metrics.
+</Warning>
+
+<Tip>
+For production systems, implement caching for validator data with appropriate TTL (5-15 minutes) to reduce API calls while maintaining reasonable data freshness.
+</Tip>

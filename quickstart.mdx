@@ -1,10 +1,12 @@
 ---
-title: "Quickstart"
-description: "Register your first file and verify its provenance in under 5 minutes"
+title: 'Quickstart Guide'
+description: 'Get up and running with Trust Engine in under 5 minutes. Register your first file and verify its provenance.'
+icon: 'rocket'
 ---
 
 <Info>
-**What you'll learn**: How to use Trust Engine's REST API to establish verifiable provenance for digital media without exposing file contents.
+**Time to Complete**: ~5 minutes  
+**What You'll Learn**: How to create a wallet, register a file, and verify its provenance using Trust Engine
 </Info>
 
 ---
@@ -13,549 +15,224 @@ description: "Register your first file and verify its provenance in under 5 minu
 
 Before you begin, make sure you have:
 
-<CardGroup cols={1}>
-  <Card title="A File to Register" icon="file">
-    Any digital media file (PDF, image, document, etc.) under 50MB
-  </Card>
-</CardGroup>
-
-### Installation
-
-```bash
-npm install trust-engine-sdk
-```
-
-<Warning>
-**Environment**: This quickstart uses our hosted service at `https://core-api-server.onrender.com` for production-ready examples.
-</Warning>
+<Check>Basic understanding of REST APIs</Check>
+<Check>A file you want to register (any type, max 100MB)</Check>
+<Check>curl or your favorite HTTP client</Check>
 
 ---
 
-## Step 1: Create a Wallet
+## Step 1: Health Check
 
-First, create a Solana wallet that will be linked to your user ID. This wallet will be used for all your provenance registrations.
+First, let's make sure the Trust Engine API is operational:
 
 <CodeGroup>
-```typescript SDK (Recommended)
-import { createWallet } from 'trust-engine-sdk';
-
-async function setupWallet() {
-  try {
-    const result = await createWallet({ 
-      userID: 'quickstart_user_001' 
-    });
-    
-    console.log('✅ Wallet created successfully!');
-    console.log('Wallet Address:', result.details.walletAddress);
-    console.log('Transaction:', result.details.transactionSignature);
-    
-    // Save wallet address for next steps
-    const walletAddress = result.details.walletAddress;
-    return walletAddress;
-  } catch (error) {
-    console.error('❌ Wallet creation failed:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-const walletAddress = await setupWallet();
+```bash cURL
+curl -X GET https://core-api-server.onrender.com/health
 ```
 
+```javascript JavaScript
+const response = await fetch('https://core-api-server.onrender.com/health');
+const data = await response.json();
+console.log(data);
+```
+
+```python Python
+import requests
+
+response = requests.get('https://core-api-server.onrender.com/health')
+print(response.json())
+```
+</CodeGroup>
+
+**Expected Response:**
+```json
+{
+  "status": "All systems operational!",
+  "timestamp": "2024-01-15T10:30:45.123Z"
+}
+```
+
+---
+
+## Step 2: Create Your Wallet
+
+Create a Crossmint wallet that will own your registered files:
+
+<CodeGroup>
 ```bash cURL
 curl -X POST https://core-api-server.onrender.com/create-wallet \
   -H "Content-Type: application/json" \
+  -d '{"userID": "my-unique-id-123"}'
+```
+
+```javascript JavaScript (SDK)
+const wallet = await sdk.createWallet({
+  userID: 'my-unique-id-123'
+});
+
+console.log('Wallet created:', wallet.details.walletAddress);
+const walletAddress = wallet.details.walletAddress;
+```
+
+```bash CLI
+core-api-cli create-wallet \
+  --userID "my-unique-id-123"
+```
+</CodeGroup>
+
+**Save the wallet address** from the response - you'll need it for the next step!
+
+---
+
+## Step 3: Prepare Your File
+
+For this example, let's register a simple text file. Create the file first:
+
+<CodeGroup>
+```bash cURL
+# Create example file
+echo "Hello, Trust Engine!" > example.txt
+
+# Calculate SHA256 hash
+shasum -a 256 example.txt
+# Output: a7b2c3d4e5f6... example.txt
+
+# Get file size
+wc -c < example.txt
+# Output: 21
+```
+
+```javascript JavaScript (SDK)
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+// Create example file (in browser, this would be from file input)
+const fileContent = "Hello, Trust Engine!";
+const file = new File([fileContent], "example.txt", { type: "text/plain" });
+
+console.log('File ready for registration');
+```
+
+```bash CLI
+# Create example file
+echo "Hello, Trust Engine!" > example.txt
+
+# The CLI will automatically handle hash calculation
+ls -la example.txt
+```
+</CodeGroup>
+
+---
+
+## Step 4: Register Your File
+
+Now register your file using the wallet from Step 2:
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://core-api-server.onrender.com/register \
+  -H "Content-Type: application/json" \
   -d '{
-    "userID": "quickstart_user_001"
+    "contentTitle": "My First Registration",
+    "walletAddress": "YOUR_WALLET_ADDRESS_HERE",
+    "walletType": "crossmint",
+    "contentHash": "a7b2c3d4e5f6789abcdef...",
+    "fileMetadata": {
+      "fileName": "example.txt",
+      "fileSize": 21,
+      "mimeType": "text/plain"
+    },
+    "metadata": "Quickstart tutorial example"
   }'
 ```
 
-```javascript Raw JavaScript
-const response = await fetch('https://core-api-server.onrender.com/create-wallet', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    userID: 'quickstart_user_001' 
-  })
+```javascript JavaScript (SDK)
+const registration = await sdk.registerFile({
+  file: file, // The File object from Step 3
+  contentTitle: 'My First Registration',
+  walletAddress: walletAddress, // From Step 2
+  walletType: 'crossmint',
+  metadata: 'Quickstart tutorial example'
 });
 
-const walletData = await response.json();
-console.log('Wallet created:', walletData.details.walletAddress);
+console.log('File registered!', registration);
+```
+
+```bash CLI
+# Register the file (replace YOUR_WALLET_ADDRESS with actual address)
+core-api-cli register \
+  --file example.txt \
+  --contentTitle "My First Registration" \
+  --walletAddress "YOUR_WALLET_ADDRESS_HERE" \
+  --walletType "crossmint" \
+  --metadata "Quickstart tutorial example"
 ```
 </CodeGroup>
 
-### Expected Response
+<Info>
+**Note**: We're using Crossmint wallets which handle transaction signing automatically. For standard wallets, additional signing steps are required.
+</Info>
 
+**Expected Response (Crossmint):**
 ```json
 {
-  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "message": "✅ Accepted! Your file has been submitted and is being processed by Crossmint.",
   "details": {
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "chain": "solana",
-    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
-    "explorerUrl": "https://explorer.solana.com/tx/..."
+    "status": "processing",
+    "crossmintTransactionId": "abc123...",
+    "contentRegistrationPDA": "xyz789...",
+    "contentHash": "a7b2c3d4...",
+    "ipfsCid": "QmExample..."
   }
 }
 ```
 
-<Tip>
-**Save your wallet address!** You'll need it for the next steps. The wallet is automatically funded with tokens needed for registration fees.
-</Tip>
-
-<Info>
-**Why Use the SDK?** The SDK provides type safety, automatic error handling, and cleaner code compared to raw HTTP calls. It handles all the complexity of API communication for you.
-</Info>
-
 ---
 
-## Step 2: Register Your First File
+## Step 5: Verify Your Registration
 
-Now register a digital media file to establish its provenance. The file content is never exposed - only a cryptographic hash is used.
-
-<Info>
-**Two Registration Paths**: Trust Engine supports both **Crossmint wallets** (fully automated) and **standard wallets** (requires manual transaction signing). Choose the approach that matches your wallet type.
-</Info>
-
-<Tabs>
-  <Tab title="Crossmint Wallet (Automated)">
-    **Recommended for beginners** - The server handles transaction signing automatically.
-
-    <CodeGroup>
-    ```typescript SDK (Recommended)
-    import { registerFile } from 'trust-engine-sdk';
-
-    async function registerWithCrossmint(walletAddress: string, file: File) {
-      try {
-        const result = await registerFile({
-          file: file, // File object from input or drag-drop
-          contentTitle: 'My First Provenance Record',
-          contentDescription: 'Testing Trust Engine\'s provenance verification',
-          walletAddress: walletAddress,
-          walletType: 'crossmint', // Automatic transaction handling
-          metadata: {
-            author: 'Quickstart User',
-            category: 'test'
-          }
-        });
-        
-        console.log('✅ File registered successfully!');
-        console.log('Transaction ID:', result.details?.transactionSignature);
-        console.log('IPFS CID:', result.details?.ipfsCid);
-        console.log('Status:', result.message);
-        
-        return result;
-      } catch (error) {
-        console.error('❌ Registration failed:', error.message);
-        throw error;
-      }
-    }
-
-    // Usage (assuming you have a file from an input)
-    // const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    // const file = fileInput.files[0];
-    // await registerWithCrossmint(walletAddress, file);
-    ```
-
-    ```bash cURL
-    curl -X POST https://core-api-server.onrender.com/register \
-      -F "file=@/path/to/your/document.pdf" \
-      -F "walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-      -F "contentTitle=My First Provenance Record" \
-      -F "contentDescription=Testing Trust Engine's provenance verification" \
-      -F "walletType=crossmint" \
-      -F 'metadata={"author":"Quickstart User","category":"test"}'
-    ```
-
-    ```javascript Raw JavaScript
-    const formData = new FormData();
-    formData.append('file', fileInput.files[0]); // Your file input
-    formData.append('walletAddress', '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM');
-    formData.append('contentTitle', 'My First Provenance Record');
-    formData.append('contentDescription', 'Testing Trust Engine\'s provenance verification');
-    formData.append('walletType', 'crossmint');
-    formData.append('metadata', JSON.stringify({
-      author: 'Quickstart User',
-      category: 'test'
-    }));
-
-    const response = await fetch('https://core-api-server.onrender.com/register', {
-      method: 'POST',
-      body: formData
-    });
-
-    const registrationData = await response.text();
-    console.log('Registration result:', registrationData);
-    ```
-    </CodeGroup>
-  </Tab>
-  
-  <Tab title="Standard Wallet (Manual Signing)">
-    **For advanced users** - You handle transaction signing with your own wallet (Phantom, Solflare, etc.).
-
-    <CodeGroup>
-    ```typescript SDK (Recommended)
-    import { registerFile, submitTransaction } from 'trust-engine-sdk';
-
-    async function registerWithStandardWallet(walletAddress: string, file: File) {
-      try {
-        // Step 1: Get prepared transaction from register endpoint
-        const prepResult = await registerFile({
-          file: file,
-          contentTitle: 'My First Provenance Record',
-          contentDescription: 'Testing Trust Engine\'s provenance verification',
-          walletAddress: walletAddress,
-          walletType: 'standard', // Returns unsigned transaction
-          metadata: {
-            author: 'Quickstart User',
-            category: 'test'
-          }
-        });
-        
-        console.log('📋 Transaction prepared, ready for signing');
-        console.log('IPFS CID:', prepResult.details?.ipfsCid);
-        
-        // Step 2: Sign transaction with your wallet
-        // This would typically use a wallet adapter like @solana/wallet-adapter
-        const base64Transaction = prepResult.details?.transaction; // From register response
-        
-        // Note: In a real app, you'd sign with wallet.signTransaction()
-        // const signedTx = await wallet.signTransaction(transaction);
-        // const base64Transaction = Buffer.from(signedTx.serialize()).toString('base64');
-        
-        // Step 3: Submit the signed transaction
-        const submitResult = await submitTransaction({
-          base64Transaction: base64Transaction
-        });
-        
-        console.log('✅ Transaction submitted and confirmed!');
-        console.log('Transaction Signature:', submitResult.details.transactionSignature);
-        console.log('Explorer URL:', submitResult.details.explorerUrl);
-        
-        return submitResult;
-      } catch (error) {
-        console.error('❌ Registration failed:', error.message);
-        throw error;
-      }
-    }
-    ```
-
-    ```bash cURL (Two-Step Process)
-    # Step 1: Get prepared transaction
-    curl -X POST https://core-api-server.onrender.com/register \
-      -F "file=@/path/to/your/document.pdf" \
-      -F "walletAddress=YOUR_WALLET_ADDRESS" \
-      -F "contentTitle=My First Provenance Record" \
-      -F "contentDescription=Testing Trust Engine's provenance verification" \
-      -F "walletType=standard" \
-      -F 'metadata={"author":"Quickstart User","category":"test"}'
-
-    # Step 2: Sign transaction with your wallet software, then submit
-    curl -X POST https://core-api-server.onrender.com/submit-transaction \
-      -H "Content-Type: application/json" \
-      -d '{
-        "transaction": "SIGNED_BASE64_TRANSACTION_FROM_STEP1"
-      }'
-    ```
-
-    ```javascript Raw JavaScript
-    async function registerWithStandardWallet() {
-      // Step 1: Get prepared transaction
-      const formData = new FormData();
-      formData.append('file', fileInput.files[0]);
-      formData.append('walletAddress', 'YOUR_WALLET_ADDRESS');
-      formData.append('contentTitle', 'My First Provenance Record');
-      formData.append('contentDescription', 'Testing Trust Engine\'s provenance verification');
-      formData.append('walletType', 'standard');
-      formData.append('metadata', JSON.stringify({
-        author: 'Quickstart User',
-        category: 'test'
-      }));
-
-      const prepResponse = await fetch('https://core-api-server.onrender.com/register', {
-        method: 'POST',
-        body: formData
-      });
-      
-      const prepData = await prepResponse.text();
-      console.log('Transaction prepared:', prepData);
-      
-      // Step 2: Extract base64 transaction and sign with your wallet
-      // (In real implementation, parse the response to get the transaction)
-      const base64Transaction = 'SIGNED_TRANSACTION_HERE'; // After wallet signing
-      
-      // Step 3: Submit signed transaction
-      const submitResponse = await fetch('https://core-api-server.onrender.com/submit-transaction', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ transaction: base64Transaction })
-      });
-      
-      const submitData = await submitResponse.json();
-      console.log('Transaction confirmed:', submitData);
-    }
-    ```
-    </CodeGroup>
-  </Tab>
-</Tabs>
-
-### Expected Response
-
-<Tabs>
-  <Tab title="Crossmint Response (Completed)">
-    **For Crossmint wallets** - Transaction is immediately processed:
-    
-    **SDK Response:**
-    ```json
-    {
-      "message": "Success! Your file has been registered.",
-      "details": {
-        "transactionSignature": "abc123def456ghi789jklmnop...",
-        "ipfsCid": "QmExampleCidForYourFileMetadata...",
-        "pdaAddress": "xyz789abc123def456ghi...",
-        "explorerUrl": "https://explorer.solana.com/tx/..."
-      }
-    }
-    ```
-    
-    **HTTP/cURL Response:**
-    ```text
-    ✅ SUBMISSION ACCEPTED ✅
-    --------------------------------------------------
-    ✅ Accepted! Your file has been submitted for verification via Crossmint.
-
-    --- Details ---
-        Status              : Pending Verification
-        Transaction ID      : abc123def456ghi789jklmnop...
-        Content Registration PDA: xyz789abc123def456ghi...
-        IPFS CID            : QmExampleCidForYourFileMetadata...
-        Processing Fee      : ~0.000005000 SOL (5,000 lamports)
-        Solana Explorer     : https://explorer.solana.com/tx/...
-    --------------------------------------------------
-    ```
-  </Tab>
-  
-  <Tab title="Standard Wallet Response (Requires Signing)">
-    **For standard wallets** - Returns prepared transaction for signing:
-    
-    **Register Response:**
-    ```text
-    ✅ TRANSACTION READY ✅
-    --------------------------------------------------
-    Transaction prepared. Please sign and submit via your wallet.
-
-    --- Details ---
-        Status                  : Requires Client Signature
-        IPFS CID                : QmExampleCidForYourFileMetadata...
-        Content Registration PDA: xyz789abc123def456ghi...
-        Transaction (Base64)    : AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...
-    --------------------------------------------------
-    ```
-    
-    **Submit-Transaction Response (After Signing):**
-    ```json
-    {
-      "message": "Transaction submitted and confirmed successfully!",
-      "details": {
-        "transactionSignature": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef",
-        "explorerUrl": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
-      }
-    }
-    ```
-  </Tab>
-</Tabs>
-
-<Info>
-**SDK Advantage**: The SDK automatically parses responses into structured objects, making it easier to extract specific values like transaction signatures and IPFS CIDs programmatically.
-</Info>
-
-<Steps>
-  <Step title="File Uploaded & Hashed">
-    Your file is securely hashed and metadata is stored on IPFS
-  </Step>
-  <Step title="Transaction Prepared">
-    A Solana transaction is created for blockchain registration
-  </Step>
-  <Step title="Transaction Signed & Submitted">
-    **Crossmint**: Server automatically signs and submits the transaction
-    **Standard**: You sign the transaction and submit via `/submit-transaction`
-  </Step>
-  <Step title="Blockchain Record Created">
-    An immutable provenance record is confirmed on Solana
-  </Step>
-  <Step title="Verification Initiated">
-    Independent verifiers begin the authentication process
-  </Step>
-</Steps>
-
----
-
-## Step 3: Verify File Provenance
-
-Search for your registered file to confirm its provenance record exists and check verification status.
+Search for your registered file to confirm it's in the system:
 
 <CodeGroup>
-```typescript SDK (Recommended)
-import { searchFile } from 'trust-engine-sdk';
-
-async function verifyFileProvenance(file: File) {
-  try {
-    const result = await searchFile(file);
-    
-    if (result.details && result.details.length > 0) {
-      console.log(`✅ Found ${result.details.length} provenance record(s)!`);
-      
-      result.details.forEach((record, index) => {
-        console.log(`\n📄 Record ${index + 1}:`);
-        console.log(`   Creator: ${record.onChainRegistration.creator}`);
-        console.log(`   IPFS CID: ${record.onChainRegistration.ipfsCid}`);
-        console.log(`   Verification Status: ${record.onChainRegistration.finalized ? 'Finalized' : 'Pending'}`);
-        console.log(`   Consensus: ${record.onChainRegistration.consensusPercentage}%`);
-        console.log(`   User ID: ${record.userID || 'Not linked'}`);
-      });
-    } else {
-      console.log('ℹ️ No provenance records found for this file');
-    }
-    
-    return result;
-  } catch (error) {
-    if (error.message.includes('does not exist')) {
-      console.log('ℹ️ File has not been registered yet');
-    } else {
-      console.error('❌ Search failed:', error.message);
-    }
-    throw error;
-  }
-}
-
-// Usage
-// await verifyFileProvenance(file);
-```
-
 ```bash cURL
 curl -X POST https://core-api-server.onrender.com/search \
-  -F "file=@/path/to/your/document.pdf"
+  -H "Content-Type: application/json" \
+  -d '{"contentHash": "a7b2c3d4e5f6789abcdef..."}'
 ```
 
-```javascript Raw JavaScript
-const searchForm = new FormData();
-searchForm.append('file', fileInput.files[0]); // Same file as before
+```javascript JavaScript (SDK)
+const results = await sdk.searchFile(file); // Pass the same file from Step 3
 
-const response = await fetch('https://core-api-server.onrender.com/search', {
-  method: 'POST',
-  body: searchForm
-});
+console.log('Search results:', results);
+```
 
-const searchResults = await response.json();
-console.log('Provenance records found:', searchResults.details.length);
+```bash CLI
+core-api-cli search-file \
+  --file example.txt
 ```
 </CodeGroup>
 
-### Expected Response
-
+**Expected Response:**
 ```json
 {
   "message": "Found 1 record(s) for your file on the blockchain.",
   "details": [
     {
-      "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
-      "pdaAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+      "contentHash": "a7b2c3d4...",
+      "pdaAddress": "xyz789...",
       "onChainRegistration": {
-        "creator": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-        "ipfsCid": "QmYwAPJzv5CZsnA625s3Xf2nemtYgPpHdWEz79ojWnPbdG",
-        "totalVotes": 3,
-        "yesVotes": 3,
-        "noVotes": 0,
-        "timestamp": 1704067200,
-        "finalized": true,
-        "consensusPercentage": 100
+        "creator": "YOUR_WALLET_ADDRESS",
+        "ipfsCid": "QmExample...",
+        "timestamp": 1640995200,
+        "finalized": false,
+        "consensusPercentage": 0
       },
-      "userID": "quickstart_user_001"
+      "userID": "my-unique-id-123"
     }
   ]
 }
 ```
-
-### Understanding Verification Status
-
-<Tabs>
-  <Tab title="✅ Verified">
-    **Status**: `finalized: true` with ≥67% consensus
-    
-    Your file has been successfully verified by the network. The provenance is confirmed and can be trusted.
-  </Tab>
-  
-  <Tab title="⏳ Pending">
-    **Status**: `finalized: false`
-    
-    Verification is still in progress. Independent verifiers are reviewing your submission.
-  </Tab>
-  
-  <Tab title="❌ Rejected">
-    **Status**: `finalized: true` with &lt;67% consensus
-    
-    The network couldn't reach consensus on your file's authenticity. This is rare but can happen with corrupted or suspicious files.
-  </Tab>
-</Tabs>
-
----
-
-## Step 4: Check Your Wallet Balance
-
-Monitor your wallet's token balance to ensure you have sufficient funds for future registrations.
-
-<CodeGroup>
-```typescript SDK (Recommended)
-import { getWalletBalance } from 'trust-engine-sdk';
-
-async function checkWalletBalance(walletAddress: string) {
-  try {
-    const result = await getWalletBalance({ walletAddress });
-    
-    console.log('💰 Wallet Balance Information:');
-    console.log(`   Address: ${result.details.walletAddress}`);
-    console.log(`   Balance: ${result.details.balanceSOL} SOL`);
-    console.log(`   Lamports: ${result.details.balanceLamports.toLocaleString()}`);
-    console.log(`   Network: ${result.details.chain}`);
-    
-    // Check if balance is sufficient for registrations
-    if (result.details.balanceSOL > 0.01) {
-      console.log('✅ Sufficient balance for file registrations');
-    } else {
-      console.log('⚠️  Low balance - consider adding more SOL for registrations');
-    }
-    
-    return result;
-  } catch (error) {
-    console.error('❌ Balance check failed:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-// await checkWalletBalance(walletAddress);
-```
-
-```bash cURL
-curl -X POST https://core-api-server.onrender.com/wallet-balance \
-  -H "Content-Type: application/json" \
-  -d '{
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-  }'
-```
-
-```javascript Raw JavaScript
-const response = await fetch('https://core-api-server.onrender.com/wallet-balance', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
-  })
-});
-
-const balanceData = await response.json();
-console.log(`Balance: ${balanceData.details.balanceSOL} SOL`);
-```
-</CodeGroup>
 
 ---
 
@@ -563,83 +240,59 @@ console.log(`Balance: ${balanceData.details.balanceSOL} SOL`);
 
 You've successfully:
 
+<Check>Created a Trust Engine wallet</Check>
+<Check>Registered your first file</Check>
+<Check>Verified the registration on-chain</Check>
+
+## Understanding Your Results
+
+- **`finalized: false`**: Your file is registered but validators are still verifying it
+- **`consensusPercentage: 0`**: Verification is in progress (will show percentage when validators vote)
+- **`pdaAddress`**: Your unique on-chain record address
+- **`ipfsCid`**: Metadata stored on IPFS
+
+---
+
+## What's Next?
+
 <CardGroup cols={2}>
-  <Card title="Created a Wallet" icon="wallet">
-    Established your identity on the Trust Engine network
+  <Card title="Integration Guide" icon="code" href="/guides/integration">
+    Learn how to integrate Trust Engine into your application
   </Card>
   
-  <Card title="Registered Content" icon="file-plus">
-    Created an immutable provenance record for your digital media
+  <Card title="SDK Documentation" icon="box" href="/sdk-reference">
+    Use our JavaScript/TypeScript SDK for easier integration
   </Card>
   
-  <Card title="Verified Provenance" icon="magnifying-glass">
-    Confirmed your file's authenticity through decentralized verification
+  <Card title="Advanced Features" icon="gear" href="/guides/advanced-features">
+    Explore claim hashes, custom metadata, and validator networks
   </Card>
   
-  <Card title="Monitored Balance" icon="scale-balanced">
-    Checked your wallet status for future operations
+  <Card title="Production Setup" icon="server" href="/guides/production">
+    Deploy Trust Engine in production environments
   </Card>
 </CardGroup>
 
----
-
-## What You've Accomplished
-
-<AccordionGroup>
-  <Accordion title="Established Digital Identity">
-    Your user ID is now cryptographically linked to a Solana wallet, creating a verifiable digital identity for digital media creation.
-  </Accordion>
-
-  <Accordion title="Mastered Transaction Workflows">
-    You've learned both **Crossmint** (automated) and **standard wallet** (manual signing) registration flows, giving you flexibility for different integration scenarios.
-  </Accordion>
-
-  <Accordion title="Created Tamper-Proof Records">
-    Your file's provenance is now permanently recorded on the blockchain with cryptographic integrity guarantees, whether through automated or manual transaction submission.
-  </Accordion>
-
-  <Accordion title="Enabled Public Verification">
-    Anyone can now verify your digital media piece's authenticity and origin without needing access to the original file.
-  </Accordion>
-
-  <Accordion title="Joined the Trust Network">
-    You're now part of Trust Engine's decentralized verification ecosystem, contributing to a more trustworthy internet.
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Next Steps
+## Need Help?
 
 <CardGroup cols={2}>
-  <Card title="Submit Transaction" icon="paper-plane" href="/essentials/submit-transaction">
-    Learn how to submit pre-signed transactions for standard wallet integrations
+  <Card title="FAQ" icon="circle-question" href="/faqs">
+    Common questions and answers
   </Card>
   
-  <Card title="SDK Documentation" icon="code" href="/api-reference/sdk">
-    Complete SDK reference with all available methods and types
+  <Card title="Discord Community" icon="discord" href="https://discord.gg/your-invite">
+    Get help from our community
   </Card>
   
-  <Card title="API Reference" icon="terminal" href="/api-reference/introduction">
-    Explore all available endpoints and advanced features
+  <Card title="Support" icon="envelope" href="mailto:kareem@trustengine.org">
+    Contact our team directly
   </Card>
   
-  <Card title="How Verification Works" icon="magnifying-glass" href="/how-it-works">
-    Learn about our three-party architecture and Proof of Verification
-  </Card>
-  
-  <Card title="Integration Examples" icon="puzzle-piece" href="/examples">
-    See how to integrate Trust Engine SDK into your applications
-  </Card>
-  
-  <Card title="Store Relations" icon="link" href="/essentials/store-user-key-relation">
-    Link existing wallets to user IDs for advanced use cases
+  <Card title="Troubleshooting" icon="wrench" href="/guides/troubleshooting">
+    Common issues and solutions
   </Card>
 </CardGroup>
 
----
-
-## Troubleshooting
-<Note>
-**Need Help?** Join our developer community or check our FAQ section for common questions and solutions.
-</Note>
+<Tip>
+**Pro Tip**: Save your wallet address, content hash, and PDA address for future reference. These provide cryptographic proof of your file's registration timestamp and origin.
+</Tip>

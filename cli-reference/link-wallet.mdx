@@ -1,0 +1,92 @@
+---
+title: 'link-wallet'
+description: 'Link a wallet to a user ID'
+---
+
+# link-wallet
+
+Store a user's key relation by linking a wallet address to a user ID.
+
+## Usage
+
+```bash
+core-api-cli link-wallet [options]
+```
+
+## Required Options
+
+<ParamField path="--userID, -u" type="string" required>
+  User ID to link the wallet to
+</ParamField>
+
+<ParamField path="--walletAddress, -w" type="string" required>
+  Wallet address to link to the user ID
+</ParamField>
+
+## Optional Options
+
+<ParamField path="--json" type="boolean">
+  Output the result as JSON instead of formatted text
+</ParamField>
+
+## Examples
+
+### Basic Wallet Linking
+
+```bash
+core-api-cli link-wallet \
+  --userID "user_12345" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+```
+
+### JSON Output for Automation
+
+```bash
+core-api-cli link-wallet \
+  --userID "user_12345" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --json
+```
+
+## Response
+
+### Success Response (Formatted)
+
+```
+✅ Success! The wallet address has been linked to the user ID.
+
+Details:
+  - User ID: user_12345
+  - Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+  - PDA: xyz789abc123def456ghi...
+```
+
+### JSON Response
+
+```json
+{
+  "message": "Success! The wallet address has been linked to the user ID.",
+  "details": {
+    "userID": "user_12345",
+    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+
+## Error Handling
+
+Common error scenarios:
+
+- **Missing required parameters**: Both user ID and wallet address are required
+- **Invalid wallet address**: Ensure the wallet address is a valid Solana address
+- **Existing association**: The user or wallet may already be linked to another entity
+- **Network issues**: Check your internet connection and API availability
+
+## Notes
+
+- This command creates a permanent association between a user ID and wallet address
+- The relationship is stored on the blockchain via a Program Derived Address (PDA)
+- Once linked, you can use either the user ID or wallet address to find the association
+- This is useful for managing user identities across your application

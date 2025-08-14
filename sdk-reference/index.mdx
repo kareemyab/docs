@@ -1,0 +1,79 @@
+---
+title: Get Started
+---
+
+# Get Started with the Trust Engine SDK
+
+Welcome to the official documentation for the Trust Engine SDK. This guide will help you quickly get started with the core functionalities of the SDK, allowing you to integrate file registration, verification, and wallet management into your applications with ease.
+
+## Installation
+
+To get started, install the SDK using npm:
+
+```bash
+npm install @trust-engine/sdk
+```
+
+## Quick Start
+
+Here's a quick example of how to import and use the SDK in your project:
+
+```typescript
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+// Initialize the SDK
+const sdk = new CoreApiSDK();
+
+// Example: Create a new wallet
+async function createNewWallet() {
+  try {
+    const result = await sdk.createWallet({ userID: 'new-user-123' });
+    console.log('Wallet created:', result.details.walletAddress);
+  } catch (error) {
+    console.error('Error:', error.message);
+  }
+}
+
+createNewWallet();
+```
+
+---
+
+## Core Functions
+
+Here is a brief overview of the core functions available in the SDK:
+
+### Create a Wallet
+
+Create a new Solana wallet for a user.
+
+```typescript
+const { walletAddress } = await sdk.createWallet({ userID: 'user-id-123' });
+```
+
+### Register a File
+
+Register a file on the blockchain to create an immutable record.
+
+```typescript
+const file = new File(["content"], "example.txt", { type: "text/plain" });
+const result = await sdk.registerFile({
+  file,
+  contentTitle: 'My Document',
+  walletAddress: 'YOUR_WALLET_ADDRESS',
+  walletType: 'crossmint',
+});
+```
+
+### Search for a File
+
+Search for a file's registration record using the file itself.
+
+```typescript
+const file = new File(["content"], "example.txt", { type: "text/plain" });
+const records = await sdk.searchFile(file);
+```
+
+<br/>
+
+Explore the functions in the sidebar to learn more about each feature.

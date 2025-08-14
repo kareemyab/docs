@@ -1,133 +1,49 @@
 ---
 title: '/wallet-balance'
-description: 'Retrieves the SOL balance for any Solana wallet address in real-time.'
+description: 'Retrieves the SOL balance of a specified Solana wallet address with network information.'
 icon: 'scale-balanced'
 openapi: 'POST /wallet-balance'
 ---
 
-
-<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
-  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
-  <code>/wallet-balance</code>
-</div>
-
 <Info>
-**Rate Limit:** 100 requests per 15 minutes
+**Rate Limit:** 100 requests per 15 minutes  
+**Content-Type:** `application/json`
 </Info>
 
 ---
 
-## Quick Start
+## What This Endpoint Does
 
-### Installation
-
-```bash
-npm install trust-engine-sdk
-```
-
-### Complete Example
-
-<CodeGroup>
-```typescript SDK (Recommended)
-import { getWalletBalance } from 'trust-engine-sdk';
-
-async function checkBalance() {
-  try {
-    const result = await getWalletBalance({
-      walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
-    });
-    
-    console.log('✅ Balance retrieved successfully');
-    console.log(`Wallet: ${result.details.walletAddress}`);
-    console.log(`Balance: ${result.details.balanceSOL} SOL`);
-    console.log(`Lamports: ${result.details.balanceLamports.toLocaleString()}`);
-    console.log(`Network: ${result.details.chain}`);
-    
-    return result;
-  } catch (error) {
-    console.error('❌ Failed to get balance:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-checkBalance()
-  .then(result => console.log('Balance check completed:', result))
-  .catch(error => console.error('Error:', error));
-```
-
-```bash cURL
-curl -X POST http://localhost:3000/wallet-balance \
-  -H "Content-Type: application/json" \
-  -d '{
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-  }'
-```
-
-```javascript Raw JavaScript
-async function checkWalletBalance(walletAddress) {
-  try {
-    const response = await fetch('http://localhost:3000/wallet-balance', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ walletAddress })
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-      console.log(`✅ Balance: ${data.details.balanceSOL} SOL`);
-      console.log(`Lamports: ${data.details.balanceLamports.toLocaleString()}`);
-      return data;
-    } else {
-      throw new Error(data.message);
-    }
-  } catch (error) {
-    console.error('❌ Error checking balance:', error.message);
-    throw error;
-  }
-}
-
-// Usage
-checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
-  .then(result => console.log('Wallet details:', result.details))
-  .catch(error => console.error('Failed to get balance:', error));
-```
-</CodeGroup>
-
-### Expected Response
-
-```json
-{
-  "message": "Wallet balance retrieved successfully.",
-  "details": {
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "balanceSOL": 1.234567890,
-    "balanceLamports": 1234567890,
-    "chain": "solana-devnet"
-  }
-}
-```
-
-### Prerequisites
-<Check>You have either connected your wallet or created a Crossmint wallet with us</Check>
-
+<Steps>
+  <Step title="Address Validation">
+    Validates the provided wallet address format using Solana's Base58 encoding
+  </Step>
+  <Step title="Balance Query">
+    Queries the Solana network for the wallet's current SOL balance
+  </Step>
+  <Step title="Format Conversion">
+    Converts the balance from lamports to SOL for human-readable display
+  </Step>
+  <Step title="Network Information">
+    Includes cluster information (devnet, mainnet, etc.) in the response
+  </Step>
+</Steps>
 
 ---
 
 ## Parameters
 
 <ResponseField name="walletAddress" type="string" required>
-  Valid Solana wallet address in Base58 format
+  Valid Solana wallet address to check balance for
   
-  **Constraints:** Must be a valid Solana public key (32-44 characters)
+  **Constraints:** Must be a valid Solana public key (Base58 format)
   
   Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
 </ResponseField>
 
 ---
+
+
 
 ## Response Examples
 
@@ -144,25 +60,25 @@ checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
   
   <Expandable title="Details Object">
     <ResponseField name="walletAddress" type="string">
-      The queried Solana wallet address
+      The wallet address that was queried
       
       Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
     </ResponseField>
     
     <ResponseField name="balanceSOL" type="number">
-      Balance in SOL (human-readable decimal format)
+      Current SOL balance (human-readable decimal format)
       
-      Example: `1.234567890`
+      Example: `1.5`
     </ResponseField>
     
     <ResponseField name="balanceLamports" type="number">
-      Balance in lamports (smallest unit, integer)
+      Current balance in lamports (smallest SOL unit)
       
-      Example: `1234567890`
+      Example: `1500000000`
     </ResponseField>
     
     <ResponseField name="chain" type="string">
-      Network identifier showing which Solana cluster
+      Network cluster information
       
       Example: `"solana-devnet"`
     </ResponseField>
@@ -172,30 +88,52 @@ checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
 ### Success Responses
 
 <CodeGroup>
-```json Success (200)
+```json Success (200, JSON)
 {
   "message": "Wallet balance retrieved successfully.",
   "details": {
     "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "balanceSOL": 1.234567890,
-    "balanceLamports": 1234567890,
+    "balanceSOL": 1.5,
+    "balanceLamports": 1500000000,
     "chain": "solana-devnet"
   }
 }
+```
+
+```text Success (200, cURL User-Agent)
+✅ BALANCE RETRIEVED ✅
+--------------------------------------------------
+Wallet balance retrieved successfully.
+
+--- Details ---
+    Wallet Address          : 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+    SOL Balance             : 1.5 SOL
+    Balance (Lamports)      : 1,500,000,000
+    Chain                   : Solana Devnet
+--------------------------------------------------
 ```
 </CodeGroup>
 
 ### Common Error Responses
 
 <CodeGroup>
-```json Missing Wallet Address (400)
+```json Missing Wallet Address (400, JSON)
 {
+  "error": true,
   "message": "Hold on! We need a `walletAddress` to check the balance."
 }
 ```
 
+```text Missing Wallet Address (400, cURL)
+🚫 MISSING WALLET ADDRESS 🚫
+--------------------------------------------------
+Hold on! We need a `walletAddress` to check the balance.
+--------------------------------------------------
+```
+
 ```json Invalid Wallet Address (500)
 {
+  "error": true,
   "message": "Oh no! Something went wrong while checking the wallet balance.",
   "details": {
     "error": "Invalid public key input"
@@ -205,55 +143,130 @@ checkWalletBalance('9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM')
 
 ```json Network Error (500)
 {
+  "error": true,
   "message": "Oh no! Something went wrong while checking the wallet balance.",
   "details": {
-    "error": "Connection timeout"
+    "error": "Network request failed"
   }
+}
+```
+
+```json Rate Limit (429)
+{
+  "message": "Too many requests, please try again later."
 }
 ```
 </CodeGroup>
 
 ---
 
-## What This Endpoint Does
+## Prerequisites
 
-<Steps>
-  <Step title="Address Validation">
-    Validates the provided wallet address format using Solana's Base58 encoding
-  </Step>
-  <Step title="Balance Query">
-    Queries the Solana blockchain via RPC for the current SOL balance
-  </Step>
-  <Step title="Unit Conversion">
-    Converts and returns balance in both SOL and lamports for convenience
-  </Step>
-  <Step title="Network Info">
-    Includes current network information for context
-  </Step>
-</Steps>
+<Check>Valid Solana wallet address (Base58 format)</Check>
 
-## Understanding Solana Balances
+---
 
-### SOL vs Lamports
+## Understanding SOL and Lamports
+
+### Currency Conversion
+
 <Info>
 **1 SOL = 1,000,000,000 lamports**
 
-- **SOL**: Human-readable format (e.g., 1.5 SOL)
-- **Lamports**: Smallest unit, used for precise calculations
+- **SOL**: Human-readable decimal format (e.g., 1.5 SOL)
+- **Lamports**: Smallest unit, always integers (e.g., 1,500,000,000 lamports)
 </Info>
 
-### Balance Types
-This endpoint returns **native SOL balance only**. For SPL token balances (like Reward Tokens), the system uses internal `checkUserTokenBalance` functions during operations like file registration.
+### Balance Interpretation
 
-### Network Information
-The response includes network information in the `chain` field:
+<Tabs>
+  <Tab title="New Wallets">
+    **Balance**: 0 SOL (0 lamports)
+    
+    **Meaning**: Wallet exists but has no funds. Cannot pay transaction fees.
+    
+    ```json
+    {
+      "balanceSOL": 0,
+      "balanceLamports": 0
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Funded Wallets">
+    **Balance**: > 0 SOL
+    
+    **Meaning**: Wallet has funds and can perform transactions.
+    
+    ```json
+    {
+      "balanceSOL": 2.5,
+      "balanceLamports": 2500000000
+    }
+    ```
+  </Tab>
+  
+  <Tab title="Low Balance Warning">
+    **Balance**: < 0.01 SOL
+    
+    **Meaning**: Wallet has minimal funds, may not cover transaction fees.
+    
+    ```json
+    {
+      "balanceSOL": 0.005,
+      "balanceLamports": 5000000
+    }
+    ```
+  </Tab>
+</Tabs>
 
-| Network | Chain Value | Description |
-|---------|-------------|-------------|
-| **Devnet** | `"solana-devnet"` | Development network for testing |
-| **Testnet** | `"solana-testnet"` | Public testing network |
-| **Mainnet** | `"solana-mainnet-beta"` | Production network |
-| **Localnet** | `"solana-localnet"` | Local development cluster |
+---
+
+## Integration Examples
+
+### Balance Verification Before Transactions
+
+```typescript
+async function checkSufficientBalance(walletAddress: string, minimumSOL: number = 0.01) {
+  const response = await fetch('/wallet-balance', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ walletAddress })
+  });
+  
+  const data = await response.json();
+  
+  if (data.details.balanceSOL < minimumSOL) {
+    throw new Error(`Insufficient balance: ${data.details.balanceSOL} SOL (need at least ${minimumSOL} SOL)`);
+  }
+  
+  return data.details.balanceSOL;
+}
+```
+
+### Multi-Wallet Monitoring
+
+```typescript
+async function checkMultipleWallets(wallets: string[]) {
+  const balances = await Promise.all(
+    wallets.map(async (wallet) => {
+      const response = await fetch('/wallet-balance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress: wallet })
+      });
+      const data = await response.json();
+      return {
+        wallet,
+        balance: data.details.balanceSOL,
+        status: data.details.balanceSOL > 0.01 ? 'healthy' : 'low'
+      };
+    })
+  );
+  
+  return balances;
+}
+```
 
 ---
 
@@ -261,18 +274,26 @@ The response includes network information in the `chain` field:
 
 <CardGroup cols={2}>
   <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
-    Use `createWallet()` SDK method or `/create-wallet` endpoint
+    Use the `/create-wallet` endpoint to create new funded wallets
   </Card>
   
   <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Use `registerFile()` SDK method or `/register` endpoint (requires sufficient tokens)
+    Use the `/register` endpoint - requires sufficient balance for fees
   </Card>
   
-  <Card title="Mint Tokens" icon="coins" href="/api-reference/endpoint/mint-tokens">
-    Use `mintTokens()` SDK method or `/mint-tokens` endpoint
+  <Card title="Find Wallet" icon="search" href="/essentials/find-wallet">
+    Use the `/find-wallet` endpoint to locate wallets by user ID
   </Card>
   
-  <Card title="Search Files" icon="magnifying-glass" href="/api-reference/endpoint/search">
-    Use `searchFile()` SDK method or `/search` endpoint
+  <Card title="Link Wallet" icon="link" href="/essentials/link-wallet">
+    Use the `/link-wallet` endpoint to associate wallets with user IDs
   </Card>
 </CardGroup>
+
+<Warning>
+**Balance Check Timing**: Balances can change rapidly due to network activity. Always check balance immediately before performing transactions that require specific amounts.
+</Warning>
+
+<Tip>
+For production applications, consider implementing balance monitoring and automatic alerts when wallet balances fall below operational thresholds.
+</Tip>

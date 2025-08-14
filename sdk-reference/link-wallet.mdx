@@ -1,0 +1,107 @@
+---
+title: Link Wallet
+description: 'Links a user ID to a Solana wallet address by creating an on-chain relationship record.'
+---
+
+## Function Signature
+
+```typescript
+function storeUserKeyRelation(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#storeuserkeyrelation-options)">
+  The options for storing a user-key relation.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#storeuserkeyrelation-response)>">
+  A promise that resolves with the response from storing a user-key relation.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#storeuserkeyrelation) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new CoreApiSDK();
+
+export default function UserKeyLinker() {
+  const [userID, setUserID] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [isLinking, setIsLinking] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleLink = async () => {
+    if (!userID || !walletAddress) return;
+    setIsLinking(true);
+    try {
+      const linkResult = await sdk.storeUserKeyRelation({ userID, walletAddress });
+      setResult(linkResult);
+    } catch (error) {
+      console.error('❌ Failed to store relation:', error.message);
+      setResult({ error: error.message });
+    } finally {
+      setIsLinking(false);
+    }
+  };
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        value={userID} 
+        onChange={(e) => setUserID(e.target.value)}
+        placeholder="Enter User ID"
+      />
+      <input 
+        type="text" 
+        value={walletAddress} 
+        onChange={(e) => setWalletAddress(e.target.value)}
+        placeholder="Enter Wallet Address"
+      />
+      <button onClick={handleLink} disabled={isLinking}>
+        {isLinking ? 'Linking...' : 'Link User and Wallet'}
+      </button>
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+async function linkUserToWallet() {
+  try {
+    const result = await sdk.storeUserKeyRelation({
+      userID: 'user_12345',
+      walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+    });
+    
+    console.log('✅ User key relation created successfully');
+    console.log('User ID:', result.details.userID);
+    console.log('Wallet:', result.details.walletAddress);
+    console.log('Transaction:', result.details.transactionSignature);
+    
+    return result;
+  } catch (error) {
+    if (error.message.includes('already exists')) {
+      console.log('ℹ️ Relation already exists for this wallet');
+    } else {
+      console.error('❌ Failed to store relation:', error.message);
+    }
+    throw error;
+  }
+}
+
+linkUserToWallet();
+```
+</CodeGroup>

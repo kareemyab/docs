@@ -1,0 +1,387 @@
+---
+title: 'API Overview'
+description: 'Complete overview of Trust Engine REST API endpoints with authentication, rate limits, and quick examples.'
+icon: 'code'
+---
+
+The Trust Engine REST API provides simple HTTP endpoints for registering, searching, and managing digital content provenance records. All endpoints use JSON and follow RESTful conventions.
+
+---
+
+## API Essentials
+
+<CardGroup cols={2}>
+  <Card title="Base URL" icon="link">
+    ```
+    https://core-api-server.onrender.com
+    ```
+    All API endpoints are relative to this base URL.
+  </Card>
+  
+  <Card title="Content Type" icon="file-code">
+    ```
+    Content-Type: application/json
+    ```
+    All requests must include this header.
+  </Card>
+  
+  <Card title="Authentication" icon="key">
+    **No API keys required**
+    
+    Trust Engine is designed for public verification - no authentication needed for core operations.
+  </Card>
+  
+  <Card title="Rate Limits" icon="gauge">
+    - **General**: 100 req/15min
+    - **Uploads**: 10 req/hour  
+    - **Validators**: 50 req/5min
+  </Card>
+</CardGroup>
+
+---
+
+## Quick Start
+
+Get up and running with Trust Engine in 3 API calls:
+
+<Steps>
+  <Step title="Create Wallet">
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/create-wallet \
+      -H "Content-Type: application/json" \
+      -d '{"userID": "user-123"}'
+    ```
+    
+    Returns a `walletAddress` for your registrations.
+  </Step>
+  
+  <Step title="Register Content">
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/register \
+      -H "Content-Type: application/json" \
+      -d '{
+        "contentTitle": "My Document",
+        "walletAddress": "YOUR_WALLET",
+        "walletType": "crossmint",
+        "contentHash": "SHA256_HASH_OF_FILE",
+        "fileMetadata": {
+          "fileName": "document.pdf",
+          "fileSize": 12345,
+          "mimeType": "application/pdf"
+        }
+      }'
+    ```
+  </Step>
+  
+  <Step title="Verify Registration">
+    ```bash
+    curl -X POST https://core-api-server.onrender.com/search \
+      -H "Content-Type: application/json" \
+      -d '{"contentHash": "SHA256_HASH_OF_FILE"}'
+    ```
+    
+    Check registration status and verification progress.
+  </Step>
+</Steps>
+
+---
+
+## Endpoint Categories
+
+### 🏦 Wallet Management
+
+Manage user wallets and relationships:
+
+<CardGroup cols={2}>
+  <Card title="Create Wallet" icon="plus" href="/essentials/create-wallet">
+    **POST** `/create-wallet`
+    
+    Create a new Crossmint wallet linked to a user ID
+  </Card>
+  
+  <Card title="Link Wallet" icon="link" href="/essentials/link-wallet">
+    **POST** `/link-wallet`
+    
+    Link an existing wallet to a user ID
+  </Card>
+  
+  <Card title="Find Wallet" icon="search" href="/essentials/find-wallet">
+    **POST** `/find-wallet`
+    
+    Find wallet by user ID or find user by wallet address
+  </Card>
+  
+  <Card title="Wallet Balance" icon="coins" href="/essentials/wallet-balance">
+    **POST** `/wallet-balance`
+    
+    Check SOL balance of a wallet address
+  </Card>
+</CardGroup>
+
+### 📁 File Operations
+
+Register and search for content:
+
+<CardGroup cols={2}>
+  <Card title="Register File" icon="file-plus" href="/essentials/register">
+    **POST** `/register`
+    
+    Register content with cryptographic provenance proof
+  </Card>
+  
+  <Card title="Search Files" icon="magnifying-glass" href="/essentials/search">
+    **POST** `/search`
+    
+    Find registered content by content hash
+  </Card>
+  
+  <Card title="Submit Transaction" icon="paper-plane" href="/essentials/submit-transaction">
+    **POST** `/transactions`
+    
+    Submit signed transactions to the blockchain
+  </Card>
+</CardGroup>
+
+### 🛡️ Validators
+
+Query validator network data:
+
+<CardGroup cols={1}>
+  <Card title="Validator Data" icon="server" href="/essentials/validators-data">
+    **POST** `/validators/data`
+    
+    Get comprehensive validator statistics and performance metrics
+  </Card>
+</CardGroup>
+
+### ⚡ System
+
+Monitor system health:
+
+<CardGroup cols={1}>
+  <Card title="Health Check" icon="heartbeat" href="/essentials/health">
+    **GET** `/health`
+    
+    Check if Trust Engine services are operational
+  </Card>
+</CardGroup>
+
+---
+
+## Response Formats
+
+All API responses follow consistent patterns:
+
+### Success Responses
+
+<Tabs>
+<Tab title="Standard Success">
+```json
+{
+  "message": "Success description",
+  "details": {
+    "field1": "value1",
+    "field2": "value2"
+  }
+}
+```
+</Tab>
+
+<Tab title="Processing Status">
+```json
+{
+  "message": "✅ Accepted! Your file has been submitted...",
+  "details": {
+    "status": "processing",
+    "contentRegistrationPDA": "xyz789...",
+    "ipfsCid": "QmExample..."
+  }
+}
+```
+</Tab>
+</Tabs>
+
+### Error Responses
+
+<Tabs>
+<Tab title="Client Errors (4xx)">
+```json
+{
+  "error": true,
+  "message": "Invalid request details",
+  "details": {
+    "missingFields": ["contentTitle"],
+    "suggestion": "Please include all required fields"
+  }
+}
+```
+</Tab>
+
+<Tab title="Server Errors (5xx)">
+```json
+{
+  "error": true,
+  "message": "Internal server error",
+  "details": {
+    "error": "Network connection failed"
+  }
+}
+```
+</Tab>
+</Tabs>
+
+---
+
+## Common Patterns
+
+### File Hash Calculation
+
+All content registration requires a SHA256 hash:
+
+<snippet file="calculate-hash.mdx" />
+
+### Error Handling
+
+Robust error handling patterns:
+
+<snippet file="error-handling.mdx" />
+
+### Polling for Results
+
+Check registration status over time:
+
+```javascript
+const pollRegistrationStatus = async (contentHash, maxWait = 900000) => { // 15 minutes
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < maxWait) {
+    try {
+      const response = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ contentHash })
+      });
+      
+      const data = await response.json();
+      
+      if (data.details?.length > 0) {
+        const registration = data.details[0].onChainRegistration;
+        
+        if (registration.finalized) {
+          return {
+            status: registration.consensusPercentage >= 67 ? 'verified' : 'disputed',
+            consensusPercentage: registration.consensusPercentage,
+            registration
+          };
+        }
+      }
+      
+      // Wait 10 seconds before next check
+      await new Promise(resolve => setTimeout(resolve, 10000));
+      
+    } catch (error) {
+      console.error('Status check failed:', error);
+      await new Promise(resolve => setTimeout(resolve, 10000));
+    }
+  }
+  
+  throw new Error('Registration verification timed out');
+};
+```
+
+---
+
+## Rate Limiting
+
+### Current Limits
+
+<Info>
+**Rate limits are per IP address** and reset automatically:
+
+- **General endpoints**: 100 requests per 15 minutes
+- **File registration**: 10 requests per hour
+- **Validator queries**: 50 requests per 5 minutes
+</Info>
+
+### Rate Limit Headers
+
+Response headers indicate your current usage:
+
+```http
+X-RateLimit-Limit: 100
+X-RateLimit-Remaining: 95
+X-RateLimit-Reset: 1640995200
+```
+
+### Handling Rate Limits
+
+```javascript
+const respectRateLimit = async (apiCall) => {
+  try {
+    return await apiCall();
+  } catch (error) {
+    if (error.statusCode === 429) {
+      const resetTime = error.headers['x-ratelimit-reset'];
+      const waitTime = (resetTime * 1000) - Date.now();
+      
+      console.log(`Rate limited, waiting ${waitTime}ms...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+      
+      return await apiCall(); // Retry after reset
+    }
+    throw error;
+  }
+};
+```
+
+---
+
+## Integration Paths
+
+Choose the integration method that fits your use case:
+
+<CardGroup cols={3}>
+  <Card title="Direct API" icon="code" href="/essentials/register">
+    **Best for**: Custom integrations, any language
+    
+    Use raw HTTP requests for maximum flexibility
+  </Card>
+  
+  <Card title="JavaScript SDK" icon="box" href="/sdk-reference">
+    **Best for**: Web apps, Node.js services
+    
+    TypeScript SDK with built-in error handling
+  </Card>
+  
+  <Card title="CLI Tool" icon="terminal" href="/cli-reference">
+    **Best for**: Scripts, automation, testing
+    
+    Command-line interface for quick operations
+  </Card>
+</CardGroup>
+
+---
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Try the Quickstart" icon="rocket" href="/quickstart">
+    Register your first file in 5 minutes
+  </Card>
+  
+  <Card title="Browse Endpoints" icon="list" href="/essentials/register">
+    Detailed documentation for each API endpoint
+  </Card>
+  
+  <Card title="API Examples" icon="puzzle-piece" href="/essentials/register">
+    Complete API endpoint examples and patterns
+  </Card>
+  
+  <Card title="Troubleshooting" icon="wrench" href="/troubleshooting">
+    Common issues and solutions
+  </Card>
+</CardGroup>
+
+<Tip>
+**New to REST APIs?** Check out our [Quickstart Guide](/quickstart) for a step-by-step walkthrough of your first API calls.
+</Tip>

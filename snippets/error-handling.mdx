@@ -1,0 +1,109 @@
+Common error patterns and how to handle them:
+
+<CodeGroup>
+```javascript JavaScript/TypeScript
+async function handleTrustEngineRequest(apiCall) {
+  try {
+    return await apiCall();
+  } catch (error) {
+    // Handle specific Trust Engine errors
+    if (error.message?.includes('User-Key Relation Required')) {
+      throw new Error('Please create a wallet first using /create-wallet');
+    }
+    
+    if (error.message?.includes('File Already Registered')) {
+      throw new Error('This content has already been registered. Use /search to find the existing record.');
+    }
+    
+    if (error.message?.includes('Rate Limit')) {
+      throw new Error('Too many requests. Please wait a few minutes before trying again.');
+    }
+    
+    if (error.message?.includes('Invalid contentHash')) {
+      throw new Error('Content hash must be a 64-character hex string. Please recalculate your file hash.');
+    }
+    
+    // Generic fallback
+    throw new Error('An unexpected error occurred. Please try again or contact support.');
+  }
+}
+
+// Usage example
+try {
+  const result = await handleTrustEngineRequest(() => 
+    sdk.registerFile({
+      file: myFile,
+      contentTitle: 'My Document',
+      walletAddress: walletAddr,
+      walletType: 'crossmint'
+    })
+  );
+  console.log('Registration successful:', result);
+} catch (error) {
+  console.error('User-friendly error:', error.message);
+}
+```
+
+```python Python
+import requests
+import time
+
+def handle_trust_engine_request(api_call, max_retries=3):
+    """Handle Trust Engine API requests with proper error handling and retries."""
+    
+    for attempt in range(max_retries):
+        try:
+            response = api_call()
+            
+            if response.status_code == 429:  # Rate limit
+                if attempt < max_retries - 1:
+                    wait_time = 2 ** attempt  # Exponential backoff
+                    print(f"Rate limited, waiting {wait_time} seconds...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    raise Exception("Rate limit exceeded. Please wait and try again.")
+            
+            if response.status_code == 409:  # Conflict (duplicate)
+                raise Exception("This content has already been registered. Use /search to find existing record.")
+            
+            if response.status_code == 400:
+                error_data = response.json()
+                if 'User-Key Relation Required' in error_data.get('message', ''):
+                    raise Exception("Please create a wallet first using /create-wallet")
+                elif 'Invalid contentHash' in error_data.get('message', ''):
+                    raise Exception("Content hash must be a 64-character hex string")
+                else:
+                    raise Exception(f"Invalid request: {error_data.get('message', 'Unknown error')}")
+            
+            if not response.ok:
+                raise Exception(f"API request failed: {response.status_code}")
+            
+            return response.json()
+            
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries - 1:
+                print(f"Network error, retrying... ({attempt + 1}/{max_retries})")
+                time.sleep(2 ** attempt)
+                continue
+            else:
+                raise Exception(f"Network error after {max_retries} attempts: {str(e)}")
+
+# Usage example
+try:
+    result = handle_trust_engine_request(lambda: requests.post(
+        'https://core-api-server.onrender.com/register',
+        json={
+            'contentTitle': 'My Document',
+            'walletAddress': wallet_address,
+            'walletType': 'crossmint',
+            'contentHash': content_hash,
+            'fileMetadata': file_metadata
+        },
+        headers={'Content-Type': 'application/json'}
+    ))
+    print("Registration successful:", result)
+except Exception as e:
+    print("Error:", str(e))
+```
+</CodeGroup>
