@@ -2,7 +2,7 @@
 title: '/find-wallet'
 description: 'Find a wallet by user ID or wallet address.'
 icon: 'magnifying-glass'
-openapi: 'POST /find-wallet'
+openapi: 'GET /find-wallet'
 ---
 
 ## What This Endpoint Does
@@ -51,35 +51,103 @@ You must provide exactly one of `userID` or `walletAddress` (not both).
 
 ### Success Response (200)
 
+<ResponseField name="success" type="boolean">
+  If it was successfull
+  
+  Example: `true`
+</ResponseField>
+
 <ResponseField name="message" type="string">
   Success confirmation message
   
-  Example: `"User-key relation found."`
+  Example: `"Wallet relation found successfully using userID."`
 </ResponseField>
 
 <ResponseField name="details" type="object">
-  Relationship details
+  Search and relationship details
   
   <Expandable title="Details Object">
-    <ResponseField name="userID" type="string">
-      The user ID in the relationship
+    <ResponseField name="searchType" type="string">
+      The type of search performed
+      
+      Example: `"userID"` or `"walletAddress"`
+    </ResponseField>
+    
+    <ResponseField name="searchValue" type="string">
+      The value that was searched for
       
       Example: `"user-12345"`
     </ResponseField>
     
-    <ResponseField name="walletAddress" type="string">
-      The wallet address in the relationship
+    <ResponseField name="relation" type="object">
+      The found relationship details
       
-      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
-    </ResponseField>
-    
-    <ResponseField name="pdaAddress" type="string">
-      Program Derived Address for this relationship
-      
-      Example: `"xyz789abc123def456ghi..."`
+      <Expandable title="Relation Object">
+        <ResponseField name="userId" type="string">
+          The user ID in the relationship
+          
+          Example: `"user-12345"`
+        </ResponseField>
+        
+        <ResponseField name="walletAddress" type="string">
+          The wallet address in the relationship
+          
+          Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
+        </ResponseField>
+        
+        <ResponseField name="createdAt" type="string">
+          ISO timestamp when the relationship was created
+          
+          Example: `"2024-01-15T10:30:45.123Z"`
+        </ResponseField>
+        
+        <ResponseField name="relationPDA" type="string">
+          Program Derived Address for this relationship
+          
+          Example: `"xyz789abc123def456ghi..."`
+        </ResponseField>
+      </Expandable>
     </ResponseField>
   </Expandable>
 </ResponseField>
+
+### Success Response Examples
+
+<CodeGroup>
+```json Search by userID (200)
+{
+  "success": true,
+  "message": "Wallet relation found successfully using userID.",
+  "details": {
+    "searchType": "userID",
+    "searchValue": "user-12345",
+    "relation": {
+      "userId": "user-12345",
+      "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "createdAt": "2024-01-15T10:30:45.123Z",
+      "relationPDA": "xyz789abc123def456ghi..."
+    }
+  }
+}
+```
+
+```json Search by walletAddress (200)
+{
+  "success": true,
+  "message": "Wallet relation found successfully using walletAddress.",
+  "details": {
+    "searchType": "walletAddress",
+    "searchValue": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "relation": {
+      "userId": "user-12345",
+      "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "createdAt": "2024-01-15T10:30:45.123Z",
+      "relationPDA": "xyz789abc123def456ghi..."
+    }
+  }
+}
+```
+</CodeGroup>
 
 ### Error Responses
 

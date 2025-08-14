@@ -64,7 +64,7 @@ import { CoreApiSDK } from '@trust-engine/sdk';
 const sdk = new CoreApiSDK();
 
 async function submitSignedTransaction() {
-  // This would typically come from a wallet signing process
+  // This would usually be your signed version the unsigned transaction that came from the /register endpoint
   const base64Transaction = 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'; // truncated for display
   
   try {

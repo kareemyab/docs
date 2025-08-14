@@ -134,19 +134,40 @@ The response from registering a file. This can vary depending on whether the wal
 
 ## `searchFile`
 
-### Options
+### Parameters
 
 <ResponseField name="file" type="File" required>
   The file to search for.
 </ResponseField>
 
-### Response
-
-<ResponseField name="message" type="string">
-  A message indicating how many records were found.
+<ResponseField name="walletAddress" type="string" optional>
+  Optional wallet address to filter search results to specific registrations.
 </ResponseField>
 
-<ResponseField name="details" type="Array<object>">
+### Response
+
+<ResponseField name="searchMode" type="string">
+  The type of search performed.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  A message indicating the search results.
+</ResponseField>
+
+<ResponseField name="searchCriteria" type="object">
+  The search parameters that were used.
+  <Expandable>
+    <ResponseField name="contentHash" type="string">
+      The content hash that was searched for.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="totalResults" type="number">
+  Number of registration records found.
+</ResponseField>
+
+<ResponseField name="registrations" type="Array<object>">
   An array of objects, where each object contains the details of a registration record.
   <Expandable>
     <ResponseField name="contentHash" type="string">
@@ -155,53 +176,36 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="pdaAddress" type="string">
       The Program Derived Address for the registration.
     </ResponseField>
-    <ResponseField name="onChainRegistration" type="object">
-        The full on-chain registration data.
-        <Expandable>
-            <ResponseField name="contentHash" type="Array<number>">
-                The content hash as a byte array.
-            </ResponseField>
-            <ResponseField name="creator" type="string">
-                The wallet address that registered the file.
-            </ResponseField>
-            <ResponseField name="ipfsCid" type="string">
-                The IPFS CID for the metadata.
-            </ResponseField>
-            <ResponseField name="totalVotes" type="number">
-                The total number of validator votes.
-            </ResponseField>
-            <ResponseField name="yesVotes" type="number">
-                The number of "yes" votes.
-            </ResponseField>
-            <ResponseField name="noVotes" type="number">
-                The number of "no" votes.
-            </ResponseField>
-            <ResponseField name="timestamp" type="number">
-                The Unix timestamp of the registration.
-            </ResponseField>
-            <ResponseField name="finalized" type="boolean">
-                Whether the validation process is complete.
-            </ResponseField>
-            <ResponseField name="consensusPercentage" type="number">
-                The percentage of "yes" votes.
-            </ResponseField>
-            <ResponseField name="assignedValidators" type="Array<string>">
-                A list of validators assigned to verify the file.
-            </ResponseField>
-            <ResponseField name="validatorsWhoVoted" type="Array<string>">
-                A list of validators who have voted.
-            </ResponseField>
-        </Expandable>
+    <ResponseField name="ipfsCid" type="string">
+      The IPFS Content Identifier for metadata storage.
+    </ResponseField>
+    <ResponseField name="registeredBy" type="string">
+      The wallet address that registered the file.
     </ResponseField>
     <ResponseField name="userID" type="string">
       The user ID associated with the creator of the file.
+    </ResponseField>
+    <ResponseField name="timestamp" type="string">
+      ISO timestamp when file was registered.
+    </ResponseField>
+    <ResponseField name="validationStatus" type="string">
+      Current validation status ("Verified", "Pending", or "Rejected").
+    </ResponseField>
+    <ResponseField name="consensus" type="string">
+      Consensus percentage from validators.
+    </ResponseField>
+    <ResponseField name="explorerUrl" type="string">
+      Link to view on Solana Explorer.
+    </ResponseField>
+    <ResponseField name="onChainData" type="object">
+      Raw blockchain data (implementation details).
     </ResponseField>
   </Expandable>
 </ResponseField>
 
 ---
 
-## `storeUserKeyRelation`
+## `linkWallet`
 
 ### Options
 
@@ -233,6 +237,58 @@ The response from registering a file. This can vary depending on whether the wal
     </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `getValidatorData`
+
+### Options
+
+<ResponseField name="walletAddress" type="string" required>
+  The validator's wallet address.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  A success message.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  An object containing the validator data.
+  <Expandable>
+    <ResponseField name="validatorAddress" type="string">
+      The validator's wallet address.
+    </ResponseField>
+    <ResponseField name="validatorPDA" type="string">
+      The Program Derived Address for the validator.
+    </ResponseField>
+    <ResponseField name="stakedAmount" type="number">
+      The amount staked by the validator.
+    </ResponseField>
+    <ResponseField name="reputationScore" type="number">
+      The validator's reputation score.
+    </ResponseField>
+    <ResponseField name="totalVotes" type="number">
+      Total number of votes cast by the validator.
+    </ResponseField>
+    <ResponseField name="honestVotes" type="number">
+      Number of honest votes cast by the validator.
+    </ResponseField>
+    <ResponseField name="dishonestVotes" type="number">
+      Number of dishonest votes cast by the validator.
+    </ResponseField>
+    <ResponseField name="accuracyPercentage" type="number">
+      The validator's accuracy percentage.
+    </ResponseField>
+    <ResponseField name="lastActiveTime" type="number">
+      Unix timestamp of the validator's last activity.
+    </ResponseField>
+    <ResponseField name="lastActiveDate" type="string">
+      ISO timestamp of the validator's last activity.
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -289,7 +345,7 @@ The response from registering a file. This can vary depending on whether the wal
     A message describing the result of the request.
 </ResponseField>
 
-<ResponseField name="data" type="object">
+<ResponseField name="details" type="object">
     An object containing the details of the found wallet.
     <Expandable>
         <ResponseField name="searchType" type="string">

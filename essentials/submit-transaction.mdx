@@ -39,6 +39,13 @@ openapi: 'POST /transactions'
 
 ---
 
+## Prerequisites
+
+<Check>Pre-signed Solana transaction (Base64 encoded)</Check>
+<Check>Transaction must be properly formatted and serialized</Check>
+
+---
+
 ## Parameters
 
 <ResponseField name="transaction" type="string" required>
@@ -95,17 +102,6 @@ openapi: 'POST /transactions'
   }
 }
 ```
-
-```text Success (200, cURL User-Agent)
-✅ TRANSACTION SUBMITTED ✅
---------------------------------------------------
-Transaction submitted and confirmed successfully!
-
---- Details ---
-    Transaction Signature   : 5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef
-    Explorer URL            : https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet
---------------------------------------------------
-```
 </CodeGroup>
 
 ### Common Error Responses
@@ -118,13 +114,6 @@ Transaction submitted and confirmed successfully!
 }
 ```
 
-```text Missing Transaction (400, cURL)
-🚫 BAD REQUEST 🚫
---------------------------------------------------
-Missing 'transaction' field in the request body.
---------------------------------------------------
-```
-
 ```json Transaction Submission Failed (500, JSON)
 {
   "error": true,
@@ -133,16 +122,6 @@ Missing 'transaction' field in the request body.
     "error": "Transaction simulation failed: Attempt to debit an account but found no record of a prior credit."
   }
 }
-```
-
-```text Transaction Submission Failed (500, cURL)
-🚫 SUBMISSION FAILED 🚫
---------------------------------------------------
-Failed to submit the transaction.
-
---- Details ---
-    error                   : Transaction simulation failed: Attempt to debit an account but found no record of a prior credit.
---------------------------------------------------
 ```
 
 ```json Invalid Transaction Format (500)
@@ -174,61 +153,12 @@ Failed to submit the transaction.
 
 ---
 
-## Prerequisites
-
-<Check>Pre-signed Solana transaction (Base64 encoded)</Check>
-<Check>Transaction must be properly formatted and serialized</Check>
-<Check>Server has sufficient SOL for transaction fees</Check>
-
----
-
-## Understanding Transaction Flow
-
-### Typical Workflow
-
-<Tabs>
-  <Tab title="Standard Wallet Flow">
-    **Client Side:**
-    1. Create transaction with instructions
-    2. User signs transaction with their wallet
-    3. Serialize and Base64 encode the signed transaction
-    4. Send to `/submit-transaction` endpoint
-    
-    **Server Side:**
-    1. Deserialize the transaction
-    2. Add server's fee payer signature
-    3. Submit to Solana network
-    4. Confirm and return signature
-  </Tab>
-  
-  <Tab title="Crossmint Wallet Flow">
-    **Crossmint Integration:**
-    1. Server creates transaction for user
-    2. Crossmint API signs the transaction
-    3. Server receives signed transaction
-    4. Server uses `/submit-transaction` to finalize
-    
-    **Note:** This endpoint handles the final submission step regardless of signing method.
-  </Tab>
-</Tabs>
-
-### Transaction States
-
-<Info>
-**Pre-Submission**: Transaction is signed but not yet on the blockchain
-
-**Submitted**: Transaction sent to network but not yet confirmed
-
-**Confirmed**: Transaction confirmed on blockchain with finality
-</Info>
-
----
-
 ## Integration Examples
 
 ### With Register Endpoint
 
-When registering files with standard wallets, the flow typically involves:
+When registering files with **standard wallets**
+, the flow typically involves:
 
 1. `/register` endpoint returns a prepared transaction (Base64)
 2. Client signs the transaction with their wallet

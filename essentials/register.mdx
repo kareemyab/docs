@@ -11,11 +11,8 @@ openapi: 'POST /register'
   <Step title="File Validation">
     Validates file type
   </Step>
-  <Step title="Wallet Verification">
-    Checks wallet has sufficient Reward Tokens for fees
-  </Step>
   <Step title="IPFS Upload">
-    Uploads file to IPFS and generates Content Identifier (CID)
+    Uploads file and metadata to IPFS and generates Content Identifier (CID)
   </Step>
   <Step title="On-Chain Registration">
     Creates immutable proof record on Solana blockchain
@@ -52,6 +49,12 @@ openapi: 'POST /register'
   
   Example: `"crossmint"`
 </ResponseField>
+
+<Info>
+**Wallet Type Flows:**
+- **`"crossmint"`**: Automatic signing and submission - registration completes immediately
+- **`"standard"`**: Returns unsigned transaction that you must sign with your wallet (Phantom, Metamask, etc.) and submit via [`/transactions`](/essentials/submit-transaction)
+</Info>
 
 <ResponseField name="contentHash" type="string" required>
   SHA256 hash of the file content (hex encoded)
@@ -108,12 +111,12 @@ openapi: 'POST /register'
 
 ## Response Examples
 
-#### Success Response (202 - Crossmint)
+### Success Response (202 - Crossmint)
 
 <ResponseField name="message" type="string">
   Success confirmation message for Crossmint wallet transactions
   
-  Example: `"✅ SUBMISSION ACCEPTED ✅"`
+  Example: `"✅ Accepted! Your file has been submitted and is being processed by Crossmint."`
 </ResponseField>
 
 <ResponseField name="details" type="object">
@@ -123,7 +126,7 @@ openapi: 'POST /register'
     <ResponseField name="status" type="string">
       Current status of the registration
       
-      Example: `"Pending Verification"`
+      Example: `"processing"`
     </ResponseField>
     
     <ResponseField name="crossmintTransactionId" type="string">
@@ -144,26 +147,20 @@ openapi: 'POST /register'
       Example: `"QmExampleCidForYourFileMetadata..."`
     </ResponseField>
     
-    <ResponseField name="processingFee" type="string">
-      Transaction fee information in SOL and lamports
+    <ResponseField name="contentHash" type="string">
+      SHA-256 hash of your file that was registered on chain
       
-      Example: `"~0.000005000 SOL (5,000 lamports)"`
-    </ResponseField>
-    
-    <ResponseField name="solanaExplorer" type="string">
-      Direct link to view the transaction on Solana Explorer
-      
-      Example: `"https://explorer.solana.com/tx/<TRANSACTION_ID>?cluster=devnet"`
+      Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
     </ResponseField>
   </Expandable>
 </ResponseField>
 
-#### Success Response (200 - Standard Wallet)
+### Success Response (200 - Standard Wallet)
 
 <ResponseField name="message" type="string">
   Success confirmation message for standard wallet transactions
   
-  Example: `"✅ TRANSACTION READY ✅"`
+  Example: `"Transaction prepared. Please sign and submit via your wallet."`
 </ResponseField>
 
 <ResponseField name="details" type="object">
@@ -171,9 +168,9 @@ openapi: 'POST /register'
   
   <Expandable title="Details Object">
     <ResponseField name="status" type="string">
-      Current status requiring client action
+      Current status requiring client to sign the transaction with thier wallet
       
-      Example: `"Requires Client Signature"`
+      Example: `"requires-client-signature"`
     </ResponseField>
     
     <ResponseField name="ipfsCid" type="string">
@@ -189,34 +186,70 @@ openapi: 'POST /register'
     </ResponseField>
     
     <ResponseField name="transaction" type="string">
-      Base64-encoded transaction ready for client signing
+      Base64-encoded transaction ready for client signing with their wallet
       
       Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
+    </ResponseField>
+
+    <ResponseField name="contentHash" type="string">
+      SHA-256 hash of your file that was registered on chain
+      
+      Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
     </ResponseField>
   </Expandable>
 </ResponseField>
 
-#### Error Response (400 - Missing File)
+<Note>
+**Next Steps for Standard Wallets**: Take the `transaction` from the response, sign it with your wallet (Phantom, Metamask, etc.), then submit the signed transaction using the [`/transactions`](/essentials/submit-transaction) endpoint to complete the registration.
+</Note>
+
+---
+
+### Error Response (400 - Bad Request)
+
+Returned when the request contains invalid or missing required parameters. The response structure varies depending on the specific validation error.
 
 <ResponseField name="error" type="boolean">
   Error flag indicating request failure
-  
   Example: `true`
 </ResponseField>
 
 <ResponseField name="message" type="string">
-  Error description for missing file
-  
-  Example: `"🚫 FILE MISSING 🚫"`
+  Error description explaining what went wrong. Common messages include:
+  - `"Missing contentHash or fileMetadata. These are now required."`
+  - `"Hold on! We need contentTitle, walletAddress, and walletType to proceed."`
+  - `"Invalid walletType. It must be either 'standard' or 'crossmint'."`
+  - `"Invalid claimHash. It must be a 32-byte hex string (64 characters)."`
+  - `"This wallet address doesn't have a user ID relation. Please create one first."`
+  - `"The provided metadata is not a string. Please check the format."`
+  - `"Metadata is too long. A maximum of 500 characters is allowed."`
 </ResponseField>
 
-<ResponseField name="details" type="string">
-  Additional error context and guidance
-  
-  Example: `"Oops! It looks like you forgot to upload a file. Please attach a file to your request."`
+<ResponseField name="details" type="object" required={false}>
+  Additional error context and guidance. Only included for specific error types:
+
+  **For missing required fields:**
+
+  ```json
+  {
+    "missingFields": ["contentTitle", "walletAddress"]
+  }
+  ```
+
+  **For wallet relation issues:**
+
+  ```json
+  {
+    "Missing Requirement": "User-Key Relation",
+    "Wallet Address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "Suggestion": "Use the /link-wallet endpoint to link your wallet to a user ID first",
+    "Alternative": "Use the /create-wallet endpoint to create a new wallet with automatic user ID linking",
+    "Find Existing": "Use the /find-wallet endpoint to check if a relation already exists"
+  }
+  ```
 </ResponseField>
 
-#### Error Response (409 - Duplicate Registration)
+### Error Response (409 - Duplicate Registration)
 
 <ResponseField name="error" type="boolean">
   Error flag indicating duplicate registration
@@ -254,188 +287,83 @@ openapi: 'POST /register'
   </Expandable>
 </ResponseField>
 
----
+## Example Responses:
 
-## Code Examples
-
-### Raw Response Formats
 
 <CodeGroup>
-```text Success (202 Crossmint)
-✅ SUBMISSION ACCEPTED ✅
---------------------------------------------------
-✅ Accepted! Your file has been submitted for verification via Crossmint.
-
---- Details ---
-    Status                  : Pending Verification
-    Transaction ID          : <TRANSACTION_ID_HERE>
-    Content Registration PDA: <PDA_ADDRESS_HERE>
-    IPFS CID                : <IPFS_CID_HERE>
-    Processing Fee          : ~<SOL_AMOUNT> SOL (<LAMPORTS> lamports)
-    Solana Explorer         : https://explorer.solana.com/tx/<TRANSACTION_ID_HERE>?cluster=<cluster>
---------------------------------------------------
+```json Success (202 Crossmint)
+{
+  "message": "✅ Accepted! Your file has been submitted and is being processed by Crossmint.",
+  "details": {
+    "status": "processing",
+    "crossmintTransactionId": "cm_tx_123456789",
+    "contentRegistrationPDA": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+    "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz"
+  }
+}
 ```
 
-```text Success (200 Standard Wallet)
-✅ TRANSACTION READY ✅
---------------------------------------------------
-Transaction prepared. Please sign and submit via your wallet.
-
---- Details ---
-    Status                  : Requires Client Signature
-    IPFS CID                : <IPFS_CID_HERE>
-    Content Registration PDA: <PDA_ADDRESS_HERE>
-    Transaction (Base64)    : <BASE64_TRANSACTION_HERE>
---------------------------------------------------
+```json Success (200 Standard Wallet)
+{
+  "message": "Transaction prepared. Please sign and submit via your wallet.",
+  "details": {
+    "status": "requires-client-signature",
+    "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...",
+    "contentRegistrationPDA": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+    "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz"
+  }
+}
 ```
 </CodeGroup>
 
-### Raw Error Formats
-
-<CodeGroup>
-```text Missing File (400)
-🚫 FILE MISSING 🚫
---------------------------------------------------
-Oops! It looks like you forgot to upload a file. Please attach a file to your request.
---------------------------------------------------
-```
-
-```text File Validation Failed (400)
-🚫 FILE VALIDATION FAILED 🚫
---------------------------------------------------
-File validation failed: File type not allowed: <mime/type>
---------------------------------------------------
-```
-
-```text Missing Required Fields (400)
-🚫 MISSING REQUIRED FIELDS 🚫
---------------------------------------------------
-Hold on! We need `contentTitle`, `contentDescription`, `walletAddress`, and `walletType` to proceed.
-
---- Details ---
-    missingFields        : [contentTitle, contentDescription, walletAddress, walletType]
---------------------------------------------------
-```
-
-```text Invalid Wallet Type (400)
-🚫 INVALID WALLET TYPE 🚫
---------------------------------------------------
-Invalid `walletType`. It must be either 'standard' or 'crossmint'.
---------------------------------------------------
-```
-
-```text No User-Key Relation (400)
-🚫 USER-KEY RELATION REQUIRED 🚫
---------------------------------------------------
-This wallet address doesn't have a user ID relation. Please create one first.
-
---- Details ---
-    Missing Requirement  : User-Key Relation
-    Suggestion           : Use the /link-wallet endpoint
-    Alternative          : Use the /create-wallet endpoint
---------------------------------------------------
-```
-
-```text Duplicate Registration (409)
-🚫 FILE ALREADY REGISTERED 🚫
---------------------------------------------------
-Looks like you have already registered this file. Please use the /search endpoint to find the existing record.
-
---- Details ---
-    contentHash          : <CONTENT_HASH_HEX>
-    pdaAddress           : <PDA_ADDRESS_HERE>
-    Suggestion           : Use the /search endpoint
---------------------------------------------------
-```
-
-```text Token Error (400)
-🚫 INSUFFICIENT TOKEN BALANCE 🚫
---------------------------------------------------
-Insufficient token balance to complete registration.
-
---- Details ---
-    Required Tokens      : ~<REQUIRED_TOKENS> tokens
-    Your Balance         : <BALANCE_TOKENS> tokens
-    Deficit              : <DEFICIT_TOKENS> tokens
-    Suggestion           : Use the /mint-tokens endpoint
---------------------------------------------------
-```
-</CodeGroup>
+<Tabs>
+  <Tab title="Missing Required Fields">
+    ```json
+    {
+      "error": true,
+      "message": "Hold on! We need `contentTitle`, `walletAddress`, and `walletType` to proceed.",
+      "details": {
+        "missingFields": ["contentTitle", "walletAddress"]
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Invalid walletType">
+    ```json
+    {
+      "error": true,
+      "message": "Invalid `walletType`. It must be either 'standard' or 'crossmint'."
+    }
+    ```
+  </Tab>
+  <Tab title="No User-Key Relation">
+    ```json
+    {
+      "error": true,
+      "message": "This wallet address doesn't have a user ID relation. Please create one first.",
+      "details": {
+        "Missing Requirement": "User-Key Relation",
+        "Wallet Address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+        "Suggestion": "Use the /link-wallet endpoint to link your wallet to a user ID first",
+        "Alternative": "Use the /create-wallet endpoint to create a new wallet with automatic user ID linking",
+        "Find Existing": "Use the /find-wallet endpoint to check if a relation already exists"
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Metadata Too Long">
+    ```json
+    {
+      "error": true,
+      "message": "Metadata is too long. A maximum of 500 characters is allowed."
+    }
+    ```
+  </Tab>
+</Tabs>
 
 ---
-
-## Prerequisites
-
-Before registering a file, ensure you have:
-
-<Check>**Wallet with user-key relation**: Use [`/create-wallet`](/essentials/create-wallet) or [`/link-wallet`](/essentials/link-wallet)</Check>
-<Check>**File content hash**: Calculate SHA256 hash of your file content</Check>
-<Check>**File metadata**: Name, size, and MIME type of your file</Check>
-<Check>**Content title**: Descriptive title for your registration</Check>
-
-<Warning>
-**Common Issue**: If you get "User-Key Relation Required" error, create a wallet first using [`/create-wallet`](/essentials/create-wallet) or link an existing one with [`/link-wallet`](/essentials/link-wallet).
-</Warning>
-
----
-
-## Complete Example
-
-Here's a full example of registering a file from start to finish:
-
-<Steps>
-  <Step title="Create Wallet (if needed)">
-    ```bash
-    curl -X POST https://core-api-server.onrender.com/create-wallet \
-      -H "Content-Type: application/json" \
-      -d '{"userID": "my-user-123"}'
-    ```
-    
-    <Note>**One-time only**: Skip this step if you already have a wallet. Each user only needs one Crossmint wallet for all registrations.</Note>
-    
-    Save the `walletAddress` from the response.
-  </Step>
-  
-  <Step title="Prepare File">
-    Calculate your file's SHA256 hash:
-    
-    ```bash
-    # Unix/Mac
-    shasum -a 256 document.pdf
-    
-    # Output: abc123def456... document.pdf
-    ```
-  </Step>
-  
-  <Step title="Register File">
-    ```bash
-    curl -X POST https://core-api-server.onrender.com/register \
-      -H "Content-Type: application/json" \
-      -d '{
-        "contentTitle": "Important Contract",
-        "walletAddress": "YOUR_WALLET_ADDRESS",
-        "walletType": "crossmint",
-        "contentHash": "abc123def456...",
-        "fileMetadata": {
-          "fileName": "contract.pdf",
-          "fileSize": 245760,
-          "mimeType": "application/pdf"
-        },
-        "metadata": "Legal contract for project X"
-      }'
-    ```
-  </Step>
-  
-  <Step title="Verify Registration">
-    Check that your file was registered:
-    
-    ```bash
-    curl -X POST https://core-api-server.onrender.com/search \
-      -H "Content-Type: application/json" \
-      -d '{"contentHash": "abc123def456..."}'
-    ```
-  </Step>
-</Steps>
 
 <Tip>
 Save the IPFS CID and transaction signature from the response for future reference. These provide cryptographic proof of your file's registration.

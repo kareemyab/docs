@@ -6,21 +6,21 @@ description: 'Links a user ID to a Solana wallet address by creating an on-chain
 ## Function Signature
 
 ```typescript
-function storeUserKeyRelation(
+function linkWallet(
   options: Options
 ): Promise<Response>;
 ```
 
-<ResponseField name="options" type="[Options](/sdk-reference/types#storeuserkeyrelation-options)">
-  The options for storing a user-key relation.
+<ResponseField name="options" type="[Options](/sdk-reference/types#linkwallet-options)">
+  The options for linking a wallet to a user ID.
 </ResponseField>
 
-<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#storeuserkeyrelation-response)>">
-  A promise that resolves with the response from storing a user-key relation.
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#linkwallet-response)>">
+  A promise that resolves with the response from linking a wallet.
 </ResponseField>
 
 <Info>
-**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#storeuserkeyrelation) page.
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#linkwallet) page.
 </Info>
 
 ## Usage
@@ -42,7 +42,7 @@ export default function UserKeyLinker() {
     if (!userID || !walletAddress) return;
     setIsLinking(true);
     try {
-      const linkResult = await sdk.storeUserKeyRelation({ userID, walletAddress });
+      const linkResult = await sdk.linkWallet({ userID, walletAddress });
       setResult(linkResult);
     } catch (error) {
       console.error('❌ Failed to store relation:', error.message);
@@ -81,7 +81,7 @@ const sdk = new CoreApiSDK();
 
 async function linkUserToWallet() {
   try {
-    const result = await sdk.storeUserKeyRelation({
+    const result = await sdk.linkWallet({
       userID: 'user_12345',
       walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
     });

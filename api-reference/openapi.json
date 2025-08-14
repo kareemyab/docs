@@ -87,15 +87,27 @@
         "x-code-samples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\",\n    \"fileMetadata\": {\n      \"fileName\": \"document.pdf\",\n      \"fileSize\": 245760,\n      \"mimeType\": \"application/pdf\"\n    },\n    \"metadata\": \"Important legal document for verification\"\n  }'"
+            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\",\n }'"
           },
           {
             "lang": "JavaScript",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'crossmint',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n    fileMetadata: {\n      fileName: 'document.pdf',\n      fileSize: 245760,\n      mimeType: 'application/pdf'\n    },\n    metadata: 'Important legal document for verification'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+            "source": "const response = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'crossmint',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
           },
           {
             "lang": "Python",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'crossmint',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n        'fileMetadata': {\n            'fileName': 'document.pdf',\n            'fileSize': 245760,\n            'mimeType': 'application/pdf'\n        },\n        'metadata': 'Important legal document for verification'\n    }\n)\n\ndata = response.json()\nprint(data)"
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'crossmint',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n   }\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n$url = 'https://core-api-server.onrender.com/register';\n$data = json_encode([\n    'contentTitle' => 'My Important Document',\n    'walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    'walletType' => 'crossmint',\n    'contentHash' => 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n]);\n\n$options = [\n    'http' => [\n        'header' => 'Content-Type: application/json',\n        'method' => 'POST',\n        'content' => $data,\n    ],\n];\n\n$context = stream_context_create($options);\n$result = file_get_contents($url, false, $context);\n$data = json_decode($result, true);\n\nprint_r($data);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"net/http\"\n\t\"io/ioutil\"\n)\n\nfunc main() {\n\turl := \"https://core-api-server.onrender.com/register\"\n\tmethod := \"POST\"\n\n\tclient := &http.Client {}\n\treq, err := http.NewRequest(method, url, nil)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\treq.Header.Add(\"Content-Type\", \"application/json\")\n\n\tres, err := client.Do(req)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer res.Body.Close()\n\n\tbody, err := ioutil.ReadAll(res.Body)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\tvar response map[string]interface{}\n\n\terr = json.Unmarshal(body, &response)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\tjson.NewEncoder(os.Stdout).Encode(response)\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class RegisterFile {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/register\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"contentTitle\\\": \\\"My Important Document\\\", \\\"walletAddress\\\": \\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\", \\\"walletType\\\": \\\"crossmint\\\", \\\"contentHash\\\": \\\"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
         ]
       }
@@ -122,34 +134,22 @@
       }
     },
     "/find-wallet": {
-      "post": {
+      "get": {
         "summary": "Find Wallet",
         "description": "Find a wallet by user ID or wallet address.",
         "tags": ["Wallet"],
-        "x-code-samples": [
+       "x-code-samples": [
           {
-            "lang": "cURL (by userID)",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/find-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"userID\": \"user-12345\"\n  }'"
+            "lang": "cURL",
+            "source": "# Example 1: Find by userID\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?userID=user-12345'\n\n# Example 2: Find by wallet address\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'"
           },
           {
-            "lang": "cURL (by walletAddress)",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/find-wallet' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
+            "lang": "JavaScript", 
+            "source": "// Example 1: Find by userID\nconst response1 = await fetch('https://core-api-server.onrender.com/find-wallet?userID=user-12345', {\n  method: 'GET'\n});\n\n// Example 2: Find by wallet address\nconst response2 = await fetch('https://core-api-server.onrender.com/find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', {\n  method: 'GET'\n});"
           },
           {
-            "lang": "JavaScript (by userID)",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/find-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    userID: 'user-12345'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
-          },
-          {
-            "lang": "JavaScript (by walletAddress)",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/find-wallet', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
-          },
-          {
-            "lang": "Python (by userID)",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/find-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={'userID': 'user-12345'}\n)\n\ndata = response.json()\nprint(data)"
-          },
-          {
-            "lang": "Python (by walletAddress)",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/find-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'}\n)\n\ndata = response.json()\nprint(data)"
+            "lang": "Python",
+            "source": "import requests\n\n# Example 1: Find by userID\nresponse1 = requests.get(\n    'https://core-api-server.onrender.com/find-wallet',\n    params={'userID': 'user-12345'}\n)\n\n# Example 2: Find by wallet address\nresponse2 = requests.get(\n    'https://core-api-server.onrender.com/find-wallet',\n    params={'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'}\n)"
           }
         ]
       }
@@ -192,27 +192,6 @@
           {
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/transactions',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'transaction': 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n    }\n)\n\ndata = response.json()\nprint(data)"
-          }
-        ]
-      }
-    },
-    "/wallet-balance": {
-      "post": {
-        "summary": "Get Wallet Balance",
-        "description": "Get the SOL balance of a wallet address.",
-        "tags": ["Wallet"],
-        "x-code-samples": [
-          {
-            "lang": "cURL",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/wallet-balance' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
-          },
-          {
-            "lang": "JavaScript",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/wallet-balance', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
-          },
-          {
-            "lang": "Python",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/wallet-balance',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
         ]
       }
@@ -458,10 +437,6 @@
               "ipfsCid": {
                 "type": "string",
                 "example": "QmExampleCidForYourFileMetadata..."
-              },
-              "processingFee": {
-                "type": "string",
-                "example": "~0.000005000 SOL (5,000 lamports)"
               },
               "solanaExplorer": {
                 "type": "string",

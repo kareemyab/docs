@@ -25,12 +25,6 @@
             ]
           },
           {
-            "group": "Help",
-            "pages": [
-              "troubleshooting"
-            ]
-          },
-          {
             "group": "Resources",
             "pages": [
               "faqs",
@@ -53,8 +47,7 @@
             "pages": [
               "essentials/create-wallet",
               "essentials/link-wallet",
-              "essentials/find-wallet",
-              "essentials/wallet-balance"
+              "essentials/find-wallet"
             ]
           },
           {
@@ -122,8 +115,7 @@
             "pages": [
               "cli-reference/create-wallet",
               "cli-reference/link-wallet",
-              "cli-reference/find-wallet",
-              "cli-reference/wallet-balance"
+              "cli-reference/find-wallet"
             ]
           },
           {
