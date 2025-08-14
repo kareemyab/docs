@@ -170,7 +170,7 @@ icon: 'circle-question'
     Trust Engine provides simple REST APIs that work with any programming language:
 
     **Basic integration steps:**
-    1. **Create user wallets** via `/create-wallet`
+    1. **Create user wallets** via `/create-wallet` *(one-time per user)*
     2. **Register media** via `/register` when users upload files
     3. **Verify provenance** via `/search` when users view media
     4. **Display verification status** in your UI
@@ -232,7 +232,7 @@ icon: 'circle-question'
     
     **Create the relationship**:
     ```bash
-    # Option 1: Create new wallet (automatically links)
+    # Option 1: Create new wallet (automatically links) - ONE TIME ONLY
     curl -X POST /create-wallet -d '{"userID": "user123"}'
     
     # Option 2: Link existing wallet

@@ -269,28 +269,6 @@ try {
 }
 ```
 
----
-
-## Related Endpoints
-
-<CardGroup cols={2}>
-  <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Use the `/register` endpoint - often returns transactions for signing
-  </Card>
-  
-  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/link-wallet">
-    Use the `/link-wallet` endpoint - may generate transactions for submission
-  </Card>
-  
-  <Card title="Create Wallet" icon="wallet" href="/essentials/create-wallet">
-    Use the `/create-wallet` endpoint - creates wallets that can sign transactions
-  </Card>
-  
-  <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
-    Use the `/wallet-balance` endpoint to verify sufficient funds before transactions
-  </Card>
-</CardGroup>
-
 <Warning>
 **Important**: This endpoint requires pre-signed transactions. It does not handle transaction creation or user signing - those must be done client-side or through other endpoints first.
 </Warning>

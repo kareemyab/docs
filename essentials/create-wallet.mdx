@@ -9,6 +9,10 @@ openapi: 'POST /create-wallet'
 **Rate Limit:** 100 requests per 15 minutes
 </Info>
 
+<Warning>
+**⚠️ ONE-TIME OPERATION PER USER**: Each user should only create **one** Crossmint wallet. Once created, use the same `walletAddress` for all future file registrations. Creating multiple wallets per user is unnecessary and not recommended.
+</Warning>
+
 ---
 
 ## What This Endpoint Does
@@ -121,36 +125,6 @@ openapi: 'POST /create-wallet'
 }
 ```
 </CodeGroup>
-
----
-
-## Prerequisites
-
-<Check>Crossmint API key configured on server</Check>
-
----
-
-## Next Steps
-
-After creating a wallet:
-
-<CardGroup cols={2}>
-  <Card title="Search For Files" icon="coins" href="/essentials/search">
-    Use the `/search` endpoint
-  </Card>
-  
-  <Card title="Check Balance" icon="scale-balanced" href="/essentials/wallet-balance">
-    Use the `/wallet-balance` endpoint
-  </Card>
-  
-  <Card title="Register Files" icon="file-plus" href="/essentials/register">
-    Use the `/register` endpoint
-  </Card>
-  
-  <Card title="Find Wallet" icon="magnifying-glass" href="/api-reference/endpoint/find-wallet">
-    Retrieve wallet by userID
-  </Card>
-</CardGroup>
 
 <Tip>
 Keep the `walletAddress` from the response for future reference and registration.
