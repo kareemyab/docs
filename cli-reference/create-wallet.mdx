@@ -7,6 +7,10 @@ description: 'Create a new wallet for a user'
 
 Create a new wallet for a user using the Trust Engine Core API.
 
+<Warning>
+**⚠️ ONE-TIME OPERATION**: Each user should only run this command **once**. The generated Crossmint wallet should be reused for all future file registrations. Save the `walletAddress` from the response for subsequent operations.
+</Warning>
+
 ## Usage
 
 ```bash

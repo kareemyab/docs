@@ -63,16 +63,6 @@
         "summary": "Create Wallet",
         "description": "Create a new wallet for a user.",
         "tags": ["Wallet"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateWalletRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -86,35 +76,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/create-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "201": {
-            "description": "Wallet created successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateWalletResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "409": {
-            "description": "User already has a wallet",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/register": {
@@ -122,16 +84,6 @@
         "summary": "Register File",
         "description": "Register a new file using its content hash and metadata.",
         "tags": ["File Operations"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterFileRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -145,45 +97,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'crossmint',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n        'fileMetadata': {\n            'fileName': 'document.pdf',\n            'fileSize': 245760,\n            'mimeType': 'application/pdf'\n        },\n        'metadata': 'Important legal document for verification'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Transaction prepared for standard wallet",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterFileStandardResponse"
-                }
-              }
-            }
-          },
-          "202": {
-            "description": "Registration accepted for Crossmint wallet",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RegisterFileCrossmintResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "409": {
-            "description": "File already registered",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/search": {
@@ -191,16 +105,6 @@
         "summary": "Search",
         "description": "Search for a file by its content hash.",
         "tags": ["File Operations"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SearchRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -214,35 +118,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/search',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Search results found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SearchResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "No records found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/find-wallet": {
@@ -275,38 +151,7 @@
             "lang": "Python (by walletAddress)",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/find-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'}\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/FindWalletRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "The wallet was found.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FindWalletResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "404": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/link-wallet": {
@@ -314,16 +159,6 @@
         "summary": "Link Wallet",
         "description": "Link a wallet to a user ID.",
         "tags": ["Wallet"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LinkWalletRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -337,35 +172,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/link-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Wallet linked successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LinkWalletResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "409": {
-            "description": "Wallet or user ID already linked",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/transactions": {
@@ -373,16 +180,6 @@
         "summary": "Submit Transaction",
         "description": "Submit a pre-signed transaction.",
         "tags": ["Transactions"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/SubmitTransactionRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -396,25 +193,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/transactions',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'transaction': 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Transaction submitted successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SubmitTransactionResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/wallet-balance": {
@@ -422,16 +201,6 @@
         "summary": "Get Wallet Balance",
         "description": "Get the SOL balance of a wallet address.",
         "tags": ["Wallet"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/WalletBalanceRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -445,25 +214,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/wallet-balance',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Wallet balance retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/WalletBalanceResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     },
     "/validators/data": {
@@ -471,16 +222,6 @@
         "summary": "Get Validator Data",
         "description": "Get validator data for a wallet address.",
         "tags": ["Validators"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ValidatorDataRequest"
-              }
-            }
-          }
-        },
         "x-code-samples": [
           {
             "lang": "cURL",
@@ -494,35 +235,7 @@
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/validators/data',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
           }
-        ],
-        "responses": {
-          "200": {
-            "description": "Validator data retrieved successfully",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidatorDataResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Validator not found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/ErrorResponse"
-          },
-          "500": {
-            "$ref": "#/components/responses/ErrorResponse"
-          }
-        }
+        ]
       }
     }
   },

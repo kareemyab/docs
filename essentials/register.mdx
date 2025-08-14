@@ -391,6 +391,8 @@ Here's a full example of registering a file from start to finish:
       -d '{"userID": "my-user-123"}'
     ```
     
+    <Note>**One-time only**: Skip this step if you already have a wallet. Each user only needs one Crossmint wallet for all registrations.</Note>
+    
     Save the `walletAddress` from the response.
   </Step>
   
@@ -434,30 +436,6 @@ Here's a full example of registering a file from start to finish:
     ```
   </Step>
 </Steps>
-
----
-
-## Next Steps
-
-After registering a file:
-
-<CardGroup cols={2}>
-  <Card title="Search for File" icon="magnifying-glass" href="/api-reference/endpoint/search">
-    Use the `/search` endpoint to find your registered file
-  </Card>
-  
-  <Card title="Check Wallet Balance" icon="wallet" href="/essentials/wallet-balance">
-    Use the `/wallet-balance` endpoint
-  </Card>
-  
-  <Card title="Create More Wallets" icon="plus" href="/essentials/create-wallet">
-    Use the `/create-wallet` endpoint
-  </Card>
-  
-  <Card title="Store Relations" icon="link" href="/api-reference/endpoint/link-wallet">
-    Use the `/link-wallet` endpoint if needed
-  </Card>
-</CardGroup>
 
 <Tip>
 Save the IPFS CID and transaction signature from the response for future reference. These provide cryptographic proof of your file's registration.

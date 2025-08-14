@@ -9,17 +9,7 @@ icon: 'rocket'
 **What You'll Learn**: How to create a wallet, register a file, and verify its provenance using Trust Engine
 </Info>
 
----
 
-## Prerequisites
-
-Before you begin, make sure you have:
-
-<Check>Basic understanding of REST APIs</Check>
-<Check>A file you want to register (any type, max 100MB)</Check>
-<Check>curl or your favorite HTTP client</Check>
-
----
 
 ## Step 1: Health Check
 
@@ -79,6 +69,10 @@ core-api-cli create-wallet \
   --userID "my-unique-id-123"
 ```
 </CodeGroup>
+
+<Warning>
+**⚠️ ONE-TIME OPERATION**: This wallet creation step should only be performed **once per user**. The Crossmint wallet that gets generated will be used for **all future file registrations** by this user. Save the `walletAddress` from the response and reuse it for subsequent registrations instead of creating new wallets. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
+</Warning>
 
 **Save the wallet address** from the response - you'll need it for the next step!
 
@@ -236,14 +230,6 @@ core-api-cli search-file \
 
 ---
 
-## 🎉 Congratulations!
-
-You've successfully:
-
-<Check>Created a Trust Engine wallet</Check>
-<Check>Registered your first file</Check>
-<Check>Verified the registration on-chain</Check>
-
 ## Understanding Your Results
 
 - **`finalized: false`**: Your file is registered but validators are still verifying it
@@ -294,5 +280,5 @@ You've successfully:
 </CardGroup>
 
 <Tip>
-**Pro Tip**: Save your wallet address, content hash, and PDA address for future reference. These provide cryptographic proof of your file's registration timestamp and origin.
+**Pro Tip**: Save your wallet address, and file, for future reference. These allow you to find your exact record in our registry.
 </Tip>
