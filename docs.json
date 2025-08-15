@@ -132,6 +132,17 @@
             ]
           }
         ]
+      },
+      {
+        "tab": "TRUST Stamp",
+        "groups": [
+          {
+            "group": "Widget",
+            "pages": [
+              "trust-stamp"
+            ]
+          }
+        ]
       }
     ],
     "global": {

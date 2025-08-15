@@ -1,0 +1,209 @@
+---
+title: TRUST Stamp Widget
+description: 'Automatically verify and display provenance stamps for all media on your website with our JavaScript widget.'
+---
+
+## What is TRUST Stamp?
+
+**TRUST Stamp** is a powerful JavaScript widget that automatically scans every piece of media on your website and adds interactive provenance stamps. These stamps allow visitors to instantly verify the authenticity and registration history of images, videos, and other digital assets directly on your site.
+
+## How It Works
+
+<Steps>
+  <Step title="Automatic Media Detection">
+    The widget automatically scans all media elements (`<img>`, `<video>`, `<audio>`, etc.) on your website pages.
+  </Step>
+  <Step title="Registration Lookup">
+    For each media file, it checks our Trust Engine database for existing registrations and verification records.
+  </Step>
+  <Step title="Interactive Stamps">
+    Registered media gets a clickable verification stamp overlay that displays provenance information when clicked.
+  </Step>
+  <Step title="Real-time Updates">
+    The widget continuously monitors for new media content and applies stamps dynamically as content loads.
+  </Step>
+</Steps>
+
+## Features
+
+<CardGroup cols={2}>
+  <Card title="Zero Configuration" icon="magic">
+    Just add one script tag and the widget handles everything automatically.
+  </Card>
+  <Card title="Non-Intrusive" icon="eye-slash">
+    Stamps appear subtly and don't interfere with your website's design or functionality.
+  </Card>
+  <Card title="Real-time Verification" icon="bolt">
+    Instant lookup of registration records from the Trust Engine blockchain.
+  </Card>
+  <Card title="Mobile Responsive" icon="mobile">
+    Works seamlessly across desktop, tablet, and mobile devices.
+  </Card>
+</CardGroup>
+
+## Implementation
+
+### Single Script Integration
+
+Add this single script tag to your website's `<head>` section or before the closing `</body>` tag:
+
+<CodeGroup>
+```html HTML
+<script
+  src="[YOUR_WIDGET_URL]"
+  data-api-base-url="https://core-api-server.onrender.com"
+></script>
+```
+
+```jsx React / Next.js
+import Script from 'next/script';
+
+export default function Layout({ children }) {
+  return (
+    <html>
+      <head>
+        <Script
+          src="[YOUR_WIDGET_URL]"
+          data-api-base-url="https://core-api-server.onrender.com"
+          strategy="afterInteractive"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```vue Vue.js
+<template>
+  <div id="app">
+    <!-- Your app content -->
+  </div>
+</template>
+
+<script>
+export default {
+  mounted() {
+    const script = document.createElement('script');
+    script.src = '[YOUR_WIDGET_URL]';
+    script.setAttribute('data-api-base-url', 'https://core-api-server.onrender.com');
+    document.head.appendChild(script);
+  }
+}
+</script>
+```
+</CodeGroup>
+
+<Warning>
+**Partnership Required**: The `[YOUR_WIDGET_URL]` placeholder will be replaced with your unique widget URL when you partner with Trust Engine. Contact us to get your personalized widget access.
+</Warning>
+
+## Configuration Options
+
+The widget accepts several data attributes for customization:
+
+<ResponseField name="data-api-base-url" type="string" required>
+  The base URL for the Trust Engine API. Use `https://core-api-server.onrender.com` for production.
+</ResponseField>
+
+<ResponseField name="data-stamp-position" type="string" default="top-right">
+  Position of the verification stamp. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`
+</ResponseField>
+
+<ResponseField name="data-stamp-size" type="string" default="small">
+  Size of the verification stamp. Options: `small`, `medium`, `large`
+</ResponseField>
+
+<ResponseField name="data-auto-scan" type="boolean" default="true">
+  Whether to automatically scan for media on page load. Set to `false` for manual control.
+</ResponseField>
+
+### Advanced Configuration
+
+```html
+<script
+  src="[YOUR_WIDGET_URL]"
+  data-api-base-url="https://core-api-server.onrender.com"
+  data-stamp-position="bottom-right"
+  data-stamp-size="medium"
+  data-auto-scan="true"
+></script>
+```
+
+## What Users See
+
+When a visitor hovers over or clicks a verification stamp, they'll see:
+
+<Accordion title="Verification Details">
+  <AccordionItem title="Registration Information">
+    - **Content Hash**: The unique SHA256 hash of the media file
+    - **Registration Date**: When the media was first registered
+    - **Registered By**: The wallet address or user ID of the registrant
+    - **IPFS CID**: Link to the decentralized metadata storage
+  </AccordionItem>
+  
+  <AccordionItem title="Blockchain Verification">
+    - **Transaction Hash**: Link to the Solana blockchain transaction
+    - **Validator Consensus**: Percentage of validators that verified the content
+    - **Validation Status**: Current verification status (Pending, Verified, etc.)
+    - **On-Chain Explorer**: Direct link to view the transaction on Solana
+  </AccordionItem>
+  
+  <AccordionItem title="Provenance History">
+    - **Multiple Registrations**: If the same content was registered by different users
+    - **Timestamp Trail**: Complete history of when registrations occurred
+    - **Ownership Chain**: Track how content ownership or registration has evolved
+  </AccordionItem>
+</Accordion>
+
+## Use Cases
+
+<CardGroup cols={1}>
+  <Card title="News & Media Websites" icon="newspaper">
+    Automatically verify the authenticity of news images and videos, building trust with readers.
+  </Card>
+  <Card title="E-commerce Platforms" icon="shopping-cart">
+    Show product image verification to reduce counterfeit concerns and increase buyer confidence.
+  </Card>
+  <Card title="NFT Marketplaces" icon="palette">
+    Display provenance information for digital art and collectibles directly on listing pages.
+  </Card>
+  <Card title="Educational Institutions" icon="graduation-cap">
+    Verify academic content, research images, and educational materials for credibility.
+  </Card>
+  <Card title="Corporate Websites" icon="building">
+    Authenticate company assets, press photos, and official documents automatically.
+  </Card>
+</CardGroup>
+
+## Technical Requirements
+
+<Note>
+**Browser Compatibility**: The widget works with all modern browsers (Chrome 80+, Firefox 75+, Safari 13+, Edge 80+) and requires JavaScript to be enabled.
+</Note>
+
+- **Performance**: Minimal impact on page load speed (~50KB compressed)
+- **Security**: All API calls are made over HTTPS with proper CORS handling
+- **Privacy**: No personal data is collected or stored by the widget
+- **Accessibility**: Fully compatible with screen readers and keyboard navigation
+
+## Getting Started
+
+<Steps>
+  <Step title="Contact Trust Engine">
+    Reach out to our team to discuss partnership and get your custom widget URL.
+  </Step>
+  <Step title="Register Your Media">
+    Use our [API](/api-overview), [SDK](/sdk-reference), or [CLI](/cli-reference) to register your media content.
+  </Step>
+  <Step title="Add the Script">
+    Implement the widget script tag on your website with your unique URL.
+  </Step>
+  <Step title="Test & Launch">
+    Verify that stamps appear on your registered media and provide the expected verification details.
+  </Step>
+</Steps>
+
+<Card title="Ready to Get Started?" icon="rocket" href="mailto:kareem@trustengine.org">
+  Contact our team to discuss partnership and receive your personalized TRUST Stamp widget.
+</Card>
