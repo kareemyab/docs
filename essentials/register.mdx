@@ -26,6 +26,8 @@ openapi: 'POST /register'
 
 ## Parameters
 
+<Card title="Request Parameters">
+
 <ResponseField name="contentTitle" type="string" required>
   Title for the content being registered
   
@@ -104,6 +106,8 @@ openapi: 'POST /register'
   Example: `"110f211f367825834d6897c0efd0b05b35adb744a5836dcd478d384d2a938f15"`
 </ResponseField>
 
+</Card>
+
 
 ---
 
@@ -111,184 +115,199 @@ openapi: 'POST /register'
 
 ## Response Examples
 
-### Success Response (202 - Crossmint)
+<Card title="Success Responses">
 
-<ResponseField name="message" type="string">
-  Success confirmation message for Crossmint wallet transactions
+<Tabs>
+  <Tab title="Crossmint (202)">
+    <ResponseField name="message" type="string">
+      Success confirmation message for Crossmint wallet transactions
+      
+      Example: `"✅ Accepted! Your file has been submitted and is being processed by Crossmint."`
+    </ResponseField>
+
+    <ResponseField name="details" type="object">
+      Registration submission details for Crossmint wallets
+      
+      <Expandable title="Details Object">
+        <ResponseField name="status" type="string">
+          Current status of the registration
+          
+          Example: `"processing"`
+        </ResponseField>
+        
+        <ResponseField name="crossmintTransactionId" type="string">
+          Crossmint transaction identifier
+          
+          Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
+        </ResponseField>
+        
+        <ResponseField name="contentRegistrationPDA" type="string">
+          Program Derived Address for the content registration
+          
+          Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+        </ResponseField>
+        
+        <ResponseField name="ipfsCid" type="string">
+          IPFS Content Identifier for the file metadata
+          
+          Example: `"QmExampleCidForYourFileMetadata..."`
+        </ResponseField>
+        
+        <ResponseField name="contentHash" type="string">
+          SHA-256 hash of your file that was registered on chain
+          
+          Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
   
-  Example: `"✅ Accepted! Your file has been submitted and is being processed by Crossmint."`
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  Registration submission details for Crossmint wallets
-  
-  <Expandable title="Details Object">
-    <ResponseField name="status" type="string">
-      Current status of the registration
+  <Tab title="Standard Wallet (200)">
+    <ResponseField name="message" type="string">
+      Success confirmation message for standard wallet transactions
       
-      Example: `"processing"`
-    </ResponseField>
-    
-    <ResponseField name="crossmintTransactionId" type="string">
-      Crossmint transaction identifier
-      
-      Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
-    </ResponseField>
-    
-    <ResponseField name="contentRegistrationPDA" type="string">
-      Program Derived Address for the content registration
-      
-      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
-    </ResponseField>
-    
-    <ResponseField name="ipfsCid" type="string">
-      IPFS Content Identifier for the file metadata
-      
-      Example: `"QmExampleCidForYourFileMetadata..."`
-    </ResponseField>
-    
-    <ResponseField name="contentHash" type="string">
-      SHA-256 hash of your file that was registered on chain
-      
-      Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-### Success Response (200 - Standard Wallet)
-
-<ResponseField name="message" type="string">
-  Success confirmation message for standard wallet transactions
-  
-  Example: `"Transaction prepared. Please sign and submit via your wallet."`
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  Transaction preparation details for standard wallets
-  
-  <Expandable title="Details Object">
-    <ResponseField name="status" type="string">
-      Current status requiring client to sign the transaction with thier wallet
-      
-      Example: `"requires-client-signature"`
-    </ResponseField>
-    
-    <ResponseField name="ipfsCid" type="string">
-      IPFS Content Identifier for the file metadata
-      
-      Example: `"QmExampleCidForYourFileMetadata..."`
-    </ResponseField>
-    
-    <ResponseField name="contentRegistrationPDA" type="string">
-      Program Derived Address for the content registration
-      
-      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
-    </ResponseField>
-    
-    <ResponseField name="transaction" type="string">
-      Base64-encoded transaction ready for client signing with their wallet
-      
-      Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
+      Example: `"Transaction prepared. Please sign and submit via your wallet."`
     </ResponseField>
 
-    <ResponseField name="contentHash" type="string">
-      SHA-256 hash of your file that was registered on chain
+    <ResponseField name="details" type="object">
+      Transaction preparation details for standard wallets
       
-      Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
-    </ResponseField>
-  </Expandable>
-</ResponseField>
+      <Expandable title="Details Object">
+        <ResponseField name="status" type="string">
+          Current status requiring client to sign the transaction with thier wallet
+          
+          Example: `"requires-client-signature"`
+        </ResponseField>
+        
+        <ResponseField name="ipfsCid" type="string">
+          IPFS Content Identifier for the file metadata
+          
+          Example: `"QmExampleCidForYourFileMetadata..."`
+        </ResponseField>
+        
+        <ResponseField name="contentRegistrationPDA" type="string">
+          Program Derived Address for the content registration
+          
+          Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+        </ResponseField>
+        
+        <ResponseField name="transaction" type="string">
+          Base64-encoded transaction ready for client signing with their wallet
+          
+          Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
+        </ResponseField>
 
-<Note>
-**Next Steps for Standard Wallets**: Take the `transaction` from the response, sign it with your wallet (Phantom, Metamask, etc.), then submit the signed transaction using the [`/transactions`](/essentials/submit-transaction) endpoint to complete the registration.
-</Note>
+        <ResponseField name="contentHash" type="string">
+          SHA-256 hash of your file that was registered on chain
+          
+          Example: `"70228527096ba198ca89d90a0ac922055a6a2760a0e4f7d61918e6c60467c47a"`
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+
+    <Note>
+      **Next Steps for Standard Wallets**: Take the `transaction` from the response, sign it with your wallet (Phantom, Metamask, etc.), then submit the signed transaction using the [`/transactions`](/essentials/submit-transaction) endpoint to complete the registration.
+    </Note>
+  </Tab>
+</Tabs>
+
+</Card>
 
 ---
 
-### Error Response (400 - Bad Request)
+<Card title="Error Responses">
 
-Returned when the request contains invalid or missing required parameters. The response structure varies depending on the specific validation error.
+<Tabs>
+  <Tab title="Bad Request (400)">
+    <Info>
+    Returned when the request contains invalid or missing required parameters. The response structure varies depending on the specific validation error.
+    </Info>
 
-<ResponseField name="error" type="boolean">
-  Error flag indicating request failure
-  Example: `true`
-</ResponseField>
-
-<ResponseField name="message" type="string">
-  Error description explaining what went wrong. Common messages include:
-  - `"Missing contentHash or fileMetadata. These are now required."`
-  - `"Hold on! We need contentTitle, walletAddress, and walletType to proceed."`
-  - `"Invalid walletType. It must be either 'standard' or 'crossmint'."`
-  - `"Invalid claimHash. It must be a 32-byte hex string (64 characters)."`
-  - `"This wallet address doesn't have a user ID relation. Please create one first."`
-  - `"The provided metadata is not a string. Please check the format."`
-  - `"Metadata is too long. A maximum of 500 characters is allowed."`
-</ResponseField>
-
-<ResponseField name="details" type="object" required={false}>
-  Additional error context and guidance. Only included for specific error types:
-
-  **For missing required fields:**
-
-  ```json
-  {
-    "missingFields": ["contentTitle", "walletAddress"]
-  }
-  ```
-
-  **For wallet relation issues:**
-
-  ```json
-  {
-    "Missing Requirement": "User-Key Relation",
-    "Wallet Address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "Suggestion": "Use the /link-wallet endpoint to link your wallet to a user ID first",
-    "Alternative": "Use the /create-wallet endpoint to create a new wallet with automatic user ID linking",
-    "Find Existing": "Use the /find-wallet endpoint to check if a relation already exists"
-  }
-  ```
-</ResponseField>
-
-### Error Response (409 - Duplicate Registration)
-
-<ResponseField name="error" type="boolean">
-  Error flag indicating duplicate registration
-  
-  Example: `true`
-</ResponseField>
-
-<ResponseField name="message" type="string">
-  Error description for duplicate file
-  
-  Example: `"🚫 FILE ALREADY REGISTERED 🚫"`
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  Duplicate registration details
-  
-  <Expandable title="Details Object">
-    <ResponseField name="contentHash" type="string">
-      SHA256 hash of the already registered file
-      
-      Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
+    <ResponseField name="error" type="boolean">
+      Error flag indicating request failure
+      Example: `true`
     </ResponseField>
-    
-    <ResponseField name="pdaAddress" type="string">
-      Program Derived Address of existing registration
-      
-      Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
-    </ResponseField>
-    
-    <ResponseField name="suggestion" type="string">
-      Recommended action for the user
-      
-      Example: `"Use the /search endpoint"`
-    </ResponseField>
-  </Expandable>
-</ResponseField>
 
-## Example Responses:
+    <ResponseField name="message" type="string">
+      Error description explaining what went wrong. Common messages include:
+      - `"Missing contentHash or fileMetadata. These are now required."`
+      - `"Hold on! We need contentTitle, walletAddress, and walletType to proceed."`
+      - `"Invalid walletType. It must be either 'standard' or 'crossmint'."`
+      - `"Invalid claimHash. It must be a 32-byte hex string (64 characters)."`
+      - `"This wallet address doesn't have a user ID relation. Please create one first."`
+      - `"The provided metadata is not a string. Please check the format."`
+      - `"Metadata is too long. A maximum of 500 characters is allowed."`
+    </ResponseField>
 
+    <ResponseField name="details" type="object" required={false}>
+      Additional error context and guidance. Only included for specific error types:
+
+      **For missing required fields:**
+
+      ```json
+      {
+        "missingFields": ["contentTitle", "walletAddress"]
+      }
+      ```
+
+      **For wallet relation issues:**
+
+      ```json
+      {
+        "Missing Requirement": "User-Key Relation",
+        "Wallet Address": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+        "Suggestion": "Use the /link-wallet endpoint to link your wallet to a user ID first",
+        "Alternative": "Use the /create-wallet endpoint to create a new wallet with automatic user ID linking",
+        "Find Existing": "Use the /find-wallet endpoint to check if a relation already exists"
+      }
+      ```
+    </ResponseField>
+  </Tab>
+  
+  <Tab title="Duplicate Registration (409)">
+    <ResponseField name="error" type="boolean">
+      Error flag indicating duplicate registration
+      
+      Example: `true`
+    </ResponseField>
+
+    <ResponseField name="message" type="string">
+      Error description for duplicate file
+      
+      Example: `"🚫 FILE ALREADY REGISTERED 🚫"`
+    </ResponseField>
+
+    <ResponseField name="details" type="object">
+      Duplicate registration details
+      
+      <Expandable title="Details Object">
+        <ResponseField name="contentHash" type="string">
+          SHA256 hash of the already registered file
+          
+          Example: `"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"`
+        </ResponseField>
+        
+        <ResponseField name="pdaAddress" type="string">
+          Program Derived Address of existing registration
+          
+          Example: `"8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"`
+        </ResponseField>
+        
+        <ResponseField name="suggestion" type="string">
+          Recommended action for the user
+          
+          Example: `"Use the /search endpoint"`
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Tab>
+</Tabs>
+
+</Card>
+
+## Example Responses
+
+<Card title="Raw Response Examples">
 
 <CodeGroup>
 ```json Success (202 Crossmint)
@@ -362,6 +381,8 @@ Returned when the request contains invalid or missing required parameters. The r
     ```
   </Tab>
 </Tabs>
+
+</Card>
 
 ---
 

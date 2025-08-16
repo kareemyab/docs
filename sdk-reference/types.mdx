@@ -35,6 +35,9 @@ This page provides detailed information about the type definitions used in the T
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
     </ResponseField>
+    <ResponseField name="userID" type="string">
+      User ID connected to the wallet address
+    </ResponseField>
   </Expandable>
 </ResponseField>
 
@@ -69,7 +72,7 @@ This page provides detailed information about the type definitions used in the T
 </ResponseField>
 
 <ResponseField name="signTransaction" type="(transaction: Transaction) => Promise<Transaction>" optional>
-  A function to sign a transaction.
+  A function to sign a transaction. Usually a function from your wallet provider (Phantom, Metamask, etc. )
 </ResponseField>
 
 ### Response
