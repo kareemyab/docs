@@ -1,180 +1,102 @@
----
-title: 'search-file'
-description: 'Search for a file by its content hash'
----
+# Trust Engine search-file
 
-# search-file
+> Search for a file by its content hash
 
-Search for a file in the Trust Engine registry by uploading the file and checking if its content hash exists on the blockchain.
+The search-file command allows you to search for a file in the Trust Engine registry by uploading the file and checking if its content hash exists on the blockchain. You can search for all registrations of a file or filter by a specific wallet address.
 
-## Usage
+To use it, run the following command from your terminal
 
 ```bash
-core-api-cli search-file [options]
+trust-engine-cli search-file [options]
 ```
 
-## Required Options
+## Options
 
-<ParamField path="--file, -f" type="string" required>
-  Path to the file to search for
-</ParamField>
-
-## Optional Options
-
-<ParamField path="--json" type="boolean">
-  Output the result as JSON instead of formatted text
-</ParamField>
+| Option                      | Description                                       |
+| --------------------------- | ------------------------------------------------- |
+| `-f, --file <path>`         | Path to the file to search for                   |
+| `-w, --walletAddress <address>` | Wallet address to search for (Solana public key) |
+| `--json`                    | Output the result as JSON                         |
 
 ## Examples
 
-### Search for a File
+Search for a file:
 
 ```bash
-core-api-cli search-file --file ./document.pdf
+trust-engine-cli search-file --file ./document.pdf
 ```
 
-### JSON Output for Automation
-
-```bash
-core-api-cli search-file --file ./document.pdf --json
-```
-
-## Response
-
-### Success Response (Formatted) - File Found
+After running the command, you'll see search results:
 
 ```
-✅ Found 1 record(s) for your file on the blockchain.
+✅ Found 1 registration(s) for your file content.
+
+Search Information:
+  - Search Mode: content_hash
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+  - Total Results: 1
 
 Registration Details:
-  - Creator: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-  - IPFS CID: QmExampleCidForYourFileMetadata...
-  - Registration PDA: xyz789abc123def456ghi...
-  - Timestamp: 1/15/2024, 10:30:45 AM
+
+--- Registration 1 ---
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+  - PDA Address: xyz789abc123def456ghi789
+  - IPFS CID: QmExampleCidForYourFileMetadata123
+  - Registered By: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+  - User ID: user_12345
+  - Timestamp: 2024-01-15T10:30:45.123Z
+  - Validation Status: validated
+  - Consensus: high
+  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
 ```
 
-### Success Response (Formatted) - File Not Found
+You can also search for files registered by a specific wallet:
+
+```bash
+trust-engine-cli search-file --file ./document.pdf --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+```
+
+If no registrations are found:
 
 ```
-✅ No records found for your file on the blockchain.
+✅ File search completed.
+
+Search Information:
+  - Search Mode: content_hash
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+  - Total Results: 0
+
+No registrations found for this content.
 ```
 
-### JSON Response - File Found
+For automation purposes, use the JSON output:
+
+```bash
+trust-engine-cli search-file --file ./document.pdf --json
+```
+
+This will return:
 
 ```json
 {
-  "message": "Found 1 record(s) for your file on the blockchain.",
-  "details": {
-    "isRegistered": true,
-    "creator": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "ipfsCid": "QmExampleCidForYourFileMetadata...",
-    "pdaAddress": "xyz789abc123def456ghi...",
-    "timestamp": 1705308645,
-    "contentHash": "sha256:abc123...",
-    "userID": "user_12345"
-  }
+  "message": "Found 1 registration(s) for your file content.",
+  "searchMode": "content_hash",
+  "searchCriteria": {
+    "contentHash": "abc123def456789ghi012jkl345mno678pqr901"
+  },
+  "totalResults": 1,
+  "registrations": [
+    {
+      "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
+      "pdaAddress": "xyz789abc123def456ghi789",
+      "ipfsCid": "QmExampleCidForYourFileMetadata123",
+      "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+      "userID": "user_12345",
+      "timestamp": "2024-01-15T10:30:45.123Z",
+      "validationStatus": "validated",
+      "consensus": "high",
+      "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+    }
+  ]
 }
 ```
-
-### JSON Response - File Not Found
-
-```json
-{
-  "message": "No records found for your file on the blockchain.",
-  "details": {
-    "isRegistered": false
-  }
-}
-```
-
-## Error Handling
-
-Common error scenarios:
-
-- **File not found**: Ensure the file path is correct and accessible
-- **File read error**: Check file permissions and ensure the file isn't corrupted
-- **Network issues**: Check your internet connection and API availability
-
-## Use Cases
-
-### Verify File Authenticity
-
-```bash
-# Check if a received file matches the registered version
-core-api-cli search-file --file ./received_document.pdf
-```
-
-### Batch File Verification
-
-```bash
-#!/bin/bash
-files_dir="./documents"
-
-for file in "$files_dir"/*; do
-  echo "Checking: $(basename "$file")"
-  result=$(core-api-cli search-file --file "$file" --json)
-  
-  if echo "$result" | jq -e '.details.isRegistered' > /dev/null; then
-    creator=$(echo "$result" | jq -r '.details.creator')
-    echo "  ✅ Registered by: $creator"
-  else
-    echo "  ❌ Not registered"
-  fi
-  echo
-done
-```
-
-### Provenance Tracking
-
-```bash
-#!/bin/bash
-file_path="$1"
-
-if [ -z "$file_path" ]; then
-  echo "Usage: $0 <file_path>"
-  exit 1
-fi
-
-result=$(core-api-cli search-file --file "$file_path" --json)
-
-if echo "$result" | jq -e '.details.isRegistered' > /dev/null; then
-  echo "File Provenance Information:"
-  echo "  Creator: $(echo "$result" | jq -r '.details.creator')"
-  echo "  Registration Date: $(date -d @$(echo "$result" | jq -r '.details.timestamp'))"
-  echo "  IPFS CID: $(echo "$result" | jq -r '.details.ipfsCid')"
-  echo "  User ID: $(echo "$result" | jq -r '.details.userID')"
-else
-  echo "This file has no registered provenance."
-fi
-```
-
-### Content Integrity Check
-
-```bash
-#!/bin/bash
-original_file="./original.pdf"
-downloaded_file="./downloaded.pdf"
-
-echo "Checking original file..."
-original_result=$(core-api-cli search-file --file "$original_file" --json)
-
-echo "Checking downloaded file..."
-downloaded_result=$(core-api-cli search-file --file "$downloaded_file" --json)
-
-original_hash=$(echo "$original_result" | jq -r '.details.contentHash // "not_found"')
-downloaded_hash=$(echo "$downloaded_result" | jq -r '.details.contentHash // "not_found"')
-
-if [ "$original_hash" = "$downloaded_hash" ] && [ "$original_hash" != "not_found" ]; then
-  echo "✅ Files are identical and registered"
-else
-  echo "❌ Files differ or are not registered"
-fi
-```
-
-## Notes
-
-- The search is based on the file's content hash (SHA-256)
-- Even minor changes to a file will result in a different hash
-- The search will find the original registration details including creator and timestamp
-- This is perfect for verifying document authenticity and provenance
-- Large files are supported but upload time may vary based on file size and network speed

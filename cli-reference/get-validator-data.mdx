@@ -1,194 +1,70 @@
----
-title: 'get-validator-data'
-description: 'Get validator data for a wallet address'
----
+# Trust Engine get-validator-data
 
-# get-validator-data
+> Get a validator's data from the Trust Engine system
 
-Get validator data and information for a specific wallet address.
+The get-validator-data command allows you to retrieve detailed information about a Trust Engine validator, including their reputation score, voting history, and performance metrics within the Trust Engine validation network.
 
-## Usage
+To use it, run the following command from your terminal
 
 ```bash
-core-api-cli get-validator-data [options]
+trust-engine-cli get-validator-data [options]
 ```
 
-## Required Options
+## Options
 
-<ParamField path="--walletAddress, -w" type="string" required>
-  Wallet address of the validator to query
-</ParamField>
+| Option                      | Description                                       |
+| --------------------------- | ------------------------------------------------- |
+| `-w, --walletAddress <address>` | Wallet address of the validator (Solana public key) |
+| `--json`                    | Output the result as JSON                         |
 
-## Optional Options
+## Example
 
-<ParamField path="--json" type="boolean">
-  Output the result as JSON instead of formatted text
-</ParamField>
-
-## Examples
-
-### Get Validator Data
+Get validator data for a specific wallet address:
 
 ```bash
-core-api-cli get-validator-data \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+trust-engine-cli get-validator-data --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
 ```
 
-### JSON Output for Automation
-
-```bash
-core-api-cli get-validator-data \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --json
-```
-
-## Response
-
-### Success Response (Formatted)
+After running the command, you'll see the validator's Trust Engine data:
 
 ```
 ✅ Validator data retrieved successfully.
 
 Validator Data for 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM:
-  - Status: Active
-  - Commission: 5%
-  - Total Stake: 1000000 SOL
-  - Vote Account: A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2
-  - Identity: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-  - Last Vote: 150234567
-  - Root Slot: 150234560
+  - Validator Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+  - Validator PDA: xyz789abc123def456ghi789
+  - Staked Amount: 1000000
+  - Reputation Score: 85.5
+  - Total Votes: 1250
+  - Honest Votes: 1200
+  - Dishonest Votes: 50
+  - Accuracy Percentage: 96%
+  - Last Active Time: 1705308645
+  - Last Active Date: 2024-01-15T10:30:45Z
 ```
 
-### JSON Response
+For automation purposes, use the JSON output:
+
+```bash
+trust-engine-cli get-validator-data --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" --json
+```
+
+This will return:
 
 ```json
 {
   "message": "Validator data retrieved successfully.",
   "details": {
-    "status": "Active",
-    "commission": "5%",
-    "totalStake": "1000000 SOL",
-    "voteAccount": "A1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q7R8S9T0U1V2",
-    "identity": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "lastVote": 150234567,
-    "rootSlot": 150234560,
-    "credits": 98765,
-    "epochCredits": [
-      {
-        "epoch": 350,
-        "credits": 432000,
-        "previousCredits": 431000
-      }
-    ]
+    "validatorAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+    "validatorPDA": "xyz789abc123def456ghi789",
+    "stakedAmount": "1000000",
+    "reputationScore": "85.5",
+    "totalVotes": "1250",
+    "honestVotes": "1200",
+    "dishonestVotes": "50",
+    "accuracyPercentage": "96",
+    "lastActiveTime": "1705308645",
+    "lastActiveDate": "2024-01-15T10:30:45Z"
   }
 }
 ```
-
-## Error Handling
-
-Common error scenarios:
-
-- **Invalid wallet address**: Ensure the wallet address is a valid Solana address
-- **Validator not found**: The wallet address may not be associated with a validator
-- **Network issues**: Check your internet connection and blockchain RPC availability
-- **Inactive validator**: The validator may be delinquent or not currently validating
-
-## Use Cases
-
-### Monitor Validator Performance
-
-```bash
-#!/bin/bash
-validator_address="9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-
-result=$(core-api-cli get-validator-data \
-  --walletAddress "$validator_address" \
-  --json)
-
-status=$(echo "$result" | jq -r '.details.status')
-commission=$(echo "$result" | jq -r '.details.commission')
-
-echo "Validator Status: $status"
-echo "Commission Rate: $commission"
-
-if [ "$status" = "Active" ]; then
-  echo "✅ Validator is active and validating"
-else
-  echo "❌ Validator is not active"
-fi
-```
-
-### Validator Comparison
-
-```bash
-#!/bin/bash
-validators=("validator1..." "validator2..." "validator3...")
-
-echo "Validator Performance Comparison:"
-echo "=================================="
-
-for validator in "${validators[@]}"; do
-  echo "Checking validator: $validator"
-  
-  result=$(core-api-cli get-validator-data \
-    --walletAddress "$validator" \
-    --json 2>/dev/null)
-  
-  if [ $? -eq 0 ]; then
-    status=$(echo "$result" | jq -r '.details.status')
-    commission=$(echo "$result" | jq -r '.details.commission')
-    stake=$(echo "$result" | jq -r '.details.totalStake')
-    
-    echo "  Status: $status"
-    echo "  Commission: $commission"
-    echo "  Total Stake: $stake"
-  else
-    echo "  ❌ Failed to retrieve data"
-  fi
-  echo
-done
-```
-
-### Stake Pool Analysis
-
-```bash
-#!/bin/bash
-stake_pool_validators_file="validators.txt"
-
-if [ ! -f "$stake_pool_validators_file" ]; then
-  echo "Create a file named 'validators.txt' with one validator address per line"
-  exit 1
-fi
-
-total_stake=0
-active_validators=0
-
-while IFS= read -r validator; do
-  result=$(core-api-cli get-validator-data \
-    --walletAddress "$validator" \
-    --json 2>/dev/null)
-  
-  if [ $? -eq 0 ]; then
-    status=$(echo "$result" | jq -r '.details.status')
-    
-    if [ "$status" = "Active" ]; then
-      ((active_validators++))
-      stake=$(echo "$result" | jq -r '.details.totalStake' | sed 's/ SOL//')
-      total_stake=$(echo "$total_stake + $stake" | bc)
-    fi
-  fi
-done < "$stake_pool_validators_file"
-
-echo "Stake Pool Summary:"
-echo "Active Validators: $active_validators"
-echo "Total Stake: $total_stake SOL"
-```
-
-## Notes
-
-- Validator data is retrieved from the Solana blockchain
-- Information includes both current status and historical performance metrics
-- Commission rates and stake amounts may change over time
-- Vote account information shows the validator's participation in consensus
-- Epoch credits indicate the validator's performance in recent epochs
-- This data is useful for stake pool operators and delegators making informed decisions

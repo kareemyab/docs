@@ -17,10 +17,10 @@ npm install -g @trust-engine/cli
 
 ## Getting Started
 
-Once installed, you can use the CLI with the `core-api-cli` command:
+Once installed, you can use the CLI with the `trust-engine-cli` command:
 
 ```bash
-core-api-cli --help
+trust-engine-cli --help
 ```
 
 ## Available Commands
@@ -46,6 +46,9 @@ The CLI provides the following commands:
   <Card title="get-validator-data" icon="server" href="/cli-reference/get-validator-data">
     Get validator data for a wallet address
   </Card>
+  <Card title="submit-transaction" icon="paper-plane" href="/cli-reference/submit-transaction">
+    Submit a signed transaction to the network
+  </Card>
 </CardGroup>
 
 ## Global Options
@@ -59,7 +62,7 @@ All commands support these global options:
 
 ### Quick File Registration
 ```bash
-core-api-cli register \
+trust-engine-cli register \
   --file ./document.pdf \
   --contentTitle "Important Document" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
@@ -68,14 +71,14 @@ core-api-cli register \
 
 ### JSON Output for Scripting
 ```bash
-core-api-cli create-wallet \
-  --userID "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+trust-engine-cli create-wallet \
+  --userID "user_12345" \
   --json
 ```
 
 ## Configuration
 
-The CLI connects to `http://localhost:3005` by default. This assumes you have a local development server running. For production usage, you may need to modify the source code to point to your production API endpoint.
+The CLI connects to `https://core-api-server.onrender.com` by default. This is the production API endpoint for the Trust Engine Core API.
 
 ## Error Handling
 

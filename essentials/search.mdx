@@ -1,6 +1,6 @@
 ---
 title: '/search'
-description: 'Searches for existing on-chain registration records by uploading a file and matching its content hash.'
+description: 'Searches for existing on-chain registration records by using the hash of the file.'
 icon: 'magnifying-glass'
 openapi: 'POST /search'
 ---
@@ -41,7 +41,7 @@ openapi: 'POST /search'
 **Validation Status Values:**
 - **"Verified"**: File passed validation with ≥67% consensus
 - **"Pending Verification"**: Validation still in progress
-- **"Rejected"**: File failed validation with <67% consensus
+- **"Rejected"**: File failed validation with &lt;67% consensus
 </Info>
 
 <Tip>

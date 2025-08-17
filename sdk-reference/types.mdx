@@ -79,7 +79,7 @@ This page provides detailed information about the type definitions used in the T
 
 The response from registering a file. This can vary depending on whether the wallet type is `'standard'` or `'crossmint'`.
 
-#### For Crossmint Wallets (202 Accepted)
+#### For Crossmint Wallets (200 OK)
 
 <ResponseField name="message" type="string">
   A success message.
@@ -109,7 +109,7 @@ The response from registering a file. This can vary depending on whether the wal
   </Expandable>
 </ResponseField>
 
-#### For Standard Wallets (200 OK)
+#### For Standard Wallets (202 Accepted)
 
 <ResponseField name="message" type="string">
   A success message.
@@ -185,8 +185,8 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="registeredBy" type="string">
       The wallet address that registered the file.
     </ResponseField>
-    <ResponseField name="userID" type="string">
-      The user ID associated with the creator of the file.
+    <ResponseField name="userID" type="string | null">
+      The user ID associated with the creator of the file (null if no relation found).
     </ResponseField>
     <ResponseField name="timestamp" type="string">
       ISO timestamp when file was registered.
@@ -302,7 +302,7 @@ The response from registering a file. This can vary depending on whether the wal
 
 ### Options
 
-<ResponseField name="base64Transaction" type="string" required>
+<ResponseField name="transaction" type="string" required>
   A base64 encoded transaction.
 </ResponseField>
 

@@ -421,13 +421,34 @@
                   "$ref": "#/components/schemas/ServerErrorResponse"
                 },
                 "examples": {
-                  "server-error": {
-                    "summary": "Internal Server Error",
+                  "ipfs-upload-failed": {
+                    "summary": "IPFS Upload Failed",
+                    "value": {
+                      "error": true,
+                      "message": "Failed to upload data to QuickNode IPFS. Please check your API key and try again."
+                    }
+                  },
+                  "ipfs-invalid-response": {
+                    "summary": "IPFS Invalid Response",
+                    "value": {
+                      "error": true,
+                      "message": "Invalid response from QuickNode IPFS - missing CID"
+                    }
+                  },
+                  "crossmint-error": {
+                    "summary": "Crossmint Transaction Failed",
+                    "value": {
+                      "error": true,
+                      "message": "Crossmint wallet transaction failed: Insufficient funds for transaction"
+                    }
+                  },
+                  "general-server-error": {
+                    "summary": "General Server Error",
                     "value": {
                       "error": true,
                       "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
                       "details": {
-                        "error": "IPFS upload failed: Connection timeout"
+                        "error": "Unexpected error during registration process"
                       }
                     }
                   }
@@ -486,6 +507,59 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchResponse"
+                },
+                "examples": {
+                  "content-hash-only": {
+                    "summary": "Search by Content Hash Only",
+                    "value": {
+                      "searchMode": "content_hash_only",
+                      "message": "Found 2 registration(s) for this content hash.",
+                      "searchCriteria": {
+                        "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+                      },
+                      "totalResults": 2,
+                      "registrations": [
+                        {
+                          "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                          "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+                          "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+                          "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                          "userID": "user_123456789",
+                          "timestamp": "2024-01-15T14:30:25.000Z",
+                          "validationStatus": "Verified",
+                          "consensus": "85%",
+                          "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
+                          "onChainData": {}
+                        }
+                      ]
+                    }
+                  },
+                  "content-hash-and-wallet": {
+                    "summary": "Search by Content Hash and Wallet Address",
+                    "value": {
+                      "searchMode": "content_hash_and_wallet",
+                      "message": "Found the specific registration for this content hash and wallet address.",
+                      "searchCriteria": {
+                        "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                      },
+                      "totalResults": 1,
+                      "registrations": [
+                        {
+                          "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                          "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+                          "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+                          "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                          "userID": "user_123456789",
+                          "timestamp": "2024-01-15T14:30:25.000Z",
+                          "validationStatus": "Verified",
+                          "consensus": "85%",
+                          "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
+                          "onChainData": {}
+                        }
+                      ]
+                    }
+                  }
                 }
               }
             }
@@ -496,6 +570,56 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchValidationErrorResponse"
+                },
+                "examples": {
+                  "missing-content-hash": {
+                    "summary": "Missing Content Hash",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["contentHash"],
+                            "message": "Missing input fields"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-content-hash-format": {
+                    "summary": "Invalid Content Hash Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "contentHash",
+                            "message": "Must be a 32-byte hex string (64 characters)"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-wallet-format": {
+                    "summary": "Invalid Wallet Address Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "walletAddress",
+                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                          }
+                        ]
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -506,6 +630,31 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SearchNotFoundResponse"
+                },
+                "examples": {
+                  "no-registrations-found": {
+                    "summary": "No Registrations Found (Content Hash Only)",
+                    "value": {
+                      "error": true,
+                      "message": "An on-chain proof for this file does not exist, which means it has not been registered.",
+                      "details": {
+                        "searchedContentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                        "searchMode": "All Registrations"
+                      }
+                    }
+                  },
+                  "no-specific-registration": {
+                    "summary": "No Specific Registration Found (Content Hash + Wallet)",
+                    "value": {
+                      "error": true,
+                      "message": "No registration found for this content hash and wallet address combination.",
+                      "details": {
+                        "searchedContentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                        "searchedWalletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "searchMode": "Specific Registration"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -516,6 +665,18 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Unknown error"
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -528,7 +689,7 @@
         "summary": "Find Wallet",
         "description": "Find a wallet by user ID or wallet address.",
         "tags": ["Wallet"],
-        "x-code-samples": [
+       "x-code-samples": [
           {
             "lang": "cURL",
             "source": "# Example 1: Find by userID\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?userID=user-12345'\n\n# Example 2: Find by wallet address\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'"
@@ -1442,8 +1603,8 @@
             "type": "object",
             "properties": {
               "validationErrors": {
-                "type": "array",
-                "items": {
+            "type": "array",
+            "items": {
                   "type": "object",
                   "properties": {
                     "type": {
@@ -1462,10 +1623,10 @@
                     "message": {
                       "type": "string"
                     }
-                  }
-                }
-              }
-            },
+            }
+          }
+        }
+      },
             "required": ["validationErrors"]
           }
         },
@@ -1650,7 +1811,7 @@
             "example": true
           },
           "message": {
-            "type": "string",
+                "type": "string",
             "example": "Input validation failed"
           },
           "details": {
@@ -1678,11 +1839,11 @@
                       "type": "string"
                     }
                   }
-                }
               }
             }
           }
-        },
+        }
+      },
         "required": ["error", "message", "details"]
       },
       "ConflictErrorResponse": {
@@ -1762,7 +1923,7 @@
         "type": "object",
         "properties": {
           "userID": {
-                "type": "string",
+            "type": "string",
             "description": "Unique identifier for the user",
             "maxLength": 50,
             "example": "user-12345"
@@ -1781,8 +1942,8 @@
             "type": "object",
             "description": "Wallet creation details",
             "properties": {
-              "walletAddress": {
-                "type": "string",
+          "walletAddress": {
+            "type": "string",
                 "description": "The newly created Solana wallet address"
               },
               "chain": {
@@ -1927,9 +2088,9 @@
             "type": "object",
             "oneOf": [
               {
-                "properties": {
+            "properties": {
                   "conflictType": {
-                    "type": "string",
+                "type": "string",
                     "enum": ["User ID already linked"]
                   },
                   "userID": {
@@ -1946,7 +2107,7 @@
               {
                 "properties": {
                   "conflictType": {
-                    "type": "string",
+                "type": "string",
                     "enum": ["Wallet already linked"]
                   },
                   "walletAddress": {
@@ -2046,10 +2207,10 @@
                       "type": "string"
                     },
                     "message": {
-                      "type": "string"
-                    }
+                    "type": "string"
                   }
                 }
+              }
               },
               "provided": {
                 "type": "object",
@@ -2099,7 +2260,7 @@
             "type": "object",
             "properties": {
               "searchType": {
-                "type": "string",
+            "type": "string",
                 "enum": ["userID", "walletAddress"],
                 "description": "The type of search that was performed"
               },
@@ -2161,7 +2322,7 @@
             "example": true
           },
           "message": {
-            "type": "string",
+                "type": "string",
             "description": "Error message describing validation failure"
           },
           "details": {
@@ -2353,9 +2514,9 @@
           "timestamp": {
             "type": "string",
             "format": "date-time",
-            "example": "2024-01-15T10:30:45.123Z"
-          }
-        }
+                "example": "2024-01-15T10:30:45.123Z"
+              }
+            }
       },
       "WalletBalanceRequest": {
         "type": "object",
