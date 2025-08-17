@@ -33,136 +33,16 @@ openapi: 'POST /link-wallet'
 
 ---
 
-## Parameters
-
-<ResponseField name="userID" type="string" required>
-  Unique identifier for the user
-  
-  **Constraints:** Maximum 50 characters, can be any string format
-  
-  **Examples:** `"user_12345"`, `"alice@company.com"`, `"550e8400-e29b-41d4-a716-446655440000"`
-</ResponseField>
-
-<ResponseField name="walletAddress" type="string" required>
-  Valid Solana wallet address in Base58 format
-  
-  **Constraints:** Must be a valid Solana public key (32-44 characters)
-  
-  Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
-</ResponseField>
-
----
-
-
-
-## Response Examples
-
-### Success Response (200)
-
-<ResponseField name="message" type="string">
-  Success confirmation message
-  
-  Example: `"Success! The wallet address has been linked to the user ID."`
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  Relationship creation details
-  
-  <Expandable title="Details Object">
-    <ResponseField name="userID" type="string">
-      The user ID that was linked
-      
-      Example: `"user_12345"`
-    </ResponseField>
-    
-    <ResponseField name="walletAddress" type="string">
-      The wallet address that was linked
-      
-      Example: `"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"`
-    </ResponseField>
-    
-    <ResponseField name="transactionSignature" type="string">
-      Solana transaction hash for the relationship creation
-      
-      Example: `"2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"`
-    </ResponseField>
-    
-    <ResponseField name="explorerUrl" type="string">
-      Direct link to view the transaction on Solana Explorer
-      
-      Example: `"https://explorer.solana.com/tx/<TRANSACTION_SIGNATURE>?cluster=<EXPLORER_CLUSTER_PARAM>"`
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-### Success Responses
-
-<CodeGroup>
-```json Success (200)
-{
-  "message": "Success! The wallet address has been linked to the user ID.",
-  "details": {
-    "userID": "user_12345",
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
-    "explorerUrl": "https://explorer.solana.com/tx/<TRANSACTION_SIGNATURE>?cluster=<EXPLORER_CLUSTER_PARAM>"
-  }
-}
-```
-</CodeGroup>
-
-### Common Error Responses
-
-<CodeGroup>
-```json Missing Parameters (400)
-{
-  "message": "Hold on! We need a `userID` and `walletAddress` to proceed.",
-  "details": {
-    "missingFields": ["userID"]
-  }
-}
-```
-
-```json User ID Relation Already Exists (409)
-{
-  "message": "User ID already linked to an existing wallet."
-}
-```
-
-```json Wallet Relation Already Exists (409)
-{
-  "message": "Wallet address already linked to an existing User ID"
-}
-```
-
-```json Rate Limit (429)
-{
-  "message": "Too many requests, please try again later."
-}
-```
-
-```json Server Error (500)
-{
-  "message": "Oh no! Something went wrong while storing the user-key relation.",
-  "details": {
-    "error": "Invalid public key input"
-  }
-}
-```
-</CodeGroup>
-
----
-
 ## Understanding User Key Relations
 
 ### Purpose
 <Info>
 User key relations enable the Trust Engine to provide user-friendly experiences by linking human-readable identifiers to blockchain addresses.
+</Info>
+
 <Warning>
 **Permanent Records**: User key relations cannot be modified once created on the blockchain.
 </Warning>
-</Info>
-
 
 **This ensures:**
 - **One relationship per wallet** (enforced by PDA uniqueness)

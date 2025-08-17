@@ -7,21 +7,48 @@ export const linkWalletHandler = (dependencies: any) => {
         try {
             const { userID, walletAddress } = req.body;
 
-            if (!userID || !walletAddress) {
+            // Input validation using the helper function
+            const validation = dependencies.validateFields({ userID, walletAddress });
+            const errors = [];
+
+            if (validation.missing.length > 0) {
+                errors.push({ type: 'missing_fields', fields: validation.missing, message: 'Missing input fields' });
+            }
+
+            if (validation.invalidTypes.length > 0) {
+                errors.push({ type: 'invalid_types', fields: validation.invalidTypes, message: 'Invalid input types. Must be a string' });
+            }
+
+            // Additional validation for wallet address format
+            if (walletAddress) {
+                try {
+                    new PublicKey(walletAddress);
+                } catch (error) {
+                    errors.push({
+                        type: 'invalid_format',
+                        field: 'walletAddress',
+                        message: 'Invalid wallet address format. Must be a valid Solana public key.'
+                    });
+                }
+            }
+
+            if (userID && userID.length > 200) {
+                errors.push({
+                    type: 'invalid_value',
+                    field: 'userID',
+                    message: 'User ID is too long. A maximum of 1000 characters is allowed.'
+                });
+            }
+
+            if (errors.length > 0) {
                 const status = 400;
-                const message = "Hold on! We need a `userID` and `walletAddress` to proceed.";
+                const message = 'Input validation failed';
                 const details = {
-                    missingFields: [
-                        ...(!userID ? ['userID'] : []),
-                        ...(!walletAddress ? ['walletAddress'] : [])
-                    ]
+                    validationErrors: errors
                 };
                 return res.status(status).json({ error: true, message, details });
             }
 
-            logger.info('🔗 Storing user key relation...');
-            logger.info('   - User ID:', userID);
-            logger.info('   - Wallet Address:', walletAddress);
 
             const publicKey = new PublicKey(walletAddress);
 
@@ -39,9 +66,15 @@ export const linkWalletHandler = (dependencies: any) => {
             try {
                 const userIdRelation = await dependencies.user_key_relations_program.account.userKeyRelation.fetch(userIdToWalletRelationPDA);
                 if (userIdRelation) {
+                    const status = 409;
                     const message = `A wallet is already associated with the User ID: ${userID}.`;
-                    logger.warn(message);
-                    return res.status(409).json({ error: true, message });
+                    const details = {
+                        conflictType: 'User ID already linked',
+                        userID: userID,
+                        existingWallet: userIdRelation.userPublicKey.toString(),
+                        suggestion: 'Use a different User ID or unlink the existing wallet first'
+                    };
+                    return res.status(status).json({ error: true, message, details });
                 }
             } catch (error) {
                 // Expected if account does not exist
@@ -50,9 +83,15 @@ export const linkWalletHandler = (dependencies: any) => {
             try {
                 const walletRelation = await dependencies.user_key_relations_program.account.userKeyRelation.fetch(walletToUserIdRelationPDA);
                 if (walletRelation) {
+                    const status = 409;
                     const message = `This wallet address is already linked to a User ID: ${walletRelation.userId}.`;
-                    logger.warn(message);
-                    return res.status(409).json({ error: true, message });
+                    const details = {
+                        conflictType: 'Wallet already linked',
+                        walletAddress: walletAddress,
+                        existingUserID: walletRelation.userId,
+                        suggestion: 'Use a different wallet address or unlink the existing relation first'
+                    };
+                    return res.status(status).json({ error: true, message, details });
                 }
             } catch (error) {
                 // Expected if account does not exist
@@ -70,9 +109,14 @@ export const linkWalletHandler = (dependencies: any) => {
                 .transaction();
 
             
-            // We use the walletAddress for the submitTransaction function, but since no tokens are transferred,
-            // it will default to the feePayer signing and sponsoring the transaction.
-            const { signature: tx } = await dependencies.submitTransaction(transaction, null, dependencies.connection);
+    
+            const result = await dependencies.submitTransaction(transaction, null, dependencies.connection);
+
+            if (result.error) {
+                const status = 500;
+                const message = result.error;
+                return res.status(status).json({ error: true, message });
+            }
 
             const status = 200;
             const message = "Success! The wallet address has been linked to the user ID.";
@@ -82,15 +126,15 @@ export const linkWalletHandler = (dependencies: any) => {
                 details: {
                     userID,
                     walletAddress,
-                    transactionSignature: tx,
-                    explorerUrl: `https://explorer.solana.com/tx/${tx}?${dependencies.EXPLORER_CLUSTER_PARAM}`
+                    transactionSignature: result.signature,
+                    explorerUrl: `https://explorer.solana.com/tx/${userIdToWalletRelationPDA.toBase58()}?${dependencies.EXPLORER_CLUSTER_PARAM}`
                 }
             });
 
         } catch (error: any) {
             logger.error('💥 Error storing user key relation:', error.message || error);
             const status = 500;
-            const message = "Oh no! Something went wrong while storing the user-key relation.";
+            const message = "We have a problem! Something went wrong on our end. Our team has been notified.";
             return res.status(status).json({ error: true, message, details: { error: error.message } });
         }
     }

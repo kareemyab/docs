@@ -5,11 +5,6 @@ icon: 'paper-plane'
 openapi: 'POST /transactions'
 ---
 
-<div style={{display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px'}}>
-  <span style={{backgroundColor: '#16a34a', color: 'white', padding: '4px 12px', borderRadius: '6px', fontSize: '14px', fontWeight: 'bold'}}>POST</span>
-  <code>/transactions</code>
-</div>
-
 <Info>
 **Rate Limit:** 100 requests per 15 minutes  
 **Content-Type:** `application/json`
@@ -46,119 +41,11 @@ openapi: 'POST /transactions'
 
 ---
 
-## Parameters
-
-<ResponseField name="transaction" type="string" required>
-  Base64-encoded serialized Solana transaction
-  
-  **Constraints:** Must be a valid, pre-signed Solana transaction
-  
-  **Format:** Base64 string representation of serialized transaction bytes
-  
-  Example: `"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."`
-</ResponseField>
-
----
-
-
-
-## Response Examples
-
-### Success Response (200)
-
-<ResponseField name="message" type="string">
-  Success confirmation message
-  
-  Example: `"Transaction submitted and confirmed successfully!"`
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  Transaction submission details
-  
-  <Expandable title="Details Object">
-    <ResponseField name="transactionSignature" type="string">
-      The confirmed transaction signature on Solana
-      
-      Example: `"5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef"`
-    </ResponseField>
-    
-    <ResponseField name="explorerUrl" type="string">
-      Direct link to view the transaction on Solana Explorer
-      
-      Example: `"https://explorer.solana.com/tx/...?cluster=devnet"`
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
-### Success Responses
-
-<CodeGroup>
-```json Success (200, JSON)
-{
-  "message": "Transaction submitted and confirmed successfully!",
-  "details": {
-    "transactionSignature": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef",
-    "explorerUrl": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
-  }
-}
-```
-</CodeGroup>
-
-### Common Error Responses
-
-<CodeGroup>
-```json Missing Transaction (400, JSON)
-{
-  "error": true,
-  "message": "Missing 'transaction' field in the request body."
-}
-```
-
-```json Transaction Submission Failed (500, JSON)
-{
-  "error": true,
-  "message": "Failed to submit the transaction.",
-  "details": {
-    "error": "Transaction simulation failed: Attempt to debit an account but found no record of a prior credit."
-  }
-}
-```
-
-```json Invalid Transaction Format (500)
-{
-  "error": true,
-  "message": "Failed to submit the transaction.",
-  "details": {
-    "error": "Invalid transaction data"
-  }
-}
-```
-
-```json Network Error (500)
-{
-  "error": true,
-  "message": "Failed to submit the transaction.",
-  "details": {
-    "error": "Network request failed"
-  }
-}
-```
-
-```json Rate Limit (429)
-{
-  "message": "Too many requests, please try again later."
-}
-```
-</CodeGroup>
-
----
-
 ## Integration Examples
 
 ### With Register Endpoint
 
-When registering files with **standard wallets**
-, the flow typically involves:
+When registering files with **standard wallets**, the flow typically involves:
 
 1. `/register` endpoint returns a prepared transaction (Base64)
 2. Client signs the transaction with their wallet

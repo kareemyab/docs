@@ -61,7 +61,7 @@
     "/create-wallet": {
       "post": {
         "summary": "Create Wallet",
-        "description": "Create a new wallet for a user.",
+        "description": "Create a new Solana wallet using Crossmint service and link it to a user ID.",
         "tags": ["Wallet"],
         "x-code-samples": [
           {
@@ -75,8 +75,145 @@
           {
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/create-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n$url = 'https://core-api-server.onrender.com/create-wallet';\n$data = json_encode([\n    'userID' => 'user-12345'\n]);\n\n$options = [\n    'http' => [\n        'header' => 'Content-Type: application/json',\n        'method' => 'POST',\n        'content' => $data,\n    ],\n];\n\n$context = stream_context_create($options);\n$result = file_get_contents($url, false, $context);\n$data = json_decode($result, true);\n\nprint_r($data);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\turl := \"https://core-api-server.onrender.com/create-wallet\"\n\tpayload := map[string]string{\n\t\t\"userID\": \"user-12345\",\n\t}\n\n\tjsonData, _ := json.Marshal(payload)\n\treq, err := http.NewRequest(\"POST\", url, bytes.NewBuffer(jsonData))\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\treq.Header.Set(\"Content-Type\", \"application/json\")\n\n\tclient := &http.Client{}\n\tresp, err := client.Do(req)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.io.OutputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class CreateWallet {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/create-wallet\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"userID\\\": \\\"user-12345\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateWalletRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Wallet created successfully and linked to user ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWalletResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Wallet Created Successfully",
+                    "value": {
+                      "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+                      "details": {
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "chain": "solana",
+                        "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+                        "explorerUrl": "https://explorer.solana.com/tx/8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR?cluster=devnet",
+                        "userID": "user-12345"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "examples": {
+                  "missing-userid": {
+                    "summary": "Missing User ID",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["userID"],
+                            "message": "Missing input fields"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - User ID already has a wallet or wallet already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateWalletConflictResponse"
+                },
+                "examples": {
+                  "userid-already-linked": {
+                    "summary": "User ID Already Has Wallet",
+                    "value": {
+                      "error": true,
+                      "message": "A wallet is already associated with the User ID: user-12345.",
+                      "details": {
+                        "conflictType": "User ID already linked",
+                        "userID": "user-12345",
+                        "existingWallet": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "suggestion": "Use a different User ID or use the existing wallet"
+                      }
+                    }
+                  },
+                  "wallet-already-linked": {
+                    "summary": "Wallet Already Linked",
+                    "value": {
+                      "error": true,
+                      "message": "This wallet address is already linked to a User ID: existing-user.",
+                      "details": {
+                        "conflictType": "Wallet already linked",
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "existingUserID": "existing-user",
+                        "suggestion": "This should not happen with Crossmint wallet creation"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Crossmint wallet creation failed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/register": {
@@ -87,7 +224,7 @@
         "x-code-samples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\",\n }'"
+            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\"\n  }'"
           },
           {
             "lang": "JavaScript",
@@ -109,28 +246,281 @@
             "lang": "Java",
             "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class RegisterFile {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/register\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"contentTitle\\\": \\\"My Important Document\\\", \\\"walletAddress\\\": \\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\", \\\"walletType\\\": \\\"crossmint\\\", \\\"contentHash\\\": \\\"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterFileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration confirmed - Crossmint wallet transaction completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterFileCrossmintResponse"
+                },
+                "examples": {
+                  "crossmint-success": {
+                    "summary": "Crossmint Success",
+                    "value": {
+                      "message": "✅ Success! Your file has been registered and confirmed on-chain.",
+                      "details": {
+                        "status": "confirmed",
+                        "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+                        "contentRegistrationPDA": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+                        "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
+                        "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+                        "explorerUrl": "https://explorer.solana.com/tx/8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR?cluster=devnet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "202": {
+            "description": "Registration accepted - Standard wallet transaction prepared for signing",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterFileStandardResponse"
+                },
+                "examples": {
+                  "standard-wallet-success": {
+                    "summary": "Standard Wallet Success",
+                    "value": {
+                      "message": "Transaction prepared. Please sign and submit via your wallet.",
+                      "details": {
+                        "status": "requires-client-signature",
+                        "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...",
+                        "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
+                        "contentRegistrationPDA": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
+                        "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "examples": {
+                  "validation-errors": {
+                    "summary": "Input Validation Failed",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["contentTitle", "walletAddress"],
+                            "message": "Missing input fields"
+                          },
+                          {
+                            "type": "invalid_value",
+                            "field": "walletType",
+                            "message": "Must be standard or crossmint"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "metadata-too-long": {
+                    "summary": "Metadata Too Long",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_value",
+                            "field": "metadata",
+                            "message": "Metadata is too long. A maximum of 500 characters is allowed."
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-claim-hash": {
+                    "summary": "Invalid Claim Hash",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "claimHash",
+                            "message": "Must be a 32-byte hex string (64 characters)"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - File already registered or missing user-wallet relation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConflictErrorResponse"
+                },
+                "examples": {
+                  "file-already-registered": {
+                    "summary": "File Already Registered",
+                    "value": {
+                      "error": true,
+                      "message": "Looks like you have already registered this file. Please use the /search endpoint to find the existing record.",
+                      "details": {
+                        "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+                        "pdaAddress": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR",
+                        "suggestion": "Use the /search endpoint to find the existing record."
+                      }
+                    }
+                  },
+                  "no-user-relation": {
+                    "summary": "No User-Wallet Relation",
+                    "value": {
+                      "error": true,
+                      "message": "This wallet address doesn't have a user ID relation. Please create one first.",
+                      "details": {
+                        "missingRequirement": "User-Key Relation",
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "suggestion": "Use the /link-wallet endpoint to link your wallet to a user ID first",
+                        "alternative": "Use the /create-wallet endpoint to create a new wallet with automatic user ID linking",
+                        "findExisting": "Use the /find-wallet endpoint to check if a relation already exists"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "IPFS upload failed: Connection timeout"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/search": {
       "post": {
         "summary": "Search",
-        "description": "Search for a file by its content hash.",
+        "description": "Searches for existing on-chain registration records by content hash, with optional wallet address filtering.",
         "tags": ["File Operations"],
         "x-code-samples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/search' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\"\n  }'"
+            "source": "# Example 1: Search by content hash only\ncurl -X POST 'https://core-api-server.onrender.com/search' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentHash\": \"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3\"\n  }'\n\n# Example 2: Search by content hash and wallet address\ncurl -X POST 'https://core-api-server.onrender.com/search' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentHash\": \"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\"\n  }'"
           },
           {
             "lang": "JavaScript",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/search', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+            "source": "// Example 1: Search by content hash only\nconst response1 = await fetch('https://core-api-server.onrender.com/search', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'\n  })\n});\n\n// Example 2: Search by content hash and wallet address\nconst response2 = await fetch('https://core-api-server.onrender.com/search', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentHash: 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n  })\n});\n\nconst data = await response1.json();\nconsole.log(data);"
           },
           {
             "lang": "Python",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/search',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n    }\n)\n\ndata = response.json()\nprint(data)"
+            "source": "import requests\n\n# Example 1: Search by content hash only\nresponse1 = requests.post(\n    'https://core-api-server.onrender.com/search',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentHash': 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'\n    }\n)\n\n# Example 2: Search by content hash and wallet address\nresponse2 = requests.post(\n    'https://core-api-server.onrender.com/search',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentHash': 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response1.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n// Example 1: Search by content hash only\n$data1 = json_encode([\n    'contentHash' => 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3'\n]);\n\n$context1 = stream_context_create([\n    'http' => [\n        'method' => 'POST',\n        'header' => 'Content-Type: application/json',\n        'content' => $data1\n    ]\n]);\n\n$response1 = file_get_contents('https://core-api-server.onrender.com/search', false, $context1);\n$result = json_decode($response1, true);\n\nprint_r($result);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\tpayload := map[string]string{\n\t\t\"contentHash\": \"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3\",\n\t}\n\n\tpayloadBytes, _ := json.Marshal(payload)\n\n\tresp, err := http.Post(\n\t\t\"https://core-api-server.onrender.com/search\",\n\t\t\"application/json\",\n\t\tbytes.NewBuffer(payloadBytes),\n\t)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.OutputStream;\nimport java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class SearchContent {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/search\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonPayload = \"{\\\"contentHash\\\":\\\"a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3\\\"}\";\n\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonPayload.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Search completed successfully with results found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - No registrations found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchNotFoundResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/find-wallet": {
@@ -138,7 +528,7 @@
         "summary": "Find Wallet",
         "description": "Find a wallet by user ID or wallet address.",
         "tags": ["Wallet"],
-       "x-code-samples": [
+        "x-code-samples": [
           {
             "lang": "cURL",
             "source": "# Example 1: Find by userID\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?userID=user-12345'\n\n# Example 2: Find by wallet address\ncurl -X GET 'https://core-api-server.onrender.com/find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'"
@@ -150,14 +540,231 @@
           {
             "lang": "Python",
             "source": "import requests\n\n# Example 1: Find by userID\nresponse1 = requests.get(\n    'https://core-api-server.onrender.com/find-wallet',\n    params={'userID': 'user-12345'}\n)\n\n# Example 2: Find by wallet address\nresponse2 = requests.get(\n    'https://core-api-server.onrender.com/find-wallet',\n    params={'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'}\n)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n// Example 1: Find by userID\n$url1 = 'https://core-api-server.onrender.com/find-wallet?' . http_build_query(['userID' => 'user-12345']);\n$response1 = file_get_contents($url1);\n$data1 = json_decode($response1, true);\n\n// Example 2: Find by wallet address\n$url2 = 'https://core-api-server.onrender.com/find-wallet?' . http_build_query(['walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM']);\n$response2 = file_get_contents($url2);\n$data2 = json_decode($response2, true);\n\nprint_r($data1);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n\t\"net/url\"\n)\n\nfunc main() {\n\t// Example 1: Find by userID\n\tbaseURL := \"https://core-api-server.onrender.com/find-wallet\"\n\tparams := url.Values{}\n\tparams.Add(\"userID\", \"user-12345\")\n\tfullURL := baseURL + \"?\" + params.Encode()\n\n\tresp, err := http.Get(fullURL)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, err := ioutil.ReadAll(resp.Body)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\nimport java.net.URLEncoder;\n\npublic class FindWallet {\n    public static void main(String[] args) {\n        try {\n            // Example 1: Find by userID\n            String userID = URLEncoder.encode(\"user-12345\", \"UTF-8\");\n            String urlString = \"https://core-api-server.onrender.com/find-wallet?userID=\" + userID;\n            \n            URL url = new URL(urlString);\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"GET\");\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "parameters": [
+          {
+            "name": "userID",
+            "in": "query",
+            "description": "User ID to search for (provide either this OR walletAddress)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "user-12345"
+            }
+          },
+          {
+            "name": "walletAddress",
+            "in": "query",
+            "description": "Wallet address to search for (provide either this OR userID)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+              "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet relation found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindWalletResponse"
+                },
+                "examples": {
+                  "found-by-userid": {
+                    "summary": "Found by User ID",
+                    "value": {
+                      "success": true,
+                      "message": "Wallet relation found successfully using userID.",
+                      "details": {
+                        "searchType": "userID",
+                        "searchValue": "user-12345",
+                        "relation": {
+                          "userId": "user-12345",
+                          "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                          "createdAt": "2024-01-15T10:30:45.123Z",
+                          "relationPDA": "xyz789abc123def456ghi..."
+                        }
+                      }
+                    }
+                  },
+                  "found-by-wallet": {
+                    "summary": "Found by Wallet Address",
+                    "value": {
+                      "success": true,
+                      "message": "Wallet relation found successfully using walletAddress.",
+                      "details": {
+                        "searchType": "walletAddress",
+                        "searchValue": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "relation": {
+                          "userId": "user-12345",
+                          "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                          "createdAt": "2024-01-15T10:30:45.123Z",
+                          "relationPDA": "xyz789abc123def456ghi..."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindWalletValidationErrorResponse"
+                },
+                "examples": {
+                  "no-parameters": {
+                    "summary": "No Parameters Provided",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_parameters",
+                            "message": "Exactly one of userID or walletAddress must be provided"
+                          }
+                        ],
+                        "provided": {
+                          "userID": "not provided",
+                          "walletAddress": "not provided"
+                        },
+                        "examples": [
+                          "GET /find-wallet?userID=user123",
+                          "GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                        ]
+                      }
+                    }
+                  },
+                  "both-parameters": {
+                    "summary": "Both Parameters Provided",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_parameters",
+                            "message": "Exactly one of userID or walletAddress must be provided"
+                          }
+                        ],
+                        "provided": {
+                          "userID": "provided",
+                          "walletAddress": "provided"
+                        },
+                        "examples": [
+                          "GET /find-wallet?userID=user123",
+                          "GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-wallet-format": {
+                    "summary": "Invalid Wallet Address Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "walletAddress",
+                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                          }
+                        ],
+                        "walletAddress": "invalid-address",
+                        "example": "GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - No wallet relation found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FindWalletNotFoundResponse"
+                },
+                "examples": {
+                  "userid-not-found": {
+                    "summary": "User ID Not Found",
+                    "value": {
+                      "error": true,
+                      "message": "No wallet relation found for the provided userID.",
+                      "details": {
+                        "searchType": "userID",
+                        "searchValue": "user-12345",
+                        "suggestion": "Try using the wallet address instead, or create a new relation using /link-wallet"
+                      }
+                    }
+                  },
+                  "wallet-not-found": {
+                    "summary": "Wallet Address Not Found",
+                    "value": {
+                      "error": true,
+                      "message": "No wallet relation found for the provided walletAddress.",
+                      "details": {
+                        "searchType": "walletAddress",
+                        "searchValue": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "suggestion": "Try using the user ID instead, or create a new relation using /link-wallet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Unknown error"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/link-wallet": {
       "post": {
         "summary": "Link Wallet",
-        "description": "Link a wallet to a user ID.",
+        "description": "Links a user ID to a Solana wallet address by creating an on-chain relationship record.",
         "tags": ["Wallet"],
         "x-code-samples": [
           {
@@ -171,14 +778,182 @@
           {
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/link-wallet',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'userID': 'user-12345',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n$url = 'https://core-api-server.onrender.com/link-wallet';\n$data = json_encode([\n    'userID' => 'user-12345',\n    'walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n]);\n\n$options = [\n    'http' => [\n        'header' => 'Content-Type: application/json',\n        'method' => 'POST',\n        'content' => $data,\n    ],\n];\n\n$context = stream_context_create($options);\n$result = file_get_contents($url, false, $context);\n$data = json_decode($result, true);\n\nprint_r($data);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\turl := \"https://core-api-server.onrender.com/link-wallet\"\n\tpayload := map[string]string{\n\t\t\"userID\":       \"user-12345\",\n\t\t\"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n\t}\n\n\tjsonData, _ := json.Marshal(payload)\n\treq, err := http.NewRequest(\"POST\", url, bytes.NewBuffer(jsonData))\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\treq.Header.Set(\"Content-Type\", \"application/json\")\n\n\tclient := &http.Client{}\n\tresp, err := client.Do(req)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.io.OutputStream;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class LinkWallet {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/link-wallet\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"userID\\\": \\\"user-12345\\\", \\\"walletAddress\\\": \\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LinkWalletRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet successfully linked to user ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkWalletResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Wallet Linked Successfully",
+                    "value": {
+                      "message": "Success! The wallet address has been linked to the user ID.",
+                      "details": {
+                        "userID": "user-12345",
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+                        "explorerUrl": "https://explorer.solana.com/tx/8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR?cluster=devnet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                },
+                "examples": {
+                  "missing-fields": {
+                    "summary": "Missing Required Fields",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["userID", "walletAddress"],
+                            "message": "Missing input fields"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-wallet-format": {
+                    "summary": "Invalid Wallet Address Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "walletAddress",
+                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "userid-too-long": {
+                    "summary": "User ID Too Long",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_value",
+                            "field": "userID",
+                            "message": "User ID is too long. A maximum of 1000 characters is allowed."
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - User ID or wallet already linked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkWalletConflictResponse"
+                },
+                "examples": {
+                  "userid-already-linked": {
+                    "summary": "User ID Already Linked",
+                    "value": {
+                      "error": true,
+                      "message": "A wallet is already associated with the User ID: user-12345.",
+                      "details": {
+                        "conflictType": "User ID already linked",
+                        "userID": "user-12345",
+                        "existingWallet": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "suggestion": "Use a different User ID or unlink the existing wallet first"
+                      }
+                    }
+                  },
+                  "wallet-already-linked": {
+                    "summary": "Wallet Already Linked",
+                    "value": {
+                      "error": true,
+                      "message": "This wallet address is already linked to a User ID: existing-user.",
+                      "details": {
+                        "conflictType": "Wallet already linked",
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "existingUserID": "existing-user",
+                        "suggestion": "Use a different wallet address or unlink the existing relation first"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Invalid public key input"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/transactions": {
       "post": {
         "summary": "Submit Transaction",
-        "description": "Submit a pre-signed transaction.",
+        "description": "Submits a pre-signed transaction to the Solana blockchain with server-side fee payment and confirmation.",
         "tags": ["Transactions"],
         "x-code-samples": [
           {
@@ -192,14 +967,152 @@
           {
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/transactions',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'transaction': 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n$data = json_encode([\n    'transaction' => 'AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...'\n]);\n\n$context = stream_context_create([\n    'http' => [\n        'method' => 'POST',\n        'header' => 'Content-Type: application/json',\n        'content' => $data\n    ]\n]);\n\n$response = file_get_contents('https://core-api-server.onrender.com/transactions', false, $context);\n$result = json_decode($response, true);\n\nprint_r($result);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\tpayload := map[string]string{\n\t\t\"transaction\": \"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...\",\n\t}\n\n\tpayloadBytes, _ := json.Marshal(payload)\n\n\tresp, err := http.Post(\n\t\t\"https://core-api-server.onrender.com/transactions\",\n\t\t\"application/json\",\n\t\tbytes.NewBuffer(payloadBytes),\n\t)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.OutputStream;\nimport java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class SubmitTransaction {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/transactions\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonPayload = \"{\\\"transaction\\\":\\\"AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...\\\"}\";\n\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonPayload.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction submitted and confirmed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTransactionResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful Transaction Submission",
+                    "value": {
+                      "message": "Transaction submitted and confirmed successfully!",
+                      "details": {
+                        "transactionSignature": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef",
+                        "explorerUrl": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitTransactionValidationErrorResponse"
+                },
+                "examples": {
+                  "missing-transaction": {
+                    "summary": "Missing Transaction Field",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["transaction"],
+                            "message": "Missing input fields"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-type": {
+                    "summary": "Invalid Type",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_types",
+                            "fields": ["transaction"],
+                            "message": "Invalid input types. Must be a string"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-base64": {
+                    "summary": "Invalid Base64 Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "transaction",
+                            "message": "Must be a valid base64 encoded string"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "transaction-failed": {
+                    "summary": "Transaction Submission Failed",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Transaction simulation failed: Attempt to debit an account but found no record of a prior credit."
+                      }
+                    }
+                  },
+                  "network-error": {
+                    "summary": "Network Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Network request failed"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/validators/data": {
       "post": {
         "summary": "Get Validator Data",
-        "description": "Get validator data for a wallet address.",
+        "description": "Retrieves comprehensive validator data including reputation, voting history, and performance metrics.",
         "tags": ["Validators"],
         "x-code-samples": [
           {
@@ -213,8 +1126,170 @@
           {
             "lang": "Python",
             "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/validators/data',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n    }\n)\n\ndata = response.json()\nprint(data)"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n\n$data = json_encode([\n    'walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'\n]);\n\n$context = stream_context_create([\n    'http' => [\n        'method' => 'POST',\n        'header' => 'Content-Type: application/json',\n        'content' => $data\n    ]\n]);\n\n$response = file_get_contents('https://core-api-server.onrender.com/validators/data', false, $context);\n$result = json_decode($response, true);\n\nprint_r($result);\n?>"
+          },
+          {
+            "lang": "Go",
+            "source": "package main\n\nimport (\n\t\"bytes\"\n\t\"encoding/json\"\n\t\"fmt\"\n\t\"io/ioutil\"\n\t\"log\"\n\t\"net/http\"\n)\n\nfunc main() {\n\tpayload := map[string]string{\n\t\t\"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n\t}\n\n\tpayloadBytes, _ := json.Marshal(payload)\n\n\tresp, err := http.Post(\n\t\t\"https://core-api-server.onrender.com/validators/data\",\n\t\t\"application/json\",\n\t\tbytes.NewBuffer(payloadBytes),\n\t)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer resp.Body.Close()\n\n\tbody, _ := ioutil.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}"
+          },
+          {
+            "lang": "Java",
+            "source": "import java.io.OutputStream;\nimport java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class GetValidatorData {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/validators/data\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonPayload = \"{\\\"walletAddress\\\":\\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\"}\";\n\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonPayload.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
-        ]
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidatorDataRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Validator data retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorDataResponse"
+                },
+                "examples": {
+                  "active-validator": {
+                    "summary": "Active Validator with Good Performance",
+                    "value": {
+                      "message": "Validator data retrieved successfully.",
+                      "details": {
+                        "validatorAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "validatorPDA": "xyz789abc123def456ghi...",
+                        "stakedAmount": 1000000,
+                        "reputationScore": 95,
+                        "totalVotes": 100,
+                        "honestVotes": 95,
+                        "dishonestVotes": 5,
+                        "accuracyPercentage": 95.0,
+                        "lastActiveTime": 1640995200,
+                        "lastActiveDate": "2024-01-15T10:30:45.123Z"
+                      }
+                    }
+                  },
+                  "new-validator": {
+                    "summary": "New Validator with No Activity",
+                    "value": {
+                      "message": "Validator data retrieved successfully.",
+                      "details": {
+                        "validatorAddress": "7XzEYwCbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWN",
+                        "validatorPDA": "abc456def789ghi012jkl...",
+                        "stakedAmount": 500000,
+                        "reputationScore": 50,
+                        "totalVotes": 0,
+                        "honestVotes": 0,
+                        "dishonestVotes": 0,
+                        "accuracyPercentage": 0,
+                        "lastActiveTime": 0,
+                        "lastActiveDate": "Never"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Input validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorDataValidationErrorResponse"
+                },
+                "examples": {
+                  "missing-wallet-address": {
+                    "summary": "Missing Wallet Address",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "missing_fields",
+                            "fields": ["walletAddress"],
+                            "message": "Missing input fields"
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "invalid-wallet-format": {
+                    "summary": "Invalid Wallet Address Format",
+                    "value": {
+                      "error": true,
+                      "message": "Input validation failed",
+                      "details": {
+                        "validationErrors": [
+                          {
+                            "type": "invalid_format",
+                            "field": "walletAddress",
+                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict - Validator account not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidatorDataNotFoundResponse"
+                },
+                "examples": {
+                  "validator-not-found": {
+                    "summary": "Validator Not Initialized",
+                    "value": {
+                      "error": true,
+                      "message": "Validator account not found. This validator may not be initialized.",
+                      "details": {
+                        "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
+                        "expectedPDA": "xyz789abc123def456ghi...",
+                        "suggestion": "Initialize the validator using the /validators/initialize endpoint first."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerErrorResponse"
+                },
+                "examples": {
+                  "server-error": {
+                    "summary": "Internal Server Error",
+                    "value": {
+                      "error": true,
+                      "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
+                      "details": {
+                        "error": "Unknown error"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -243,54 +1318,21 @@
           }
         }
       },
-      "CreateWalletRequest": {
-        "type": "object",
-        "properties": {
-          "userID": {
-            "type": "string",
-            "description": "Unique identifier for the user",
-            "example": "user_12345"
-          }
-        },
-        "required": ["userID"]
-      },
-      "CreateWalletResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Success! Your Crossmint wallet has been created and linked to your user ID."
-          },
-          "details": {
-            "type": "object",
-            "properties": {
-              "walletAddress": {
-                "type": "string",
-                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-              },
-              "chain": {
-                "type": "string",
-                "example": "solana"
-              },
-              "transactionSignature": {
-                "type": "string",
-                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
-              },
-              "explorerUrl": {
-                "type": "string",
-                "example": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
-              }
-            }
-          }
-        }
-      },
+
       "SearchRequest": {
         "type": "object",
         "properties": {
           "contentHash": {
             "type": "string",
             "description": "SHA256 hash of the file content (hex encoded)",
-            "example": "abc123def456789..."
+            "pattern": "^[a-fA-F0-9]{64}$",
+            "example": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3"
+          },
+          "walletAddress": {
+            "type": "string",
+            "description": "Optional wallet address to filter search results to specific registrations",
+            "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
           }
         },
         "required": ["contentHash"]
@@ -298,34 +1340,169 @@
       "SearchResponse": {
         "type": "object",
         "properties": {
+          "searchMode": {
+            "type": "string",
+            "enum": ["content_hash_only", "content_hash_and_wallet"],
+            "description": "The type of search performed"
+          },
           "message": {
             "type": "string",
-            "example": "Found 1 record(s) for your file on the blockchain."
+            "description": "Success message describing search results"
           },
-          "details": {
+          "searchCriteria": {
+            "type": "object",
+            "description": "The search parameters that were used",
+            "properties": {
+              "contentHash": {
+                "type": "string",
+                "description": "The content hash that was searched for"
+              },
+              "walletAddress": {
+                "type": "string",
+                "description": "The wallet address filter (if provided)"
+              }
+            },
+            "required": ["contentHash"]
+          },
+          "totalResults": {
+            "type": "integer",
+            "description": "Number of registration records found"
+          },
+          "registrations": {
             "type": "array",
+            "description": "Array of matching registration records",
             "items": {
-              "$ref": "#/components/schemas/SearchRecord"
+              "$ref": "#/components/schemas/SearchRegistration"
             }
           }
-        }
+        },
+        "required": ["searchMode", "message", "searchCriteria", "totalResults", "registrations"]
       },
-      "SearchRecord": {
+      "SearchRegistration": {
         "type": "object",
         "properties": {
           "contentHash": {
-            "type": "string"
+            "type": "string",
+            "description": "SHA256 hash of the file content"
           },
           "pdaAddress": {
-            "type": "string"
+            "type": "string",
+            "description": "Solana Program Derived Address for this registration"
           },
-          "onChainRegistration": {
-            "type": "object"
+          "ipfsCid": {
+            "type": "string",
+            "description": "IPFS Content Identifier for metadata storage"
+          },
+          "registeredBy": {
+            "type": "string",
+            "description": "Wallet address that registered the file"
           },
           "userID": {
-            "type": "string"
+            "type": "string",
+            "nullable": true,
+            "description": "Associated user ID (null if no relation found)"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO timestamp when file was registered"
+          },
+          "validationStatus": {
+            "type": "string",
+            "enum": ["Verified", "Pending Verification"],
+            "description": "Current validation status"
+          },
+          "consensus": {
+            "type": "string",
+            "description": "Consensus percentage from validators or 'Pending'"
+          },
+          "explorerUrl": {
+            "type": "string",
+            "description": "Link to view on Solana Explorer"
+          },
+          "onChainData": {
+            "type": "object",
+            "description": "Raw blockchain data"
           }
-        }
+        },
+        "required": ["contentHash", "pdaAddress", "ipfsCid", "registeredBy", "userID", "timestamp", "validationStatus", "consensus", "explorerUrl", "onChainData"]
+      },
+      "SearchValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing validation failure"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "validationErrors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["missing_fields", "invalid_types", "invalid_format"]
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "required": ["validationErrors"]
+          }
+        },
+        "required": ["error", "message", "details"]
+      },
+      "SearchNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message indicating no registrations were found"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "searchedContentHash": {
+                "type": "string",
+                "description": "The content hash that was searched for"
+              },
+              "searchedWalletAddress": {
+                "type": "string",
+                "description": "The wallet address that was searched for (if provided)"
+              },
+              "searchMode": {
+                "type": "string",
+                "enum": ["All Registrations", "Specific Registration"],
+                "description": "The type of search that was performed"
+              }
+            },
+            "required": ["searchedContentHash", "searchMode"]
+          }
+        },
+        "required": ["error", "message", "details"]
       },
       "RegisterFileRequest": {
         "type": "object",
@@ -349,6 +1526,7 @@
           "contentHash": {
             "type": "string",
             "description": "SHA256 hash of the file content (hex encoded)",
+            "pattern": "^[a-fA-F0-9]{64}$",
             "example": "a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789"
           },
           "fileMetadata": {
@@ -372,104 +1550,330 @@
           "metadata": {
             "type": "string",
             "description": "Additional metadata about the file",
+            "maxLength": 500,
             "example": "Important legal document for verification"
           },
           "claimHash": {
             "type": "string",
             "description": "SHA256 hash for secret verification (hex encoded)",
+            "pattern": "^[a-fA-F0-9]{64}$",
             "example": "110f211f367825834d6897c0efd0b05b35adb744a5836dcd478d384d2a938f15"
           }
         },
         "required": ["contentTitle", "walletAddress", "walletType", "contentHash"]
-      },
-      "RegisterFileStandardResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "✅ TRANSACTION READY ✅"
-          },
-          "details": {
-            "type": "object",
-            "properties": {
-              "status": {
-                "type": "string",
-                "example": "Requires Client Signature"
-              },
-              "ipfsCid": {
-                "type": "string",
-                "example": "QmExampleCidForYourFileMetadata..."
-              },
-              "contentRegistrationPDA": {
-                "type": "string",
-                "example": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
-              },
-              "transaction": {
-                "type": "string",
-                "example": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz..."
-              }
-            }
-          }
-        }
       },
       "RegisterFileCrossmintResponse": {
         "type": "object",
         "properties": {
           "message": {
             "type": "string",
-            "example": "✅ SUBMISSION ACCEPTED ✅"
+            "description": "Success message for confirmed transaction"
+          },
+          "details": {
+            "type": "object",
+            "description": "Confirmed transaction details for Crossmint wallets",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["confirmed"],
+                "description": "Transaction status"
+              },
+              "transactionSignature": {
+                "type": "string",
+                "description": "Confirmed transaction signature"
+              },
+              "contentRegistrationPDA": {
+                "type": "string",
+                "description": "Program Derived Address for the content registration"
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "SHA256 hash of the registered file"
+              },
+              "ipfsCid": {
+                "type": "string",
+                "description": "IPFS Content Identifier for the metadata"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "description": "Solana explorer URL for the transaction"
+              }
+            },
+            "required": ["status", "transactionSignature", "contentRegistrationPDA", "contentHash", "ipfsCid", "explorerUrl"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "RegisterFileStandardResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message for prepared transaction"
+          },
+          "details": {
+            "type": "object",
+            "description": "Transaction preparation details for standard wallets",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["requires-client-signature"],
+                "description": "Transaction status"
+              },
+              "transaction": {
+                "type": "string",
+                "description": "Base64-encoded transaction ready for client signing"
+              },
+              "ipfsCid": {
+                "type": "string",
+                "description": "IPFS Content Identifier for the metadata"
+              },
+              "contentRegistrationPDA": {
+                "type": "string",
+                "description": "Program Derived Address for the content registration"
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "SHA256 hash of the registered file"
+              }
+            },
+            "required": ["status", "transaction", "ipfsCid", "contentRegistrationPDA", "contentHash"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Input validation failed"
           },
           "details": {
             "type": "object",
             "properties": {
-              "status": {
-                "type": "string",
-                "example": "Pending Verification"
-              },
-              "crossmintTransactionId": {
-                "type": "string",
-                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
-              },
-              "contentRegistrationPDA": {
-                "type": "string",
-                "example": "8qbHbw2BbbTHBW1sbeqakYXVKRQM8Ne7pLK7m6CVfeR"
-              },
-              "ipfsCid": {
-                "type": "string",
-                "example": "QmExampleCidForYourFileMetadata..."
-              },
-              "solanaExplorer": {
-                "type": "string",
-                "example": "https://explorer.solana.com/tx/<TRANSACTION_ID>?cluster=devnet"
+              "validationErrors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["missing_fields", "invalid_types", "invalid_value", "invalid_format"]
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
               }
             }
           }
-        }
+        },
+        "required": ["error", "message", "details"]
       },
-      "FindWalletRequest": {
+      "ConflictErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string"
+          },
+          "details": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "contentHash": {
+                    "type": "string"
+                  },
+                  "pdaAddress": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "missingRequirement": {
+                    "type": "string"
+                  },
+                  "walletAddress": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  },
+                  "alternative": {
+                    "type": "string"
+                  },
+                  "findExisting": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": ["error", "message", "details"]
+      },
+      "ServerErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "We have a problem! Something went wrong on our end. Our team has been notified."
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "description": "Error message details"
+              }
+            }
+          }
+        },
+        "required": ["error", "message"]
+      },
+      "CreateWalletRequest": {
         "type": "object",
         "properties": {
           "userID": {
-            "type": "string",
-            "description": "User ID to search for (provide either this OR walletAddress)",
-            "example": "user_12345"
-          },
-          "walletAddress": {
-            "type": "string",
-            "description": "Wallet address to search for (provide either this OR userID)",
-            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                "type": "string",
+            "description": "Unique identifier for the user",
+            "maxLength": 50,
+            "example": "user-12345"
           }
-        }
+        },
+        "required": ["userID"]
+      },
+      "CreateWalletResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+                "type": "string",
+            "description": "Success message confirming wallet creation"
+          },
+          "details": {
+            "type": "object",
+            "description": "Wallet creation details",
+            "properties": {
+              "walletAddress": {
+                "type": "string",
+                "description": "The newly created Solana wallet address"
+              },
+              "chain": {
+                "type": "string",
+                "enum": ["solana"],
+                "description": "Blockchain network identifier"
+              },
+              "transactionSignature": {
+                "type": "string",
+                "description": "On-chain transaction signature for the wallet-user relationship"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "description": "Direct link to view the transaction on Solana Explorer"
+              },
+              "userID": {
+                "type": "string",
+                "description": "User ID linked to the wallet"
+              }
+            },
+            "required": ["walletAddress", "chain", "transactionSignature", "explorerUrl", "userID"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "CreateWalletConflictResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing the conflict"
+          },
+          "details": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "conflictType": {
+                    "type": "string",
+                    "enum": ["User ID already linked"]
+                  },
+                  "userID": {
+                    "type": "string"
+                  },
+                  "existingWallet": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "conflictType": {
+                    "type": "string",
+                    "enum": ["Wallet already linked"]
+                  },
+                  "walletAddress": {
+                    "type": "string"
+                  },
+                  "existingUserID": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": ["error", "message", "details"]
       },
       "LinkWalletRequest": {
         "type": "object",
         "properties": {
           "userID": {
             "type": "string",
-            "example": "user_12345"
+            "description": "Unique identifier for the user",
+            "maxLength": 200,
+            "example": "user-12345"
           },
           "walletAddress": {
             "type": "string",
+            "description": "Valid Solana wallet address in Base58 format",
+            "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
             "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
           }
         },
@@ -480,30 +1884,238 @@
         "properties": {
           "message": {
             "type": "string",
-            "example": "Success! The wallet address has been linked to the user ID."
+            "description": "Success message confirming the link"
+          },
+          "details": {
+            "type": "object",
+            "description": "Link creation details",
+            "properties": {
+              "userID": {
+                "type": "string",
+                "description": "The user ID that was linked"
+              },
+              "walletAddress": {
+                "type": "string",
+                "description": "The wallet address that was linked"
+              },
+              "transactionSignature": {
+                "type": "string",
+                "description": "Solana transaction hash for the relationship creation"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "description": "Direct link to view the transaction on Solana Explorer"
+              }
+            },
+            "required": ["userID", "walletAddress", "transactionSignature", "explorerUrl"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "LinkWalletConflictResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing the conflict"
+          },
+          "details": {
+            "type": "object",
+            "oneOf": [
+              {
+                "properties": {
+                  "conflictType": {
+                    "type": "string",
+                    "enum": ["User ID already linked"]
+                  },
+                  "userID": {
+                    "type": "string"
+                  },
+                  "existingWallet": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "conflictType": {
+                    "type": "string",
+                    "enum": ["Wallet already linked"]
+                  },
+                  "walletAddress": {
+                    "type": "string"
+                  },
+                  "existingUserID": {
+                    "type": "string"
+                  },
+                  "suggestion": {
+                    "type": "string"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": ["error", "message", "details"]
+      },
+      "FindWalletResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Indicates successful search"
+          },
+          "message": {
+            "type": "string",
+            "description": "Success message describing the result"
+          },
+          "details": {
+            "type": "object",
+            "description": "Search results and relation details",
+            "properties": {
+              "searchType": {
+                "type": "string",
+                "enum": ["userID", "walletAddress"],
+                "description": "The type of search performed"
+              },
+              "searchValue": {
+                "type": "string",
+                "description": "The value that was searched for"
+              },
+              "relation": {
+                "type": "object",
+                "description": "The found relationship details",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "The user ID in the relationship"
+                  },
+                  "walletAddress": {
+                    "type": "string",
+                    "description": "The wallet address in the relationship"
+                  },
+                  "createdAt": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO timestamp when the relationship was created"
+                  },
+                  "relationPDA": {
+                    "type": "string",
+                    "description": "Program Derived Address for this relationship"
+                  }
+                },
+                "required": ["userId", "walletAddress", "createdAt", "relationPDA"]
+              }
+            },
+            "required": ["searchType", "searchValue", "relation"]
+          }
+        },
+        "required": ["success", "message", "details"]
+      },
+      "FindWalletValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing validation failure"
           },
           "details": {
             "type": "object",
             "properties": {
+              "validationErrors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["invalid_parameters", "invalid_types", "invalid_format"]
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "provided": {
+                "type": "object",
+                "properties": {
+                  "userID": {
+                    "type": "string",
+                    "enum": ["provided", "not provided"]
+                  },
+                  "walletAddress": {
+                    "type": "string",
+                    "enum": ["provided", "not provided"]
+                  }
+                }
+              },
+              "examples": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "userID": {
-                "type": "string",
-                "example": "user_12345"
+                "type": "string"
               },
               "walletAddress": {
-                "type": "string",
-                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+                "type": "string"
               },
-              "transactionSignature": {
-                "type": "string",
-                "example": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg"
-              },
-              "explorerUrl": {
-                "type": "string",
-                "example": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+              "example": {
+                "type": "string"
               }
             }
           }
-        }
+        },
+        "required": ["error", "message", "details"]
+      },
+      "FindWalletNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message indicating no relation was found"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "searchType": {
+                "type": "string",
+                "enum": ["userID", "walletAddress"],
+                "description": "The type of search that was performed"
+              },
+              "searchValue": {
+                "type": "string",
+                "description": "The value that was searched for"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "Suggestion for resolving the issue"
+              }
+            },
+            "required": ["searchType", "searchValue", "suggestion"]
+          }
+        },
+        "required": ["error", "message", "details"]
       },
       "SubmitTransactionRequest": {
         "type": "object",
@@ -521,62 +2133,216 @@
         "properties": {
           "message": {
             "type": "string",
-            "example": "Transaction submitted and confirmed successfully!"
+            "description": "Success confirmation message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Transaction submission details",
+            "properties": {
+              "transactionSignature": {
+                "type": "string",
+                "description": "The confirmed transaction signature on Solana"
+              },
+              "explorerUrl": {
+                "type": "string",
+                "description": "Direct link to view the transaction on Solana Explorer"
+              }
+            },
+            "required": ["transactionSignature", "explorerUrl"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "SubmitTransactionValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing validation failure"
           },
           "details": {
             "type": "object",
             "properties": {
-              "transactionSignature": {
-                "type": "string",
-                "example": "5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef"
-              },
-              "explorerUrl": {
-                "type": "string",
-                "example": "https://explorer.solana.com/tx/5VfYmGjjVJ9wbpjb9YwHUAAABBBCCCDDDEEEFFFGGGHHHIII123456789abcdef?cluster=devnet"
-              }
-            }
-          }
-        }
-      },
-      "FindWalletResponse": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean"
-          },
-          "message": {
-            "type": "string"
-          },
-          "data": {
-            "type": "object",
-            "properties": {
-              "searchType": {
-                "type": "string"
-              },
-              "searchValue": {
-                "type": "string"
-              },
-              "relation": {
-                "type": "object",
-                "properties": {
-                  "userId": {
-                    "type": "string"
-                  },
-                  "walletAddress": {
-                    "type": "string"
-                  },
-                  "createdAt": {
-                    "type": "string"
-                  },
-                  "relationPDA": {
-                    "type": "string"
+              "validationErrors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["missing_fields", "invalid_types", "invalid_format"]
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
                   }
                 }
               }
-            }
+            },
+            "required": ["validationErrors"]
           }
-        }
+        },
+        "required": ["error", "message", "details"]
       },
+      "ValidatorDataRequest": {
+        "type": "object",
+        "properties": {
+          "walletAddress": {
+            "type": "string",
+            "description": "Validator's wallet address to retrieve data for",
+            "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
+            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
+          }
+        },
+        "required": ["walletAddress"]
+      },
+      "ValidatorDataResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success confirmation message"
+          },
+          "details": {
+            "type": "object",
+            "description": "Comprehensive validator information",
+            "properties": {
+              "validatorAddress": {
+                "type": "string",
+                "description": "The validator's wallet address"
+              },
+              "validatorPDA": {
+                "type": "string",
+                "description": "Program Derived Address for the validator record"
+              },
+              "stakedAmount": {
+                "type": "number",
+                "description": "Total amount staked by the validator"
+              },
+              "reputationScore": {
+                "type": "number",
+                "description": "Current reputation score based on performance"
+              },
+              "totalVotes": {
+                "type": "number",
+                "description": "Total number of validation votes cast"
+              },
+              "honestVotes": {
+                "type": "number",
+                "description": "Number of honest/correct validation votes"
+              },
+              "dishonestVotes": {
+                "type": "number",
+                "description": "Number of dishonest/incorrect validation votes"
+              },
+              "accuracyPercentage": {
+                "type": "number",
+                "description": "Calculated accuracy percentage (honestVotes/totalVotes * 100)"
+              },
+              "lastActiveTime": {
+                "type": "number",
+                "description": "Unix timestamp of last validator activity"
+              },
+              "lastActiveDate": {
+                "type": "string",
+                "description": "Human-readable date of last activity or 'Never'"
+              }
+            },
+            "required": ["validatorAddress", "validatorPDA", "stakedAmount", "reputationScore", "totalVotes", "honestVotes", "dishonestVotes", "accuracyPercentage", "lastActiveTime", "lastActiveDate"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "ValidatorDataValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message describing validation failure"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "validationErrors": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "enum": ["missing_fields", "invalid_types", "invalid_format"]
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "field": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "required": ["validationErrors"]
+          }
+        },
+        "required": ["error", "message", "details"]
+      },
+      "ValidatorDataNotFoundResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message indicating validator account not found"
+          },
+          "details": {
+            "type": "object",
+            "properties": {
+              "walletAddress": {
+                "type": "string",
+                "description": "The wallet address that was searched for"
+              },
+              "expectedPDA": {
+                "type": "string",
+                "description": "The expected Program Derived Address for the validator"
+              },
+              "suggestion": {
+                "type": "string",
+                "description": "Suggestion for resolving the issue"
+              }
+            },
+            "required": ["walletAddress", "expectedPDA", "suggestion"]
+          }
+        },
+        "required": ["error", "message", "details"]
+      },
+
       "Health": {
         "type": "object",
         "properties": {
@@ -627,71 +2393,6 @@
               "chain": {
                 "type": "string",
                 "example": "solana-devnet"
-              }
-            }
-          }
-        }
-      },
-      "ValidatorDataRequest": {
-        "type": "object",
-        "properties": {
-          "walletAddress": {
-            "type": "string",
-            "description": "Validator wallet address",
-            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-          }
-        },
-        "required": ["walletAddress"]
-      },
-      "ValidatorDataResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "Validator data retrieved successfully."
-          },
-          "details": {
-            "type": "object",
-            "properties": {
-              "validatorAddress": {
-                "type": "string",
-                "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-              },
-              "validatorPDA": {
-                "type": "string",
-                "example": "xyz789abc123def456ghi..."
-              },
-              "stakedAmount": {
-                "type": "number",
-                "example": 1000000
-              },
-              "reputationScore": {
-                "type": "number",
-                "example": 95
-              },
-              "totalVotes": {
-                "type": "number",
-                "example": 100
-              },
-              "honestVotes": {
-                "type": "number",
-                "example": 95
-              },
-              "dishonestVotes": {
-                "type": "number",
-                "example": 5
-              },
-              "accuracyPercentage": {
-                "type": "number",
-                "example": 95.0
-              },
-              "lastActiveTime": {
-                "type": "number",
-                "example": 1640995200
-              },
-              "lastActiveDate": {
-                "type": "string",
-                "example": "2024-01-15T10:30:45.123Z"
               }
             }
           }

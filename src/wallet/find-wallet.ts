@@ -7,16 +7,43 @@ export const findWalletHandler = (dependencies: any) => {
         try {
             const { userID, walletAddress } = req.query;
 
+            // Input validation for query parameters
+            const errors = [];
+            
             // Validate that exactly one parameter is provided
             if ((!userID && !walletAddress) || (userID && walletAddress)) {
+                errors.push({
+                    type: 'invalid_parameters',
+                    message: 'Exactly one of userID or walletAddress must be provided'
+                });
+            }
+
+            // Type validation for provided parameters
+            if (userID && typeof userID !== 'string') {
+                errors.push({
+                    type: 'invalid_types',
+                    field: 'userID',
+                    message: 'Must be a string'
+                });
+            }
+
+            if (walletAddress && typeof walletAddress !== 'string') {
+                errors.push({
+                    type: 'invalid_types',
+                    field: 'walletAddress',
+                    message: 'Must be a string'
+                });
+            }
+
+            if (errors.length > 0) {
                 const status = 400;
-                const message = "Please provide either a `userID` OR a `walletAddress` query parameter, but not both.";
+                const message = 'Input validation failed';
                 const details = {
+                    validationErrors: errors,
                     provided: {
                         userID: userID ? 'provided' : 'not provided',
                         walletAddress: walletAddress ? 'provided' : 'not provided'
                     },
-                    requirement: 'Exactly one of userID or walletAddress must be provided',
                     examples: [
                         'GET /find-wallet?userID=user123',
                         'GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
@@ -25,8 +52,6 @@ export const findWalletHandler = (dependencies: any) => {
                 
                 return res.status(status).json({ error: true, message, details });
             }
-
-            logger.info('🔍 Finding wallet relation...');
             
             let relationPDA: PublicKey;
             let searchType: string;
@@ -36,17 +61,31 @@ export const findWalletHandler = (dependencies: any) => {
                 // Search by user ID - use "user_id_to_wallet" seed
                 searchType = 'userID';
                 searchValue = userID as string;
-                logger.info('   - Searching by User ID:', userID);
                 
-                [relationPDA] = PublicKey.findProgramAddressSync(
-                    [Buffer.from("user_id_to_wallet"), Buffer.from(userID as string)],
-                    dependencies.user_key_relations_program.programId
-                );
+                try {
+                    [relationPDA] = PublicKey.findProgramAddressSync(
+                        [Buffer.from("user_id_to_wallet"), Buffer.from(userID as string)],
+                        dependencies.user_key_relations_program.programId
+                    );
+                } catch (error) {
+                    const status = 400;
+                    const message = "Input validation failed";
+                    const details = {
+                        validationErrors: [{
+                            type: 'invalid_format',
+                            field: 'userID',
+                            message: 'Invalid user ID format. Must be a string.'
+                        }],
+                        userID,
+                        example: 'GET /find-wallet?userID=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
+                    };
+                    return res.status(status).json({ error: true, message, details });
+                }
+
             } else {
                 // Search by wallet address - use "wallet_to_user_id" seed
                 searchType = 'walletAddress';
                 searchValue = walletAddress as string;
-                logger.info('   - Searching by Wallet Address:', walletAddress);
                 
                 try {
                     const publicKey = new PublicKey(walletAddress as string);
@@ -56,10 +95,14 @@ export const findWalletHandler = (dependencies: any) => {
                     );
                 } catch (error) {
                     const status = 400;
-                    const message = "Invalid wallet address format.";
+                    const message = "Input validation failed";
                     const details = {
+                        validationErrors: [{
+                            type: 'invalid_format',
+                            field: 'walletAddress',
+                            message: 'Invalid wallet address format. Must be a valid Solana public key.'
+                        }],
                         walletAddress,
-                        error: 'Not a valid Solana public key',
                         example: 'GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
                     };
                     
@@ -70,13 +113,7 @@ export const findWalletHandler = (dependencies: any) => {
             // Fetch the relation account
             try {
                 const relation = await dependencies.user_key_relations_program.account.userKeyRelation.fetch(relationPDA);
-                
-                logger.info('✅ Relation found:', {
-                    userId: relation.userId,
-                    userPublicKey: relation.userPublicKey.toString(),
-                    createdAt: new Date(relation.createdAt.toNumber() * 1000).toISOString()
-                });
-
+            
                 const status = 200;
                 const message = `Wallet relation found successfully using ${searchType}.`;
                 const details = {
@@ -96,10 +133,8 @@ export const findWalletHandler = (dependencies: any) => {
                     details
                 });
 
-            } catch (error) {
-                logger.warn(`❌ No relation found for ${searchType}: ${searchValue}`);
-                
-                const status = 404;
+            } catch (error) {                
+                const status = 409;
                 const message = `No wallet relation found for the provided ${searchType}.`;
                 const details = {
                     searchType,
@@ -112,11 +147,11 @@ export const findWalletHandler = (dependencies: any) => {
                 return res.status(status).json({ error: true, message, details });
             }
 
-        } catch (error) {
+        } catch (error: any) {
             logger.error('❌ Error in find wallet handler:', error);
             
             const status = 500;
-            const message = "An unexpected error occurred while searching for the wallet relation.";
+            const message = "We have a problem! Something went wrong on our end. Our team has been notified.";
             const details = {
                 error: error instanceof Error ? error.message : 'Unknown error'
             };
