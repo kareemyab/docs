@@ -1,136 +1,98 @@
----
-title: 'register'
-description: 'Register a file with the Trust Engine Core API'
----
+# Trust Engine register
 
-# register
+> Register a file with the Trust Engine Core API
 
-Register a file with the Trust Engine Core API for blockchain verification and provenance tracking.
+The register command allows you to register a file with the Trust Engine Core API for blockchain verification and provenance tracking. Files are hashed, stored on IPFS, and recorded on the Solana blockchain.
 
-## Usage
+To use it, run the following command from your terminal
 
 ```bash
-core-api-cli register [options]
+trust-engine-cli register [options]
 ```
 
-## Required Options
+## Options
 
-<ParamField path="--file, -f" type="string" required>
-  Path to the file to register
-</ParamField>
-
-<ParamField path="--contentTitle, -t" type="string" required>
-  Title for the content being registered
-</ParamField>
-
-<ParamField path="--walletAddress, -w" type="string" required>
-  User wallet address that will own the registered content
-</ParamField>
-
-<ParamField path="--walletType, -y" type="string" required>
-  Wallet type: either 'standard' or 'crossmint'
-</ParamField>
-
-## Optional Options
-
-<ParamField path="--metadata, -m" type="string">
-  Public metadata as a string (default: empty string)
-</ParamField>
-
-<ParamField path="--secret, -s" type="string">
-  Optional raw text secret for claim hash generation
-</ParamField>
-
-<ParamField path="--json" type="boolean">
-  Output the result as JSON instead of formatted text
-</ParamField>
+| Option                        | Description                                      |
+| ----------------------------- | ------------------------------------------------ |
+| `-f, --file <path>`           | Path to the file to register                     |
+| `-t, --contentTitle <title>`  | Title for the content being registered          |
+| `-w, --walletAddress <address>` | User wallet address (Solana public key)       |
+| `-y, --walletType <type>`     | Wallet type: 'standard' or 'crossmint'          |
+| `-m, --metadata <text>`       | Public metadata as a string (optional)          |
+| `-s, --secret <text>`         | Optional raw text secret for claim hash generation |
+| `--json`                      | Output the result as JSON                        |
 
 ## Examples
 
-### Basic File Registration
+Register a file with basic information:
 
 ```bash
-core-api-cli register \
+trust-engine-cli register \
   --file ./document.pdf \
   --contentTitle "Important Legal Document" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   --walletType "crossmint"
 ```
 
-### Registration with Metadata
+After running the command, you'll see registration details:
 
-```bash
-core-api-cli register \
-  --file ./photo.jpg \
-  --contentTitle "Event Photography" \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --walletType "standard" \
-  --metadata "event:conference2024,photographer:john_doe"
+```
+✅ File registered successfully on the blockchain.
+
+Registration Details:
+  - Status: completed
+  - Transaction Signature: 2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg
+  - Content Registration PDA: xyz789abc123def456ghi789
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+  - IPFS CID: QmExampleCidForYourFileMetadata123
+  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
 ```
 
-### Registration with Secret
+If the registration requires client-side signing, you'll see:
+
+```
+✅ Registration prepared. Please sign the transaction.
+
+Registration Details:
+  - Status: requires-client-signature
+  - Sign the transaction using your wallet and submit it using the following command:
+    trust-engine-cli submit-transaction --transaction <signed_base64_transaction>
+  - Transaction (Base64): eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...
+  - Content Registration PDA: xyz789abc123def456ghi789
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+  - IPFS CID: QmExampleCidForYourFileMetadata123
+```
+
+You can also register with metadata and secrets:
 
 ```bash
-core-api-cli register \
+trust-engine-cli register \
   --file ./contract.pdf \
   --contentTitle "Confidential Contract" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   --walletType "crossmint" \
+  --metadata "type:contract,department:legal" \
   --secret "my_secret_verification_phrase"
 ```
 
-### JSON Output for Automation
+For automation purposes, use the JSON output:
 
 ```bash
-core-api-cli register \
-  --file ./data.csv \
-  --contentTitle "Research Data" \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --walletType "crossmint" \
-  --json
+trust-engine-cli register --file ./data.csv --contentTitle "Research Data" --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" --walletType "crossmint" --json
 ```
 
-## Response
-
-### Success Response (Formatted)
-
-```
-✅ ✅ Accepted! Your file has been submitted and is being processed by Crossmint.
-
-Key Information:
-  - Status: processing
-  - Crossmint Transaction Id: abc123def456ghi789jklmnop...
-  - Content Registration PDA: xyz789abc123def456ghi...
-  - Content Hash: abc123def456789...
-  - Ipfs Cid: QmExampleCidForYourFileMetadata...
-```
-
-### JSON Response
+This will return:
 
 ```json
 {
-  "message": "✅ Accepted! Your file has been submitted and is being processed by Crossmint.",
+  "message": "File registered successfully on the blockchain.",
   "details": {
-    "status": "processing",
-    "crossmintTransactionId": "abc123def456ghi789jklmnop...",
-    "contentRegistrationPDA": "xyz789abc123def456ghi...",
-    "contentHash": "abc123def456789...",
-    "ipfsCid": "QmExampleCidForYourFileMetadata..."
+    "status": "completed",
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "contentRegistrationPDA": "xyz789abc123def456ghi789",
+    "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
+    "ipfsCid": "QmExampleCidForYourFileMetadata123",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
   }
 }
 ```
-
-## Error Handling
-
-Common error scenarios:
-
-- **File not found**: Ensure the file path is correct and accessible
-- **Invalid wallet address**: Verify the wallet address format
-- **Invalid wallet type**: Must be either 'standard' or 'crossmint'
-- **Network issues**: Check your internet connection and API availability
-
-## Notes
-
-- The registration process is asynchronous and may take a few moments to complete
-- Once registered, the file's hash and metadata are permanently stored on the blockchain
-- The IPFS CID provides decentralized access to the file metadata

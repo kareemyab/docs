@@ -1,0 +1,79 @@
+# Trust Engine submit-transaction
+
+> Submit a signed transaction to the network
+
+The submit-transaction command allows you to submit a signed transaction to the Solana network. This is typically used when a previous command (like register) returns a transaction that requires client-side signing before submission.
+
+To use it, run the following command from your terminal
+
+```bash
+trust-engine-cli submit-transaction [options]
+```
+
+## Options
+
+| Option                  | Description                           |
+| ----------------------- | ------------------------------------- |
+| `-t, --transaction <data>` | Signed transaction in base64 format |
+| `--json`                | Output the result as JSON             |
+
+## Example
+
+Submit a signed transaction:
+
+```bash
+trust-engine-cli submit-transaction --transaction "eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh..."
+```
+
+After running the command, you'll see transaction confirmation:
+
+```
+✅ Transaction submitted successfully to the network.
+
+Transaction Details:
+  - Transaction Signature: 2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg
+  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
+```
+
+For automation purposes, use the JSON output:
+
+```bash
+trust-engine-cli submit-transaction --transaction "eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh..." --json
+```
+
+This will return:
+
+```json
+{
+  "message": "Transaction submitted successfully to the network.",
+  "details": {
+    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+  }
+}
+```
+
+## When to Use
+
+This command is typically used in a two-step process:
+
+1. **Step 1**: Run a command like `register` that requires client-side signing
+2. **Step 2**: Sign the returned transaction with your wallet
+3. **Step 3**: Submit the signed transaction using this command
+
+For example, if `register` returns:
+
+```
+✅ Registration prepared. Please sign the transaction.
+
+Registration Details:
+  - Status: requires-client-signature
+  - Sign the transaction using your wallet and submit it using the following command:
+    trust-engine-cli submit-transaction --transaction <signed_base64_transaction>
+  - Transaction (Base64): eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...
+```
+
+You would:
+1. Copy the base64 transaction
+2. Sign it with your wallet software
+3. Submit the signed transaction using this command

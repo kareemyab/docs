@@ -1,51 +1,31 @@
----
-title: 'create-wallet'
-description: 'Create a new wallet for a user'
----
+# Trust Engine create-wallet
 
-# create-wallet
+> Create a new wallet for a user
 
-Create a new wallet for a user using the Trust Engine Core API.
+The create-wallet command allows you to create a new Crossmint wallet for a user in the Trust Engine system. Each user should only run this command **once** and reuse the generated wallet for all future operations.
 
-<Warning>
-**⚠️ ONE-TIME OPERATION**: Each user should only run this command **once**. The generated Crossmint wallet should be reused for all future file registrations. Save the `walletAddress` from the response for subsequent operations.
-</Warning>
-
-## Usage
+To use it, run the following command from your terminal
 
 ```bash
-core-api-cli create-wallet [options]
+trust-engine-cli create-wallet [options]
 ```
 
-## Required Options
+## Options
 
-<ParamField path="--userID, -u" type="string" required>
-  User ID for the new wallet
-</ParamField>
+| Option               | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `-u, --userID <id>`  | User ID for the new wallet (alphanumeric string) |
+| `--json`             | Output the result as JSON                        |
 
-## Optional Options
+## Example
 
-<ParamField path="--json" type="boolean">
-  Output the result as JSON instead of formatted text
-</ParamField>
-
-## Examples
-
-### Basic Wallet Creation
+Create a new wallet for a user:
 
 ```bash
-core-api-cli create-wallet --userID "user_12345"
+trust-engine-cli create-wallet --userID "user_12345"
 ```
 
-### JSON Output for Automation
-
-```bash
-core-api-cli create-wallet --userID "user_12345" --json
-```
-
-## Response
-
-### Success Response (Formatted)
+After running the command, you'll see a confirmation message with wallet details:
 
 ```
 ✅ Success! Your Crossmint wallet has been created and linked to your user ID.
@@ -53,9 +33,18 @@ core-api-cli create-wallet --userID "user_12345" --json
 Wallet Details:
   - User ID: user_12345
   - Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+  - Chain: solana
+  - Transaction Signature: 2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg
+  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
 ```
 
-### JSON Response
+You can also get the output in JSON format for automation purposes:
+
+```bash
+trust-engine-cli create-wallet --userID "user_12345" --json
+```
+
+This will return:
 
 ```json
 {
@@ -65,23 +54,7 @@ Wallet Details:
     "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
     "chain": "solana",
     "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
-    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet",
-    "userID": "john_doe123"
+    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
   }
 }
 ```
-
-## Error Handling
-
-Common error scenarios:
-
-- **Missing User ID**: Ensure you provide a valid user ID
-- **User ID already exists**: The user may already have a wallet associated
-- **Network issues**: Check your internet connection and API availability
-
-## Notes
-
-- Each user ID can only have one wallet associated with it
-- The created wallet is a Crossmint wallet on the Solana blockchain
-- The wallet is automatically linked to the provided user ID
-- Save the wallet address for future operations
