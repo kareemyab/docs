@@ -59,7 +59,7 @@ This page provides detailed information about the type definitions used in the T
   The address of the wallet to register the file with.
 </ResponseField>
 
-<ResponseField name="walletType" type="'standard' | 'crossmint'" required>
+<ResponseField name="walletType" type="'self' | 'managed'" required>
   The type of wallet to use.
 </ResponseField>
 
@@ -77,9 +77,9 @@ This page provides detailed information about the type definitions used in the T
 
 ### Response
 
-The response from registering a file. This can vary depending on whether the wallet type is `'standard'` or `'crossmint'`.
+The response from registering a file. This can vary depending on whether the wallet type is `'self'` or `'managed'`.
 
-#### For Crossmint Wallets (200 OK)
+#### For Managed Wallets (200 OK)
 
 <ResponseField name="message" type="string">
   A success message.
@@ -91,8 +91,8 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="status" type="string">
       The status of the registration.
     </ResponseField>
-    <ResponseField name="crossmintTransactionId" type="string">
-      The ID of the Crossmint transaction.
+    <ResponseField name="managedTransactionId" type="string">
+      The ID of the managed transaction.
     </ResponseField>
     <ResponseField name="contentRegistrationPDA" type="string">
       The Program Derived Address for the registration.
@@ -109,7 +109,7 @@ The response from registering a file. This can vary depending on whether the wal
   </Expandable>
 </ResponseField>
 
-#### For Standard Wallets (202 Accepted)
+#### For Self Wallets (202 Accepted)
 
 <ResponseField name="message" type="string">
   A success message.

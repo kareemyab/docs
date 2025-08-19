@@ -46,7 +46,7 @@ print(response.json())
 
 ## Step 2: Create Your Wallet
 
-Create a Crossmint wallet that will own your registered files:
+Create a managed wallet that will own your registered files:
 
 <CodeGroup>
 ```bash cURL
@@ -65,19 +65,19 @@ const walletAddress = wallet.details.walletAddress;
 ```
 
 ```bash CLI
-core-api-cli create-wallet \
+trust-engine-cli create-wallet \
   --userID "my-unique-id-123"
 ```
 </CodeGroup>
 
 <Warning>
-**⚠️ ONE-TIME OPERATION**: This wallet creation step should only be performed **once per user**. The Crossmint wallet that gets generated will be used for **all future file registrations** by this user. Save the `walletAddress` from the response and reuse it for subsequent registrations instead of creating new wallets. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
+**⚠️ ONE-TIME OPERATION**: This wallet creation step should only be performed **once per user**. The managed wallet that gets generated will be used for **all future file registrations** by this user. Save the `walletAddress` from the response and reuse it for subsequent registrations instead of creating new wallets. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
 </Warning>
 
 **Expected Response:**
 ```json
 {
-  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "message": "Success! Your managed wallet has been created and linked to your user ID.",
   "details": {
     "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
     "chain": "solana",
@@ -144,7 +144,7 @@ curl -X POST https://core-api-server.onrender.com/register \
   -d '{
     "contentTitle": "My First Registration",
     "walletAddress": "YOUR_WALLET_ADDRESS_HERE",
-    "walletType": "crossmint",
+    "walletType": "managed",
     "contentHash": "a7b2c3d4e5f6789abcdef...",
     "fileMetadata": {
       "fileName": "example.txt",
@@ -160,7 +160,7 @@ const registration = await sdk.registerFile({
   file: file, // The File object from Step 3
   contentTitle: 'My First Registration',
   walletAddress: walletAddress, // From Step 2
-  walletType: 'crossmint',
+  walletType: 'managed',
   metadata: 'Quickstart tutorial example'
 });
 
@@ -169,26 +169,26 @@ console.log('File registered!', registration);
 
 ```bash CLI
 # Register the file (replace YOUR_WALLET_ADDRESS with actual address)
-core-api-cli register \
+trust-engine-cli register \
   --file example.txt \
   --contentTitle "My First Registration" \
   --walletAddress "YOUR_WALLET_ADDRESS_HERE" \
-  --walletType "crossmint" \
+  --walletType "managed" \
   --metadata "Quickstart tutorial example"
 ```
 </CodeGroup>
 
 <Info>
-**Note**: We're using Crossmint wallets which handle transaction signing automatically. For standard wallets, such as in Metamask, Phantom, etc., additional signing steps are required, and is not available in the CLI.
+**Note**: We're using managed wallets which handle transaction signing automatically. For self wallets, such as in Metamask, Phantom, etc., additional signing steps are required, and is not available in the CLI.
 </Info>
 
-**Expected Response (Crossmint):**
+**Expected Response (Managed):**
 ```json
 {
-  "message": "✅ Accepted! Your file has been submitted and is being processed by Crossmint.",
+  "message": "✅ Accepted! Your file has been submitted and is being processed by the managed wallet.",
   "details": {
     "status": "processing",
-    "crossmintTransactionId": "abc123...",
+    "managedTransactionId": "abc123...",
     "contentRegistrationPDA": "xyz789...",
     "contentHash": "a7b2c3d4...",
     "ipfsCid": "QmExample..."
@@ -219,7 +219,7 @@ console.log('Search results:', results);
 ```
 
 ```bash CLI
-core-api-cli search-file \
+trust-engine-cli search-file \
   --file example.txt
 ```
 </CodeGroup>

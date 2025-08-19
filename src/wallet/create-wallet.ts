@@ -21,6 +21,10 @@ export const createWalletHandler = (dependencies: any) => {
                 errors.push({ type: 'invalid_types', fields: validation.invalidTypes, message: 'Invalid input types. Must be a string' });
             }
 
+            if (userID && userID.length > 50) {
+                errors.push({ type: 'invalid_types', fields: ['userID'], message: 'User ID must be less than 50 characters' });
+            }
+
             if (errors.length > 0) {
                 const status = 400;
                 const message = 'Input validation failed';

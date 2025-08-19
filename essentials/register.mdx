@@ -27,10 +27,39 @@ openapi: 'POST /register'
 ## Wallet Type Flows
 
 <Info>
-**Important**: The response structure varies based on your `walletType`:
+**Important**: The response structure varies based on your `walletType` and `returnActionLink` parameter:
 
-- **`"crossmint"`**: Automatic signing and submission - registration completes immediately with confirmed transaction
-- **`"standard"`**: Returns unsigned transaction that you must sign with your wallet (Phantom, Metamask, etc.) and submit via [`/transactions`](/essentials/submit-transaction)
+- **`"managed"`**: Automatic signing and submission - registration completes immediately with confirmed transaction
+- **`"self"` with `returnActionLink: true`** *(Recommended)*: Returns an action link for secure browser-based transaction signing
+- **`"self"` with `returnActionLink: false`**: Returns unsigned transaction that you must sign manually and submit via [`/transactions`](/essentials/submit-transaction)
 </Info>
+
+## Action Link Flow (Recommended for Self Wallets)
+
+The action link flow provides a secure and user-friendly way to handle transaction signing for self wallets:
+
+<Steps>
+  <Step title="Request with Action Link">
+    Set `returnActionLink: true` in your request payload
+  </Step>
+  <Step title="Database Storage">
+    The unsigned transaction and metadata are securely stored with a unique token
+  </Step>
+  <Step title="Action Link Response">
+    Receive a secure link with the token (e.g., `http://trustengine.org/tx-action/abc123`)
+  </Step>
+  <Step title="User Signs Transaction">
+    User visits the link and signs the transaction using their browser wallet (Phantom, Solflare, etc.)
+  </Step>
+  <Step title="Registration Complete">
+    Transaction is automatically submitted and registration is complete
+  </Step>
+</Steps>
+
+### Action Link Benefits
+- **Secure**: Transactions are stored server-side with expiring tokens
+- **User-Friendly**: No need to handle raw transaction data
+- **Browser-Compatible**: Works with all major Solana wallet extensions
+- **Time-Limited**: Links expire after 24 hours for security
 
 

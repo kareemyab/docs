@@ -91,7 +91,7 @@ function handleError(error, context) {
 program
     .name('trust-engine-cli')
     .description('CLI for interacting with the Trust Engine API')
-    .version('1.0.6')
+    .version('1.1.1')
     .option('--json', 'Output the result as JSON');
 
 program
@@ -101,11 +101,12 @@ program
     .requiredOption('-t, --contentTitle <title>', 'Title for the content')
     .requiredOption('-w, --walletAddress <address>', 'User wallet address (Solana public key)')
     .requiredOption('-y, --walletType <type>', "Wallet type: 'standard' or 'crossmint'")
+    .option('-r, --returnActionLink', 'Return an action link for the transaction')
     .option('-m, --metadata <text>', 'Public metadata as a string', '')
     .option('-s, --secret <text>', 'Optional raw text secret for claim hash generation')
     .action(async (options) => {
         try {
-            const { file, contentTitle, walletAddress, walletType, metadata, secret } = options;
+            const { file, contentTitle, walletAddress, walletType, metadata, secret, returnActionLink } = options;
             const fileBuffer = fs.readFileSync(path.resolve(file));
             const fileObject = new File([new Blob([fileBuffer])], path.basename(file));
 
@@ -116,6 +117,7 @@ program
                 walletType,
                 metadata: metadata,
                 secret,
+                returnActionLink: !!returnActionLink // Convert to boolean
             });
 
             output(result, (data) => {
@@ -127,6 +129,11 @@ program
                     if (data.details.status === 'requires-client-signature') {
                         console.log(`  - Sign the transaction using your wallet and submit it using the following command:`)
                         console.log(`    trust-engine-cli submit-transaction --transaction <signed_base64_transaction>`);
+                    } else if (data.details.status === 'action-link-created') {
+                        console.log(`  - Action Link: ${data.details.actionLink}`);
+                        console.log(`  - Token: ${data.details.token}`);
+                        console.log(`  - Expires At: ${data.details.expiresAt}`);
+                        console.log(`  - Visit the action link to sign the transaction via your browser wallet.`);
                     }
                 }
                 if (data.details.transactionSignature) {

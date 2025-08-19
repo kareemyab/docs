@@ -1,6 +1,6 @@
 ---
 title: '/create-wallet'
-description: 'Creates a new Solana wallet using Crossmint service and links it to a user ID for easy management.'
+description: 'Creates a new Solana wallet using managed service and links it to a user ID for easy management.'
 icon: 'wallet'
 openapi: 'POST /create-wallet'
 ---
@@ -10,7 +10,7 @@ openapi: 'POST /create-wallet'
 </Info>
 
 <Warning>
-**⚠️ ONE-TIME OPERATION PER USER**: Each user should only create **one** Crossmint wallet. Once created, use the same `walletAddress` for all future file registrations. Creating multiple wallets per user is unnecessary and not recommended.
+**⚠️ ONE-TIME OPERATION PER USER**: Each user should only create **one** managed wallet. Once created, use the same `walletAddress` for all future file registrations. Creating multiple wallets per user is unnecessary and not recommended.
 </Warning>
 
 ---
@@ -18,8 +18,8 @@ openapi: 'POST /create-wallet'
 ## What This Endpoint Does
 
 <Steps>
-  <Step title="Creates Crossmint Wallet">
-    Generates a new Solana wallet using Crossmint's API-key signing method
+  <Step title="Creates Managed Wallet">
+    Generates a new Solana wallet using managed API-key signing method
   </Step>
   <Step title="Stores User Relation">
     Creates an on-chain record linking your `userID` to the wallet address

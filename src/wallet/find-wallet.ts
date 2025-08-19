@@ -102,7 +102,7 @@ export const findWalletHandler = (dependencies: any) => {
                             field: 'walletAddress',
                             message: 'Invalid wallet address format. Must be a valid Solana public key.'
                         }],
-                        walletAddress,
+                        walletAddress: "invalid-address",
                         example: 'GET /find-wallet?walletAddress=9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM'
                     };
                     

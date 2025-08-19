@@ -72,7 +72,7 @@ icon: 'circle-question'
   </Accordion>
 
   <Accordion title="Do I need SOL tokens to use the API?">
-    **Short answer: No** — for standard usage you don't need SOL. All normal API calls and flows run without you holding SOL.
+    **Short answer: No** — for self usage you don't need SOL. All normal API calls and flows run without you holding SOL.
 
     **How it works:**
     For API-initiated flows, Trust Engine uses a fee payer wallet we fund to cover on-chain SOL costs — including transaction fees, rent, wallet creation, and submission fees — so you don't have to. You do not pay anything, and all is sponsered by Trust Engine.
@@ -144,7 +144,7 @@ icon: 'circle-question'
 
     **During verification:**
     - Validators operate on cryptographic hashes/CIDs and on-chain records to determine consensus
-    - The protocol does not allow verifiers to retain your raw media. They may check IPFS availability and metadata for verification; fetching full media is not required in standard flows
+    - The protocol does not allow verifiers to retain your raw media. They may check IPFS availability and metadata for verification; fetching full media is not required in self flows
     - Because IPFS is public content-addressed storage, anyone with the CID can retrieve the file. We do not gate or re-host it centrally
 
     **Privacy tips:**
@@ -326,7 +326,7 @@ icon: 'circle-question'
       contentHash: hash,
       contentTitle: 'My Large Video',
       walletAddress: wallet,
-      walletType: 'crossmint'
+      walletType: 'managed'
     });
     ```
   </Accordion>

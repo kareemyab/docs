@@ -42,16 +42,16 @@ Used for file identity and integrity checks throughout Trust Engine.
 
 ### Digital Signatures
 
-**Ed25519** (Solana standard) for transactions and validator attestations:
+**Ed25519** (Solana self) for transactions and validator attestations:
 - **Authentication**: Proves identity of the signer
 - **Non-repudiation**: Signer cannot deny having signed
 - **Integrity**: Detects any message tampering
 
 ### Key Management (Current)
 
-**Server-side fee payer**: A managed wallet sponsors on-chain SOL fees for standard flows.
+**Server-side fee payer**: A managed wallet sponsors on-chain SOL fees for self flows.
 
-**User wallets**: Non-custodial wallets are supported; Crossmint managed wallets are available. Keep private keys secure (we never ask for user private keys).
+**User wallets**: Non-custodial wallets are supported; managed wallets are available. Keep private keys secure (we never ask for user private keys).
 
 <Info>
 **Planned**: HSM custody, automated key rotation, enterprise multi-signature support
