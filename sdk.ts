@@ -103,6 +103,7 @@ export class CoreApiSDK {
         metadata,
         secret,
         signTransaction,
+        returnActionLink
     }: {
         file: File;
         contentTitle: string;
@@ -111,6 +112,7 @@ export class CoreApiSDK {
         metadata?: string;
         secret?: string;
         signTransaction?: (transaction: Transaction) => Promise<Transaction>;
+        returnActionLink?: boolean;
     }) {
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         const validationResult = validateFile({
@@ -140,8 +142,8 @@ export class CoreApiSDK {
         const { fileTypeFromBuffer } = await import('file-type');
         const fileType = await fileTypeFromBuffer(fileBuffer);
         const fileMetadata = {
-            fileName: file.name,
-            fileSize: file.size,
+            fileName: file.name || 'N/A',
+            fileSize: file.size || 0,
             mimeType: fileType?.mime || 'N/A',
         };
 
@@ -153,6 +155,7 @@ export class CoreApiSDK {
             claimHash: claimHashHex,
             contentHash: contentHashHex,
             fileMetadata,
+            returnActionLink
         };
 
         const response = await this._request('/register', {
@@ -160,10 +163,7 @@ export class CoreApiSDK {
             body: JSON.stringify(payload),
         }) as any;
 
-        if (response.details.status === 'requires-client-signature' && walletType === 'standard') {
-            if (!signTransaction) {
-                throw new Error('Client signature required but no signTransaction function provided');
-            }
+        if (response.details.status === 'requires-client-signature' && walletType === 'standard' && signTransaction) {
             const transaction = Transaction.from(Buffer.from(response.details.transaction, 'base64'));
             const signedTransaction = await signTransaction(transaction);
             const signedTransactionBase64 = signedTransaction.serialize({ requireAllSignatures: false }).toString('base64');
@@ -180,7 +180,13 @@ export class CoreApiSDK {
         });
     }
 
-    async searchFile(file: File, walletAddress?: string) {
+    async searchFile({ file, walletAddress }: {file: File, walletAddress?: string}) {
+        // Browser-compatible hash generation using Web Crypto API
+        // const arrayBuffer = await file.arrayBuffer();
+        // const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+        // const hashArray = new Uint8Array(hashBuffer);
+        // const contentHashHex = Array.from(hashArray).map(b => b.toString(16).padStart(2, '0')).join('');
+
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         const contentHash = createHash('sha256').update(fileBuffer).digest();
         const contentHashHex = contentHash.toString('hex');

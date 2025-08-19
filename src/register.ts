@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { PublicKey, SystemProgram, ComputeBudgetProgram } from '@solana/web3.js';
 import BN from 'bn.js';
+import { generateSecureToken, insertTransactionAction } from './database';
 
 export const registerHandler = (dependencies: any) => {
   return async (req: Request, res: Response) => {
@@ -13,7 +14,8 @@ export const registerHandler = (dependencies: any) => {
             walletType,
             claimHash,
             contentHash: contentHashHex,
-            fileMetadata
+            fileMetadata,
+            returnActionLink
         } = req.body;
 
         // input validation
@@ -34,6 +36,14 @@ export const registerHandler = (dependencies: any) => {
                 field: 'walletType',
                 message: 'Must be standard or crossmint'
             })
+        }
+
+        if (returnActionLink !== undefined && typeof returnActionLink !== 'boolean') {
+            errors.push({
+                type: 'invalid_type',
+                field: 'returnActionLink',
+                message: 'Must be a boolean value'
+            });
         }
 
         let claimHashBytes = Buffer.alloc(32); // Default to 32 zero bytes
@@ -239,17 +249,55 @@ export const registerHandler = (dependencies: any) => {
                 requireAllSignatures: false,
             });
 
-            const status = 202;
-            const message = "Transaction prepared. Please sign and submit via your wallet.";
-            const details = {
-                status: 'requires-client-signature',
-                transaction: serializedTransaction.toString('base64'),
-                ipfsCid: rootCid,
-                contentRegistrationPDA: contentRegistrationPda.toBase58(),
-                contentHash: contentHashHex
-            };
-            
-            return res.status(status).json({ message, details });
+            // If returnActionLink is true, create database entry and return action link
+            if (returnActionLink === true) {
+                try {
+                    const token = generateSecureToken();
+                    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+                    await insertTransactionAction({
+                        token,
+                        unsigned_transaction: serializedTransaction.toString('base64'),
+                        creator_pubkey: walletAddress,
+                        content_hash: contentHashHex,
+                        content_title: contentTitle,
+                        expires_at: expiresAt
+                    });
+
+                    const actionLink = `http://trustengine.org/tx-action/${token}`;
+                    
+                    const status = 200;
+                    const message = "Transaction prepared and action link created. Use the link to sign the transaction.";
+                    const details = {
+                        status: 'action-link-created',
+                        actionLink: actionLink,
+                        token: token,
+                        expiresAt: expiresAt.toISOString(),
+                        contentHash: contentHashHex
+                    };
+                    
+                    return res.status(status).json({ message, details });
+                    
+                } catch (dbError: any) {
+                    logger.error('💥 Failed to create action link:', dbError.message);
+                    const status = 500;
+                    const message = 'Failed to create action link. Please try again.';
+                    return res.status(status).json({ error: true, message });
+                }
+            } else {
+                // Original behavior - return transaction for immediate signing
+                const status = 200;
+                const message = "Transaction prepared and pre-signed. Please sign and submit via your wallet.";
+                const details = {
+                    status: 'requires-client-signature',
+                    transaction: serializedTransaction.toString('base64'),
+                    ipfsCid: rootCid,
+                    contentRegistrationPDA: contentRegistrationPda.toBase58(),
+                    contentHash: contentHashHex
+                };
+                
+                return res.status(status).json({ message, details });
+            }
         }
 
     } catch (error: any) {

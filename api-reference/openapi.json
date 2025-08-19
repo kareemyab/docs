@@ -61,7 +61,7 @@
     "/create-wallet": {
       "post": {
         "summary": "Create Wallet",
-        "description": "Create a new Solana wallet using Crossmint service and link it to a user ID.",
+        "description": "Create a new Solana wallet using managed service and link it to a user ID.",
         "tags": ["Wallet"],
         "x-code-samples": [
           {
@@ -111,7 +111,7 @@
                   "success": {
                     "summary": "Wallet Created Successfully",
                     "value": {
-                      "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+                      "message": "Success! Your managed wallet has been created and linked to your user ID.",
                       "details": {
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
                         "chain": "solana",
@@ -183,7 +183,7 @@
                         "conflictType": "Wallet already linked",
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
                         "existingUserID": "existing-user",
-                        "suggestion": "This should not happen with Crossmint wallet creation"
+                        "suggestion": "This should not happen with managed wallet creation"
                       }
                     }
                   }
@@ -205,7 +205,7 @@
                       "error": true,
                       "message": "We have a problem! Something went wrong on our end. Our team has been notified.",
                       "details": {
-                        "error": "Crossmint wallet creation failed"
+                        "error": "Managed wallet creation failed"
                       }
                     }
                   }
@@ -224,19 +224,19 @@
         "x-code-samples": [
           {
             "lang": "cURL",
-            "source": "curl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"crossmint\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\"\n  }'"
+            "source": "# Example 1: Managed wallet (automatic signing)\ncurl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"managed\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\"\n  }'\n\n# Example 2: Self wallet with action link (recommended)\ncurl -X POST 'https://core-api-server.onrender.com/register' \\\n  -H 'Content-Type: application/json' \\\n  -d '{\n    \"contentTitle\": \"My Important Document\",\n    \"walletAddress\": \"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\",\n    \"walletType\": \"self\",\n    \"contentHash\": \"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\",\n    \"returnActionLink\": true\n  }'"
           },
           {
             "lang": "JavaScript",
-            "source": "const response = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'crossmint',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n  })\n});\n\nconst data = await response.json();\nconsole.log(data);"
+            "source": "// Example 1: Managed wallet (automatic signing)\nconst response1 = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'managed',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n  })\n});\n\n// Example 2: Self wallet with action link (recommended)\nconst response2 = await fetch('https://core-api-server.onrender.com/register', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    contentTitle: 'My Important Document',\n    walletAddress: '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    walletType: 'self',\n    contentHash: 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789',\n    returnActionLink: true\n  })\n});\n\nconst data = await response1.json();\nconsole.log(data);"
           },
           {
             "lang": "Python",
-            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'crossmint',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n   }\n)\n\ndata = response.json()\nprint(data)"
+            "source": "import requests\n\nresponse = requests.post(\n    'https://core-api-server.onrender.com/register',\n    headers={'Content-Type': 'application/json'},\n    json={\n        'contentTitle': 'My Important Document',\n        'walletAddress': '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n        'walletType': 'managed',\n        'contentHash': 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n   }\n)\n\ndata = response.json()\nprint(data)"
           },
           {
             "lang": "PHP",
-            "source": "<?php\n\n$url = 'https://core-api-server.onrender.com/register';\n$data = json_encode([\n    'contentTitle' => 'My Important Document',\n    'walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    'walletType' => 'crossmint',\n    'contentHash' => 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n]);\n\n$options = [\n    'http' => [\n        'header' => 'Content-Type: application/json',\n        'method' => 'POST',\n        'content' => $data,\n    ],\n];\n\n$context = stream_context_create($options);\n$result = file_get_contents($url, false, $context);\n$data = json_decode($result, true);\n\nprint_r($data);\n?>"
+            "source": "<?php\n\n$url = 'https://core-api-server.onrender.com/register';\n$data = json_encode([\n    'contentTitle' => 'My Important Document',\n    'walletAddress' => '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM',\n    'walletType' => 'managed',\n    'contentHash' => 'a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789'\n]);\n\n$options = [\n    'http' => [\n        'header' => 'Content-Type: application/json',\n        'method' => 'POST',\n        'content' => $data,\n    ],\n];\n\n$context = stream_context_create($options);\n$result = file_get_contents($url, false, $context);\n$data = json_decode($result, true);\n\nprint_r($data);\n?>"
           },
           {
             "lang": "Go",
@@ -244,7 +244,7 @@
           },
           {
             "lang": "Java",
-            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class RegisterFile {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/register\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"contentTitle\\\": \\\"My Important Document\\\", \\\"walletAddress\\\": \\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\", \\\"walletType\\\": \\\"crossmint\\\", \\\"contentHash\\\": \\\"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
+            "source": "import java.io.BufferedReader;\nimport java.io.InputStreamReader;\nimport java.net.HttpURLConnection;\nimport java.net.URL;\n\npublic class RegisterFile {\n    public static void main(String[] args) {\n        try {\n            URL url = new URL(\"https://core-api-server.onrender.com/register\");\n            HttpURLConnection conn = (HttpURLConnection) url.openConnection();\n            conn.setRequestMethod(\"POST\");\n            conn.setRequestProperty(\"Content-Type\", \"application/json\");\n            conn.setDoOutput(true);\n\n            String jsonInputString = \"{\\\"contentTitle\\\": \\\"My Important Document\\\", \\\"walletAddress\\\": \\\"9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM\\\", \\\"walletType\\\": \\\"managed\\\", \\\"contentHash\\\": \\\"a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789\\\"}\";\n            try(OutputStream os = conn.getOutputStream()) {\n                byte[] input = jsonInputString.getBytes(\"utf-8\");\n                os.write(input, 0, input.length);\n            }\n\n            try(BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream(), \"utf-8\"))) {\n                StringBuilder response = new StringBuilder();\n                String responseLine = null;\n                while ((responseLine = br.readLine()) != null) {\n                    response.append(responseLine.trim());\n                }\n                System.out.println(response.toString());\n            }\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}"
           }
         ],
         "requestBody": {
@@ -259,15 +259,15 @@
         },
         "responses": {
           "200": {
-            "description": "Registration confirmed - Crossmint wallet transaction completed",
+            "description": "Registration confirmed - Managed wallet transaction completed",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisterFileCrossmintResponse"
+                  "$ref": "#/components/schemas/RegisterFileManagedResponse"
                 },
                 "examples": {
-                  "crossmint-success": {
-                    "summary": "Crossmint Success",
+                  "managed-success": {
+                    "summary": "Managed Success",
                     "value": {
                       "message": "✅ Success! Your file has been registered and confirmed on-chain.",
                       "details": {
@@ -285,17 +285,37 @@
             }
           },
           "202": {
-            "description": "Registration accepted - Standard wallet transaction prepared for signing",
+            "description": "Registration accepted - Self wallet transaction prepared for signing or action link created",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/RegisterFileStandardResponse"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/RegisterFileSelfResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/RegisterFileActionLinkResponse"
+                    }
+                  ]
                 },
                 "examples": {
-                  "standard-wallet-success": {
-                    "summary": "Standard Wallet Success",
+                  "action-link-created": {
+                    "summary": "Action Link Created (returnActionLink: true)",
                     "value": {
-                      "message": "Transaction prepared. Please sign and submit via your wallet.",
+                      "message": "Transaction prepared and action link created. Use the link to sign the transaction.",
+                      "details": {
+                        "status": "action-link-created",
+                        "actionLink": "http://trustengine.org/tx-action/abc123def456789",
+                        "token": "abc123def456789",
+                        "expiresAt": "2024-01-25T15:30:00.000Z",
+                        "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234"
+                      }
+                    }
+                  },
+                  "self-wallet-success": {
+                    "summary": "Self Wallet Success (returnActionLink: false)",
+                    "value": {
+                      "message": "Transaction prepared and pre-signed. Please sign and submit via your wallet.",
                       "details": {
                         "status": "requires-client-signature",
                         "transaction": "AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAEDArczbMia1tLmq2poQiNXU2xnkV4S4gK9bS6Kz...",
@@ -333,7 +353,7 @@
                           {
                             "type": "invalid_value",
                             "field": "walletType",
-                            "message": "Must be standard or crossmint"
+                            "message": "Must be self or managed"
                           }
                         ]
                       }
@@ -435,11 +455,11 @@
                       "message": "Invalid response from QuickNode IPFS - missing CID"
                     }
                   },
-                  "crossmint-error": {
-                    "summary": "Crossmint Transaction Failed",
+                  "managed-error": {
+                    "summary": "Managed Transaction Failed",
                     "value": {
                       "error": true,
-                      "message": "Crossmint wallet transaction failed: Insufficient funds for transaction"
+                      "message": "Managed wallet transaction failed: Insufficient funds for transaction"
                     }
                   },
                   "general-server-error": {
@@ -1681,8 +1701,8 @@
           "walletType": {
             "type": "string",
             "description": "Wallet provider type",
-            "enum": ["standard", "crossmint"],
-            "example": "crossmint"
+            "enum": ["self", "managed"],
+            "example": "managed"
           },
           "contentHash": {
             "type": "string",
@@ -1719,11 +1739,17 @@
             "description": "SHA256 hash for secret verification (hex encoded)",
             "pattern": "^[a-fA-F0-9]{64}$",
             "example": "110f211f367825834d6897c0efd0b05b35adb744a5836dcd478d384d2a938f15"
+          },
+          "returnActionLink": {
+            "type": "boolean",
+            "description": "Return an action link for transaction signing (self wallets only). When true, instead of returning the raw transaction, an action link is generated for secure browser-based signing.",
+            "example": true,
+            "default": false
           }
         },
         "required": ["contentTitle", "walletAddress", "walletType", "contentHash"]
       },
-      "RegisterFileCrossmintResponse": {
+      "RegisterFileManagedResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -1732,7 +1758,7 @@
           },
           "details": {
             "type": "object",
-            "description": "Confirmed transaction details for Crossmint wallets",
+            "description": "Confirmed transaction details for managed wallets",
             "properties": {
               "status": {
                 "type": "string",
@@ -1765,7 +1791,7 @@
         },
         "required": ["message", "details"]
       },
-      "RegisterFileStandardResponse": {
+      "RegisterFileSelfResponse": {
         "type": "object",
         "properties": {
           "message": {
@@ -1774,7 +1800,7 @@
           },
           "details": {
             "type": "object",
-            "description": "Transaction preparation details for standard wallets",
+            "description": "Transaction preparation details for self wallets",
             "properties": {
               "status": {
                 "type": "string",
@@ -1799,6 +1825,49 @@
               }
             },
             "required": ["status", "transaction", "ipfsCid", "contentRegistrationPDA", "contentHash"]
+          }
+        },
+        "required": ["message", "details"]
+      },
+      "RegisterFileActionLinkResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message for action link creation"
+          },
+          "details": {
+            "type": "object",
+            "description": "Action link details for secure transaction signing",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": ["action-link-created"],
+                "description": "Transaction status"
+              },
+              "actionLink": {
+                "type": "string",
+                "description": "Secure URL for transaction signing via browser wallet",
+                "example": "http://trustengine.org/tx-action/abc123def456789"
+              },
+              "token": {
+                "type": "string",
+                "description": "Unique token for database lookup",
+                "example": "abc123def456789"
+              },
+              "expiresAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Expiration timestamp for the action link (ISO 8601)",
+                "example": "2024-01-25T15:30:00.000Z"
+              },
+              "contentHash": {
+                "type": "string",
+                "description": "SHA256 hash of the registered file",
+                "example": "a7b2c3d4e5f6789abcdef0123456789abcdef0123456789abcdef0123456789"
+              }
+            },
+            "required": ["status", "actionLink", "token", "expiresAt", "contentHash"]
           }
         },
         "required": ["message", "details"]

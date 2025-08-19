@@ -17,7 +17,8 @@ trust-engine-cli register [options]
 | `-f, --file <path>`           | Path to the file to register                     |
 | `-t, --contentTitle <title>`  | Title for the content being registered          |
 | `-w, --walletAddress <address>` | User wallet address (Solana public key)       |
-| `-y, --walletType <type>`     | Wallet type: 'standard' or 'crossmint'          |
+| `-y, --walletType <type>`     | Wallet type: 'self' or 'managed'          |
+| `-r, --returnActionLink`      | Return an action link for transaction signing (self wallets only) |
 | `-m, --metadata <text>`       | Public metadata as a string (optional)          |
 | `-s, --secret <text>`         | Optional raw text secret for claim hash generation |
 | `--json`                      | Output the result as JSON                        |
@@ -31,7 +32,7 @@ trust-engine-cli register \
   --file ./document.pdf \
   --contentTitle "Important Legal Document" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --walletType "crossmint"
+  --walletType "managed"
 ```
 
 After running the command, you'll see registration details:
@@ -48,10 +49,41 @@ Registration Details:
   - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
 ```
 
-If the registration requires client-side signing, you'll see:
+If you're using a self wallet, you have two options for signing:
+
+### Option 1: Action Link (Recommended)
+Use the `--returnActionLink` flag to get a secure web page for signing:
+
+```bash
+trust-engine-cli register \
+  --file ./document.pdf \
+  --contentTitle "Important Legal Document" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "self" \
+  --returnActionLink
+```
+
+This will return an action link:
 
 ```
-✅ Registration prepared. Please sign the transaction.
+✅ Transaction prepared and action link created. Use the link to sign the transaction.
+
+Registration Details:
+  - Status: action-link-created
+  - Action Link: http://trustengine.org/tx-action/abc123def456789
+  - Token: abc123def456789
+  - Expires At: 2024-01-25T15:30:00.000Z
+  - Visit the action link to sign the transaction via your browser wallet.
+  - Content Hash: abc123def456789ghi012jkl345mno678pqr901
+```
+
+Simply visit the action link in your browser and click "Sign" to complete the registration using your wallet (Phantom, Solflare, etc.).
+
+### Option 2: Manual Transaction Handling
+Without the `--returnActionLink` flag, you'll get the raw transaction:
+
+```
+✅ Transaction prepared and pre-signed. Please sign and submit via your wallet.
 
 Registration Details:
   - Status: requires-client-signature
@@ -70,29 +102,72 @@ trust-engine-cli register \
   --file ./contract.pdf \
   --contentTitle "Confidential Contract" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --walletType "crossmint" \
+  --walletType "managed" \
   --metadata "type:contract,department:legal" \
   --secret "my_secret_verification_phrase"
+```
+
+For self wallets with action links:
+
+```bash
+trust-engine-cli register \
+  --file ./contract.pdf \
+  --contentTitle "Confidential Contract" \
+  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "self" \
+  --metadata "type:contract,department:legal" \
+  --secret "my_secret_verification_phrase" \
+  --returnActionLink
 ```
 
 For automation purposes, use the JSON output:
 
 ```bash
-trust-engine-cli register --file ./data.csv --contentTitle "Research Data" --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" --walletType "crossmint" --json
+trust-engine-cli register --file ./data.csv --contentTitle "Research Data" --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" --walletType "managed" --json
 ```
 
-This will return:
+**Managed wallets** return completed transactions:
 
 ```json
 {
-  "message": "File registered successfully on the blockchain.",
+  "message": "✅ Success! Your file has been registered and confirmed on-chain.",
   "details": {
-    "status": "completed",
+    "status": "confirmed",
     "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
     "contentRegistrationPDA": "xyz789abc123def456ghi789",
     "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
     "ipfsCid": "QmExampleCidForYourFileMetadata123",
-    "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+    "explorerUrl": "https://explorer.solana.com/tx/xyz789abc123def456ghi789?cluster=devnet"
+  }
+}
+```
+
+**Self wallets with action links** return:
+
+```json
+{
+  "message": "Transaction prepared and action link created. Use the link to sign the transaction.",
+  "details": {
+    "status": "action-link-created",
+    "actionLink": "http://trustengine.org/tx-action/abc123def456789",
+    "token": "abc123def456789",
+    "expiresAt": "2024-01-25T15:30:00.000Z",
+    "contentHash": "abc123def456789ghi012jkl345mno678pqr901"
+  }
+}
+```
+
+**Self wallets without action links** return unsigned transactions:
+
+```json
+{
+  "message": "Transaction prepared and pre-signed. Please sign and submit via your wallet.",
+  "details": {
+    "status": "requires-client-signature",
+    "transaction": "eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...",
+    "ipfsCid": "QmExampleCidForYourFileMetadata123",
+    "contentRegistrationPDA": "xyz789abc123def456ghi789",
+    "contentHash": "abc123def456789ghi012jkl345mno678pqr901"
   }
 }
 ```

@@ -47,12 +47,23 @@ export default function FileRegistrar() {
     if (!file) return;
     setIsRegistering(true);
     try {
+      // Option 1: Managed wallets (automatic signing)
       const registrationResult = await sdk.registerFile({
         file,
         contentTitle: "My Awesome Document",
         walletAddress: "YourWalletAddressGoesHere",
-        walletType: "crossmint"
+        walletType: "managed"
       });
+      
+      // Option 2: Self wallets with action link (recommended)
+      // const registrationResult = await sdk.registerFile({
+      //   file,
+      //   contentTitle: "My Awesome Document", 
+      //   walletAddress: "YourWalletAddressGoesHere",
+      //   walletType: "self",
+      //   returnActionLink: true
+      // });
+      
       setResult(registrationResult);
     } catch (error) {
       console.error('❌ Registration failed:', error.message);
@@ -67,7 +78,18 @@ export default function FileRegistrar() {
       <button onClick={handleRegister} disabled={!file || isRegistering}>
         {isRegistering ? 'Registering...' : 'Register File'}
       </button>
-      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
+      {result && (
+        <div>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+          {result.details?.actionLink && (
+            <p>
+              <a href={result.details.actionLink} target="_blank" rel="noopener noreferrer">
+                Open Action Link to Sign Transaction
+              </a>
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -84,16 +106,33 @@ async function registerDocument() {
     const fileContent = await fs.readFile('path/to/your/file.txt');
     const file = new File([fileContent], 'file.txt');
     
+    // Option 1: Managed wallets (automatic signing)
     const result = await sdk.registerFile({
       file: file,
       contentTitle: "My Awesome Document",
       walletAddress: "YourWalletAddressGoesHere",
-      walletType: "crossmint"
+      walletType: "managed"
     });
     
+    // Option 2: Self wallets with action link
+    // const result = await sdk.registerFile({
+    //   file: file,
+    //   contentTitle: "My Awesome Document",
+    //   walletAddress: "YourWalletAddressGoesHere", 
+    //   walletType: "self",
+    //   returnActionLink: true
+    // });
+    
     console.log('✅ Registration successful!');
-    console.log('Transaction ID:', result.details.transactionSignature);
-    console.log('IPFS CID:', result.details.ipfsCid);
+    
+    if (result.details.status === 'confirmed') {
+      console.log('Transaction ID:', result.details.transactionSignature);
+      console.log('IPFS CID:', result.details.ipfsCid);
+    } else if (result.details.status === 'action-link-created') {
+      console.log('Action Link:', result.details.actionLink);
+      console.log('Expires At:', result.details.expiresAt);
+      console.log('Visit the action link to sign the transaction');
+    }
     
     return result;
   } catch (error) {
@@ -105,3 +144,60 @@ async function registerDocument() {
 registerDocument();
 ```
 </CodeGroup>
+
+## Wallet Types and Response Patterns
+
+The `registerFile` function behaves differently based on the `walletType` and `returnActionLink` parameters:
+
+### Managed Wallets
+When using `walletType: "managed"`, transactions are automatically signed and submitted. The response includes a confirmed transaction:
+
+```typescript
+{
+  message: "✅ Success! Your file has been registered and confirmed on-chain.",
+  details: {
+    status: "confirmed",
+    transactionSignature: "...",
+    contentRegistrationPDA: "...",
+    contentHash: "...",
+    ipfsCid: "...",
+    explorerUrl: "..."
+  }
+}
+```
+
+### Self Wallets with Action Link (Recommended)
+When using `walletType: "self"` with `returnActionLink: true`, you receive a secure web page link for transaction signing:
+
+```typescript
+{
+  message: "Transaction prepared and action link created. Use the link to sign the transaction.",
+  details: {
+    status: "action-link-created",
+    actionLink: "http://trustengine.org/tx-action/abc123def456789",
+    token: "abc123def456789", 
+    expiresAt: "2024-01-25T15:30:00.000Z",
+    contentHash: "..."
+  }
+}
+```
+
+Users can visit the `actionLink` to sign the transaction with their wallet (Phantom, Solflare, etc.) in a secure browser environment.
+
+### Self Wallets without Action Link
+When using `walletType: "self"` without `returnActionLink` (or `returnActionLink: false`), you receive the raw unsigned transaction:
+
+```typescript
+{
+  message: "Transaction prepared and pre-signed. Please sign and submit via your wallet.",
+  details: {
+    status: "requires-client-signature",
+    transaction: "eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...",
+    ipfsCid: "...",
+    contentRegistrationPDA: "...",
+    contentHash: "..."
+  }
+}
+```
+
+You'll need to handle transaction signing and submission manually using the `/transactions` endpoint or the `submitTransaction` SDK method.

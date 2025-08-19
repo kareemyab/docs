@@ -2,7 +2,7 @@
 
 > Create a new wallet for a user
 
-The create-wallet command allows you to create a new Crossmint wallet for a user in the Trust Engine system. Each user should only run this command **once** and reuse the generated wallet for all future operations.
+The create-wallet command allows you to create a new managed wallet for a user in the Trust Engine system. Each user should only run this command **once** and reuse the generated wallet for all future operations.
 
 To use it, run the following command from your terminal
 
@@ -28,7 +28,7 @@ trust-engine-cli create-wallet --userID "user_12345"
 After running the command, you'll see a confirmation message with wallet details:
 
 ```
-✅ Success! Your Crossmint wallet has been created and linked to your user ID.
+✅ Success! Your managed wallet has been created and linked to your user ID.
 
 Wallet Details:
   - User ID: user_12345
@@ -48,7 +48,7 @@ This will return:
 
 ```json
 {
-  "message": "Success! Your Crossmint wallet has been created and linked to your user ID.",
+  "message": "Success! Your managed wallet has been created and linked to your user ID.",
   "details": {
     "userID": "user_12345",
     "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
