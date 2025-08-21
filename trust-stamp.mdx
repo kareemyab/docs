@@ -50,7 +50,7 @@ Add this single script tag to your website's `<head>` section or before the clos
 <CodeGroup>
 ```html HTML
 <script
-  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
+  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"
 ></script>
 ```
 
@@ -62,7 +62,7 @@ export default function Layout({ children }) {
     <html>
       <head>
         <Script
-          src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
+          src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"
           data-api-base-url="https://core-api-server.onrender.com"
           data-enabled-elements='["img","video","audio"]'
           data-badge-position="bottom-right"
@@ -91,7 +91,7 @@ export default function Layout({ children }) {
 export default {
   mounted() {
     const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js";
+    script.src = "https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js";
     script.setAttribute('data-api-base-url', 'https://core-api-server.onrender.com');
     script.setAttribute('data-enabled-elements', '["img","video","audio"]');
     script.setAttribute('data-badge-position', 'bottom-right');
@@ -117,7 +117,7 @@ The widget can be configured in two ways:
 
 ```html
 <script
-  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
+  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"
   data-api-base-url="https://core-api-server.onrender.com"
   data-enabled-elements='["img","video","audio"]'
   data-badge-position="bottom-right"
@@ -150,7 +150,7 @@ The widget can be configured in two ways:
     debug: false         
   };
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"></script>
 ```
 
 ### Configuration Details
