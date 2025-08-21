@@ -240,58 +240,6 @@ The response from registering a file. This can vary depending on whether the wal
 
 ---
 
-## `getValidatorData`
-
-### Options
-
-<ResponseField name="walletAddress" type="string" required>
-  The validator's wallet address.
-</ResponseField>
-
-### Response
-
-<ResponseField name="message" type="string">
-  A success message.
-</ResponseField>
-
-<ResponseField name="details" type="object">
-  An object containing the validator data.
-  <Expandable>
-    <ResponseField name="validatorAddress" type="string">
-      The validator's wallet address.
-    </ResponseField>
-    <ResponseField name="validatorPDA" type="string">
-      The Program Derived Address for the validator.
-    </ResponseField>
-    <ResponseField name="stakedAmount" type="number">
-      The amount staked by the validator.
-    </ResponseField>
-    <ResponseField name="reputationScore" type="number">
-      The validator's reputation score.
-    </ResponseField>
-    <ResponseField name="totalVotes" type="number">
-      Total number of votes cast by the validator.
-    </ResponseField>
-    <ResponseField name="honestVotes" type="number">
-      Number of honest votes cast by the validator.
-    </ResponseField>
-    <ResponseField name="dishonestVotes" type="number">
-      Number of dishonest votes cast by the validator.
-    </ResponseField>
-    <ResponseField name="accuracyPercentage" type="number">
-      The validator's accuracy percentage.
-    </ResponseField>
-    <ResponseField name="lastActiveTime" type="number">
-      Unix timestamp of the validator's last activity.
-    </ResponseField>
-    <ResponseField name="lastActiveDate" type="string">
-      ISO timestamp of the validator's last activity.
-    </ResponseField>
-  </Expandable>
-</ResponseField>
-
----
-
 ## `submitTransaction`
 
 ### Options

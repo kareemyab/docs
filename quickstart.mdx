@@ -263,14 +263,92 @@ trust-engine-cli search-file \
       "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
       "userID": "user_123456789",
       "timestamp": "2024-01-15T14:30:25.000Z",
-      "validationStatus": "Verified",
-      "consensus": "85%",
       "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
       "onChainData": { /* Raw blockchain data */ }
     }
   ]
 }
 ```
+
+---
+
+## Step 5: Add TRUST Stamp Widget (Optional)
+
+Now that you have registered content, you can add the TRUST Stamp widget to automatically display verification badges on your website:
+
+<CodeGroup>
+```html Basic Implementation
+<script
+  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
+  data-api-base-url="https://core-api-server.onrender.com"
+  data-enabled-elements='["img","video","audio"]'
+  data-badge-position="bottom-right"
+  data-theme="light"
+  data-auto-scan="true"
+  data-observe-dynamic-content="true"
+  data-show-tooltip="true"
+  data-debug="false"
+></script>
+```
+
+```jsx React / Next.js
+import Script from 'next/script';
+
+export default function Layout({ children }) {
+  return (
+    <html>
+      <head>
+        <Script
+          src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
+          data-api-base-url="https://core-api-server.onrender.com"
+          data-enabled-elements='["img","video","audio"]'
+          data-badge-position="bottom-right"
+          data-theme="light"
+          data-auto-scan="true"
+          data-observe-dynamic-content="true"
+          data-show-tooltip="true"
+          data-debug="false"
+          strategy="afterInteractive"
+        />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+```vue Vue.js
+<template>
+  <div id="app">
+    <!-- Your app content -->
+  </div>
+</template>
+
+<script>
+export default {
+  mounted() {
+    const script = document.createElement('script');
+    script.src = "https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js";
+    script.setAttribute('data-api-base-url', 'https://core-api-server.onrender.com');
+    script.setAttribute('data-enabled-elements', '["img","video","audio"]');
+    script.setAttribute('data-badge-position', 'bottom-right');
+    script.setAttribute('data-theme', 'light');
+    script.setAttribute('data-auto-scan', 'true');
+    script.setAttribute('data-observe-dynamic-content', 'true');
+    script.setAttribute('data-show-tooltip', 'true');
+    script.setAttribute('data-debug', 'false');
+    document.head.appendChild(script);
+  }
+}
+</script>
+```
+</CodeGroup>
+
+The widget will automatically scan your website for media files and display verification badges on any registered content. When visitors click these badges, they'll see the complete provenance and registration details from your Trust Engine registration.
+
+<Info>
+**Complete Integration**: For more configuration options and detailed documentation, visit the [TRUST Stamp Widget](/trust-stamp) page.
+</Info>
 
 ---
 
@@ -285,7 +363,11 @@ trust-engine-cli search-file \
     Use our JavaScript/TypeScript SDK for easier integration
   </Card>
   
-  <Card title="CLI Documentaiton" icon="gear" href="/guides/advanced-features">
+  <Card title="CLI Documentation" icon="gear" href="/cli-reference">
     Use our CLI for easy interaction with our server
+  </Card>
+  
+  <Card title="TRUST Stamp Widget" icon="stamp" href="/trust-stamp">
+    Automatically display verification badges on your website
   </Card>
 </CardGroup>
