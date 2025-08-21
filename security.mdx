@@ -17,10 +17,7 @@ Trust Engine minimizes centralized data retention and uses cryptographic proofs 
   <Card title="Cryptographic Integrity" icon="key">
     SHA-256 is used for content fingerprinting and integrity verification
   </Card>
-  
-  <Card title="Decentralized Trust" icon="network-wired">
-    Verification outcomes are finalized via validator consensus with a two-thirds threshold (≥66.67%)
-  </Card>
+
   
   <Card title="Immutable Records" icon="lock">
     On-chain records prevent retroactive tampering of provenance data
@@ -42,7 +39,7 @@ Used for file identity and integrity checks throughout Trust Engine.
 
 ### Digital Signatures
 
-**Ed25519** (Solana self) for transactions and validator attestations:
+**Ed25519** (Solana self) for transactions:
 - **Authentication**: Proves identity of the signer
 - **Non-repudiation**: Signer cannot deny having signed
 - **Integrity**: Detects any message tampering
@@ -105,13 +102,3 @@ Used for file identity and integrity checks throughout Trust Engine.
 </Warning>
 
 **Planned**: Third-party audits, expanded test coverage, formal verification for critical paths.
-
----
-
-## Validator Network Security
-
-**PoV mechanism**: Validators attest to verification outcomes; finalization requires a two-thirds supermajority (≥66.67%).
-
-<Info>
-**Planned**: Slashing/economic penalties, richer reputation weighting, dispute/appeal rounds
-</Info>
