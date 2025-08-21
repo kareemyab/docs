@@ -59,12 +59,6 @@
             ]
           },
           {
-            "group": "Validators",
-            "pages": [
-              "essentials/validators-data"
-            ]
-          },
-          {
             "group": "Server",
             "pages": [
               "essentials/health"
@@ -123,12 +117,6 @@
             "pages": [
               "cli-reference/register",
               "cli-reference/search-file"
-            ]
-          },
-          {
-            "group": "Advanced",
-            "pages": [
-              "cli-reference/get-validator-data"
             ]
           }
         ]

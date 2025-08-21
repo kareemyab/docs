@@ -11,7 +11,7 @@ icon: 'rocket'
 
 
 
-## Step 1: Health Check
+## (Optional) Step 0: Health Check
 
 First, let's make sure the Trust Engine API is operational:
 
@@ -44,7 +44,10 @@ print(response.json())
 
 ---
 
-## Step 2: Create Your Wallet
+## Step 1: Create Your Wallet
+<Warning>
+**⚠️ ONE-TIME OPERATION**: This step should only be performed **once per user**. The generated wallet will be used for **all your future file registrations**. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
+</Warning>
 
 Create a managed wallet that will own your registered files:
 
@@ -70,10 +73,6 @@ trust-engine-cli create-wallet \
 ```
 </CodeGroup>
 
-<Warning>
-**⚠️ ONE-TIME OPERATION**: This wallet creation step should only be performed **once per user**. The managed wallet that gets generated will be used for **all future file registrations** by this user. Save the `walletAddress` from the response and reuse it for subsequent registrations instead of creating new wallets. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
-</Warning>
-
 **Expected Response:**
 ```json
 {
@@ -88,11 +87,19 @@ trust-engine-cli create-wallet \
 }
 ```
 
-**Save the wallet address** from the response - you'll need it for the next step!
+**💾 SAVE THIS INFORMATION**: Copy the `walletAddress` from the response and save it in a text file or notepad. You'll need to paste this exact address into Step 4 to register your file!
+
+<Tip>
+**Recommended**: Create a file called `trust-engine-info.txt` and save:
+```
+Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
+User ID: my-unique-id-123
+```
+</Tip>
 
 ---
 
-## Step 3: Prepare Your File
+## Step 2: Prepare Your File
 
 For this example, let's register a simple text file. Create the file first:
 
@@ -108,6 +115,11 @@ shasum -a 256 example.txt
 # Get file size
 wc -c < example.txt
 # Output: 21
+
+# 💾 SAVE THE HASH: Copy the hash value for Step 4!
+# Add this to your trust-engine-info.txt:
+# File Hash: a7b2c3d4e5f6...
+# File Size: 21
 ```
 
 ```javascript JavaScript (SDK)
@@ -131,11 +143,20 @@ ls -la example.txt
 ```
 </CodeGroup>
 
+<Info>
+**💾 IMPORTANT**: If using cURL method, copy the hash value (the long string before `example.txt`) to your `trust-engine-info.txt` file. You'll need this exact hash for Step 4. For SDK/CLI users, this is handled automatically.
+</Info>
+
 ---
 
-## Step 4: Register Your File
+## Step 3: Register Your File
 
-Now register your file using the wallet from Step 2:
+Now we'll combine everything from the previous steps to register your file on the blockchain. You'll need:
+- **Wallet Address** from Step 2
+- **File Hash** from Step 3  
+- **File Size** from Step 3
+
+Replace the placeholder values below with your actual data:
 
 <CodeGroup>
 ```bash cURL
@@ -143,12 +164,12 @@ curl -X POST https://core-api-server.onrender.com/register \
   -H "Content-Type: application/json" \
   -d '{
     "contentTitle": "My First Registration",
-    "walletAddress": "YOUR_WALLET_ADDRESS_HERE",
+    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2",
     "walletType": "managed",
-    "contentHash": "a7b2c3d4e5f6789abcdef...",
+    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3",
     "fileMetadata": {
       "fileName": "example.txt",
-      "fileSize": 21,
+      "fileSize": YOUR_FILE_SIZE_FROM_STEP_3,
       "mimeType": "text/plain"
     },
     "metadata": "Quickstart tutorial example"
@@ -168,11 +189,11 @@ console.log('File registered!', registration);
 ```
 
 ```bash CLI
-# Register the file (replace YOUR_WALLET_ADDRESS with actual address)
+# Register the file (replace with your wallet address from Step 2)
 trust-engine-cli register \
   --file example.txt \
   --contentTitle "My First Registration" \
-  --walletAddress "YOUR_WALLET_ADDRESS_HERE" \
+  --walletAddress "YOUR_WALLET_ADDRESS_FROM_STEP_2" \
   --walletType "managed" \
   --metadata "Quickstart tutorial example"
 ```
@@ -198,17 +219,17 @@ trust-engine-cli register \
 
 ---
 
-## Step 5: Verify Your Registration
+## Step 4: Verify Your Registration
 
-Search for your registered file to confirm it's in the system:
+Search for your registered file to confirm it's in the system. Use the same **file hash** and **wallet address** from previous steps:
 
 <CodeGroup>
 ```bash cURL
 curl -X POST https://core-api-server.onrender.com/search \
   -H "Content-Type: application/json" \
   -d '{
-    "contentHash": "a7b2c3d4e5f6789abcdef...", 
-    "walletAddress": "0x139dn9ndi9nf9h3b9rb33igji3b3"
+    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3", 
+    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2"
   }'
 ```
 
@@ -253,15 +274,6 @@ trust-engine-cli search-file \
 
 ---
 
-## Understanding Your Results
-
-- **`finalized: false`**: Your file is registered but validators are still verifying it
-- **`consensusPercentage: 0`**: Verification is in progress (will show percentage when validators vote)
-- **`pdaAddress`**: Your unique on-chain record address
-- **`ipfsCid`**: Metadata stored on IPFS
-
----
-
 ## What's Next?
 
 <CardGroup cols={2}>
@@ -277,7 +289,3 @@ trust-engine-cli search-file \
     Use our CLI for easy interaction with our server
   </Card>
 </CardGroup>
-
-<Tip>
-**Pro Tip**: Save your wallet address, and file, for future reference. These allow you to find your exact record in our registry.
-</Tip>

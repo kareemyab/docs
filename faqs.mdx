@@ -39,7 +39,6 @@ icon: 'circle-question'
 
     **Trust Engine's impact for creators, developers, verifiers, and consumers:**
     - ✅ Directly cryptographically proves registration and attribution—every record is impossible to edit, erase, or forge
-    - ✅ Open, decentralized validator network means nobody (not even us) can rewrite history or exclude participants
     - ✅ Digital media privacy is preserved by default; only hashes and provenance proofs are published, never private media
     - ✅ Provenance info and trust signals travel with your digital media piece anywhere online—empowering platforms, consumers and creators regardless of where or how their work is shared
   </Accordion>
@@ -79,29 +78,6 @@ icon: 'circle-question'
 
   </Accordion>
 
-  <Accordion title="What if validators disagree on a file?">
-    Trust Engine uses **Proof of Verification (PoV)** with a two-thirds supermajority consensus threshold:
-
-    **Consensus Rules:**
-    - **≥66.67% approval** (two-thirds): File verification **PASSES** (finalized on-chain)
-    - **&lt;66.67% approval** after voting window: File verification **FAILS**
-    - **No/insufficient votes yet**: Status remains **PENDING** until window closes or threshold is reached
-
-    **Why validators might disagree:**
-    - File corruption or mismatch during upload/download
-    - Temporary network or retrieval issues
-    - Suspicious or manipulated media
-    - Validator-side technical errors during verification
-
-    **Resolution:**
-    - Once the threshold is met, the decision is finalized and recorded immutably on-chain
-    - The registry UI shows vote breakdown and consensus percentage
-    - You can resubmit a corrected asset (new digital media hash) if consensus failed previously
-
-    <Tip>
-    The two-thirds threshold (≥66.67%) is the canonical rule from our whitepaper, ensuring robust consensus while preventing deadlock scenarios.
-    </Tip>
-  </Accordion>
 </AccordionGroup>
 
 ---
@@ -141,11 +117,6 @@ icon: 'circle-question'
     - File is transmitted to our secure processing service to compute a cryptographic hash and pin to IPFS
     - We store only the hash, user-supplied metadata, the IPFS CID(s), and related on-chain references
     - The original file bytes are discarded after processing; we do not keep a centralized copy
-
-    **During verification:**
-    - Validators operate on cryptographic hashes/CIDs and on-chain records to determine consensus
-    - The protocol does not allow verifiers to retain your raw media. They may check IPFS availability and metadata for verification; fetching full media is not required in self flows
-    - Because IPFS is public content-addressed storage, anyone with the CID can retrieve the file. We do not gate or re-host it centrally
 
     **Privacy tips:**
     - Don't include sensitive PII in public metadata unless you intend to disclose it
@@ -193,7 +164,7 @@ icon: 'circle-question'
 
     **Privacy note:**
     - **Registry UI flow**: The file is not uploaded to our servers; hashing happens locally
-    - **API flow**: The file is used transiently to compute the hash and is then discarded; it's not sent to validators as part of search
+    - **API flow**: The file is used transiently to compute the hash and is then discarded
   </Accordion>
 </AccordionGroup>
 
@@ -242,8 +213,6 @@ icon: 'circle-question'
     
     **Process**:
     1. **Instant**: Registration written to blockchain
-    2. **0-5 minutes**: Validators assigned to review
-    3. **5-15 minutes**: Validators submit votes and reach consensus
     
     **Check status**: Use `/search` endpoint to poll verification progress
     
@@ -269,7 +238,6 @@ icon: 'circle-question'
     
     - **General endpoints**: 100 requests per 15 minutes
     - **File registration**: 10 requests per hour  
-    - **Validator data**: 50 requests per 5 minutes
     
     **Handling rate limits**:
     ```javascript
