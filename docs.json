@@ -63,6 +63,12 @@
             "pages": [
               "essentials/health"
             ]
+          },
+          {
+            "group": "Frontend Integration",
+            "pages": [
+              "trust-stamp"
+            ]
           }
         ]
       },
@@ -92,6 +98,12 @@
             "pages": [
               "sdk-reference/types"
             ]
+          },
+          {
+            "group": "Frontend Integration",
+            "pages": [
+              "trust-stamp"
+            ]
           }
         ]
       },
@@ -117,6 +129,12 @@
             "pages": [
               "cli-reference/register",
               "cli-reference/search-file"
+            ]
+          },
+          {
+            "group": "Frontend Integration",
+            "pages": [
+              "trust-stamp"
             ]
           }
         ]

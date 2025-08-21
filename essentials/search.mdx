@@ -15,13 +15,13 @@ openapi: 'POST /search'
     Queries the Solana blockchain for matching content registration records
   </Step>
   <Step title="Data Enrichment">
-    Fetches complete registration details and current validation status
+    Fetches complete registration details and metadata
   </Step>
   <Step title="User Lookup">
     Attempts to find associated user IDs for the file creators
   </Step>
   <Step title="Result Formatting">
-    Returns comprehensive registration information with validation status
+    Returns comprehensive registration information and metadata
   </Step>
 </Steps>
 
@@ -35,14 +35,7 @@ openapi: 'POST /search'
 
 ---
 
-## Understanding Validation Status
 
-<Info>
-**Validation Status Values:**
-- **"Verified"**: File passed validation with ≥67% consensus
-- **"Pending Verification"**: Validation still in progress
-- **"Rejected"**: File failed validation with &lt;67% consensus
-</Info>
 
 <Tip>
 **Pro Tip**: Use the `walletAddress` parameter to find specific registrations when multiple users have registered the same file.

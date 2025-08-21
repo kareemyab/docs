@@ -546,8 +546,6 @@
                           "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
                           "userID": "user_123456789",
                           "timestamp": "2024-01-15T14:30:25.000Z",
-                          "validationStatus": "Verified",
-                          "consensus": "85%",
                           "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
                           "onChainData": {}
                         }
@@ -572,8 +570,6 @@
                           "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
                           "userID": "user_123456789",
                           "timestamp": "2024-01-15T14:30:25.000Z",
-                          "validationStatus": "Verified",
-                          "consensus": "85%",
                           "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
                           "onChainData": {}
                         }
@@ -1405,15 +1401,7 @@
             "format": "date-time",
             "description": "ISO timestamp when file was registered"
           },
-          "validationStatus": {
-            "type": "string",
-            "enum": ["Verified", "Pending Verification"],
-            "description": "Current validation status"
-          },
-          "consensus": {
-            "type": "string",
-            "description": "Consensus percentage from validators or 'Pending'"
-          },
+
           "explorerUrl": {
             "type": "string",
             "description": "Link to view on Solana Explorer"
@@ -1423,7 +1411,7 @@
             "description": "Raw blockchain data"
           }
         },
-        "required": ["contentHash", "pdaAddress", "ipfsCid", "registeredBy", "userID", "timestamp", "validationStatus", "consensus", "explorerUrl", "onChainData"]
+        "required": ["contentHash", "pdaAddress", "ipfsCid", "registeredBy", "userID", "timestamp", "explorerUrl", "onChainData"]
       },
       "SearchValidationErrorResponse": {
         "type": "object",
@@ -2244,151 +2232,7 @@
         },
         "required": ["error", "message", "details"]
       },
-      "ValidatorDataRequest": {
-        "type": "object",
-        "properties": {
-          "walletAddress": {
-            "type": "string",
-            "description": "Validator's wallet address to retrieve data for",
-            "pattern": "^[1-9A-HJ-NP-Za-km-z]{32,44}$",
-            "example": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-          }
-        },
-        "required": ["walletAddress"]
-      },
-      "ValidatorDataResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "description": "Success confirmation message"
-          },
-          "details": {
-            "type": "object",
-            "description": "Comprehensive validator information",
-            "properties": {
-              "validatorAddress": {
-                "type": "string",
-                "description": "The validator's wallet address"
-              },
-              "validatorPDA": {
-                "type": "string",
-                "description": "Program Derived Address for the validator record"
-              },
-              "stakedAmount": {
-                "type": "number",
-                "description": "Total amount staked by the validator"
-              },
-              "reputationScore": {
-                "type": "number",
-                "description": "Current reputation score based on performance"
-              },
-              "totalVotes": {
-                "type": "number",
-                "description": "Total number of validation votes cast"
-              },
-              "honestVotes": {
-                "type": "number",
-                "description": "Number of honest/correct validation votes"
-              },
-              "dishonestVotes": {
-                "type": "number",
-                "description": "Number of dishonest/incorrect validation votes"
-              },
-              "accuracyPercentage": {
-                "type": "number",
-                "description": "Calculated accuracy percentage (honestVotes/totalVotes * 100)"
-              },
-              "lastActiveTime": {
-                "type": "number",
-                "description": "Unix timestamp of last validator activity"
-              },
-              "lastActiveDate": {
-                "type": "string",
-                "description": "Human-readable date of last activity or 'Never'"
-              }
-            },
-            "required": ["validatorAddress", "validatorPDA", "stakedAmount", "reputationScore", "totalVotes", "honestVotes", "dishonestVotes", "accuracyPercentage", "lastActiveTime", "lastActiveDate"]
-          }
-        },
-        "required": ["message", "details"]
-      },
-      "ValidatorDataValidationErrorResponse": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "boolean",
-            "example": true
-          },
-          "message": {
-            "type": "string",
-            "description": "Error message describing validation failure"
-          },
-          "details": {
-            "type": "object",
-            "properties": {
-              "validationErrors": {
-                "type": "array",
-                "items": {
-                  "type": "object",
-                  "properties": {
-                    "type": {
-                      "type": "string",
-                      "enum": ["missing_fields", "invalid_types", "invalid_format"]
-                    },
-                    "fields": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "field": {
-                      "type": "string"
-                    },
-                    "message": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            },
-            "required": ["validationErrors"]
-          }
-        },
-        "required": ["error", "message", "details"]
-      },
-      "ValidatorDataNotFoundResponse": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "type": "boolean",
-            "example": true
-          },
-          "message": {
-            "type": "string",
-            "description": "Error message indicating validator account not found"
-          },
-          "details": {
-            "type": "object",
-            "properties": {
-              "walletAddress": {
-                "type": "string",
-                "description": "The wallet address that was searched for"
-              },
-              "expectedPDA": {
-                "type": "string",
-                "description": "The expected Program Derived Address for the validator"
-              },
-              "suggestion": {
-                "type": "string",
-                "description": "Suggestion for resolving the issue"
-              }
-            },
-            "required": ["walletAddress", "expectedPDA", "suggestion"]
-          }
-        },
-        "required": ["error", "message", "details"]
-      },
+
 
       "Health": {
         "type": "object",

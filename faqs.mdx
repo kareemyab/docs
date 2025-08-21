@@ -23,7 +23,7 @@ icon: 'circle-question'
   <Accordion title="What problem does Trust Engine solve?">
     Trust Engine solves the growing problem of verifying digital media authenticity in an era of AI-generated media. With deepfake fraud costing businesses an average of \$500,000 per incident ([Regula, 2024](https://regulaforensics.com/blog/impact-of-deepfakes-on-idv-regula-survey/); [Eftsure, 2025](https://www.eftsure.com/statistics/deepfake-statistics/)) and global damages potentially exceeding \$40 billion ([Deloitte, 2024](https://www.deloitte.com/us/en/insights/industry/financial-services/deepfake-banking-fraud-risk-on-the-rise.html)), **consumers and platforms need a reliable way to verify who created digital media.**
 
-    Unlike watermarks (which can be removed) or centralized databases (which create single points of failure), Trust Engine provides you the ability to record tamper-proof provenance records for your digital media. The provenance record is verified by our decentralized network of verifiers. Media consumers can instantly confirm a digital media piece's origin through our public registry system.
+    Unlike watermarks (which can be removed) or centralized databases (which create single points of failure), Trust Engine provides you the ability to record tamper-proof provenance records for your digital media. The provenance record is cryptographically secured on the blockchain. Media consumers can instantly confirm a digital media piece's origin through our public registry system.
   </Accordion>
 
   <Accordion title="How does Trust Engine deliver stronger provenance than watermarks and manifests?">
@@ -37,7 +37,7 @@ icon: 'circle-question'
     - ❌ History is only as reliable as operator integrity
     - ❌ Can be silenced, censored, or tampered with
 
-    **Trust Engine's impact for creators, developers, verifiers, and consumers:**
+    **Trust Engine's impact for creators, developers, and consumers:**
     - ✅ Directly cryptographically proves registration and attribution—every record is impossible to edit, erase, or forge
     - ✅ Digital media privacy is preserved by default; only hashes and provenance proofs are published, never private media
     - ✅ Provenance info and trust signals travel with your digital media piece anywhere online—empowering platforms, consumers and creators regardless of where or how their work is shared
@@ -160,7 +160,6 @@ icon: 'circle-question'
     - File hash (SHA-256)
     - Creator address
     - Filters: status, category, date range, minimum reputation
-    - Results include consensus percentage and vote counts
 
     **Privacy note:**
     - **Registry UI flow**: The file is not uploaded to our servers; hashing happens locally
@@ -205,31 +204,6 @@ icon: 'circle-question'
     
     # Option 2: Link existing wallet
     curl -X POST /link-wallet -d '{"userID": "user123", "walletAddress": "..."}'
-    ```
-  </Accordion>
-
-  <Accordion title="How long does validation take?">
-    **Typical timeline**: 5-15 minutes for complete validation
-    
-    **Process**:
-    1. **Instant**: Registration written to blockchain
-    
-    **Check status**: Use `/search` endpoint to poll verification progress
-    
-    ```javascript
-    const pollStatus = async (contentHash) => {
-      const result = await fetch('/search', {
-        method: 'POST',
-        body: JSON.stringify({ contentHash }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await result.json();
-      
-      if (data.details[0]?.onChainRegistration?.finalized) {
-        return 'complete';
-      }
-      return 'pending';
-    };
     ```
   </Accordion>
 

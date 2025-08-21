@@ -66,12 +66,12 @@ Used for file identity and integrity checks throughout Trust Engine.
 
 **IPFS**: Content is content-addressed and publicly retrievable by CID. We pin to improve availability; we do not re-host a proprietary copy.
 
-**On-chain**: Hashes, timestamps, and verification state are immutable.
+**On-chain**: Hashes, timestamps, and registration records are immutable.
 
 ## Data Minimization
 
 **Stored on-chain**:
-- Content hash (SHA-256), creator wallet, timestamp, IPFS CID(s), consensus/vote aggregates
+- Content hash (SHA-256), creator wallet, timestamp, IPFS CID(s)
 
 **Not centrally stored**:
 - Raw media bytes; file paths/names unless you include them in metadata

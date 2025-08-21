@@ -27,16 +27,16 @@ description: 'Automatically verify and display provenance stamps for all media o
 ## Features
 
 <CardGroup cols={2}>
-  <Card title="Zero Configuration" icon="magic">
+  <Card title="Zero Configuration" icon="sparkles">
     Just add one script tag and the widget handles everything automatically.
   </Card>
-  <Card title="Non-Intrusive" icon="eye-slash">
+  <Card title="Non-Intrusive" icon="eye">
     Stamps appear subtly and don't interfere with your website's design or functionality.
   </Card>
   <Card title="Real-time Verification" icon="bolt">
     Instant lookup of registration records from the Trust Engine blockchain.
   </Card>
-  <Card title="Mobile Responsive" icon="mobile">
+  <Card title="Mobile Responsive" icon="phone">
     Works seamlessly across desktop, tablet, and mobile devices.
   </Card>
 </CardGroup>
@@ -50,8 +50,7 @@ Add this single script tag to your website's `<head>` section or before the clos
 <CodeGroup>
 ```html HTML
 <script
-  src="[YOUR_WIDGET_URL]"
-  data-api-base-url="https://core-api-server.onrender.com"
+  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
 ></script>
 ```
 
@@ -63,8 +62,15 @@ export default function Layout({ children }) {
     <html>
       <head>
         <Script
-          src="[YOUR_WIDGET_URL]"
+          src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
           data-api-base-url="https://core-api-server.onrender.com"
+          data-enabled-elements='["img","video","audio"]'
+          data-badge-position="bottom-right"
+          data-theme="light"
+          data-auto-scan="true"
+          data-observe-dynamic-content="true"
+          data-show-tooltip="true"
+          data-debug="false"
           strategy="afterInteractive"
         />
       </head>
@@ -85,8 +91,15 @@ export default function Layout({ children }) {
 export default {
   mounted() {
     const script = document.createElement('script');
-    script.src = '[YOUR_WIDGET_URL]';
+    script.src = "https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js";
     script.setAttribute('data-api-base-url', 'https://core-api-server.onrender.com');
+    script.setAttribute('data-enabled-elements', '["img","video","audio"]');
+    script.setAttribute('data-badge-position', 'bottom-right');
+    script.setAttribute('data-theme', 'light');
+    script.setAttribute('data-auto-scan', 'true');
+    script.setAttribute('data-observe-dynamic-content', 'true');
+    script.setAttribute('data-show-tooltip', 'true');
+    script.setAttribute('data-debug', 'false');
     document.head.appendChild(script);
   }
 }
@@ -94,64 +107,106 @@ export default {
 ```
 </CodeGroup>
 
-<Warning>
-**Partnership Required**: The `[YOUR_WIDGET_URL]` placeholder will be replaced with your unique widget URL when you partner with Trust Engine. Contact us to get your personalized widget access.
-</Warning>
+
 
 ## Configuration Options
 
-The widget accepts several data attributes for customization:
+The widget can be configured in two ways:
 
-<ResponseField name="data-api-base-url" type="string" required>
-  The base URL for the Trust Engine API. Use `https://core-api-server.onrender.com` for production.
-</ResponseField>
-
-<ResponseField name="data-stamp-position" type="string" default="top-right">
-  Position of the verification stamp. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`
-</ResponseField>
-
-<ResponseField name="data-stamp-size" type="string" default="small">
-  Size of the verification stamp. Options: `small`, `medium`, `large`
-</ResponseField>
-
-<ResponseField name="data-auto-scan" type="boolean" default="true">
-  Whether to automatically scan for media on page load. Set to `false` for manual control.
-</ResponseField>
-
-### Advanced Configuration
+### Method 1: Data Attributes (Recommended)
 
 ```html
 <script
-  src="[YOUR_WIDGET_URL]"
+  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"
   data-api-base-url="https://core-api-server.onrender.com"
-  data-stamp-position="bottom-right"
-  data-stamp-size="medium"
+  data-enabled-elements='["img","video","audio"]'
+  data-badge-position="bottom-right"
+  data-theme="light"
   data-auto-scan="true"
+  data-observe-dynamic-content="true"
+  data-show-tooltip="true"
+  data-debug="false"
 ></script>
 ```
+
+### Method 2: JavaScript Configuration Object
+
+```html
+<script>
+  window.TrustEngineConfig = {
+    // Media Detection
+    enabledElements: ['img', 'video', 'audio'],     // Which elements to scan
+    
+    // Badge Appearance  
+    badgePosition: 'bottom-right',                  // Badge position on media
+    theme: 'light',                                 // 'light' or 'dark'
+    
+    // Behavior
+    autoScan: true,                                 // Auto-scan page on load
+    observeDynamicContent: true,                    // Monitor for new content
+    showTooltip: true,                              // Show hover tooltips
+    
+    // Development
+    debug: false         
+  };
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@1.0.0/dist/trust-engine-widget.js"></script>
+```
+
+### Configuration Details
+
+<ResponseField name="apiBaseUrl" type="string" default="https://core-api-server.onrender.com">
+  The base URL for the Trust Engine API. Use: `data-api-base-url="https://core-api-server.onrender.com"`
+</ResponseField>
+
+<ResponseField name="enabledElements" type="array" default="['img', 'video', 'audio']">
+  Array of HTML element types to scan for media content. Supports `img`, `video`, `audio`, and other media elements. Use JSON array format: `data-enabled-elements='["img","video","audio"]'`
+</ResponseField>
+
+<ResponseField name="badgePosition" type="string" default="bottom-right">
+  Position of the verification badge on media elements. Options: `top-left`, `top-right`, `bottom-left`, `bottom-right`. Use: `data-badge-position="bottom-right"`
+</ResponseField>
+
+<ResponseField name="theme" type="string" default="light">
+  Visual theme for the badge and tooltip. Options: `light`, `dark`. Use: `data-theme="light"`
+</ResponseField>
+
+<ResponseField name="autoScan" type="boolean" default="true">
+  Whether to automatically scan for media on page load. Set to `false` for manual control. Use string values: `data-auto-scan="true"` or `data-auto-scan="false"`
+</ResponseField>
+
+<ResponseField name="observeDynamicContent" type="boolean" default="true">
+  Monitor the page for dynamically added content and automatically apply stamps to new media. Use string values: `data-observe-dynamic-content="true"` or `data-observe-dynamic-content="false"`
+</ResponseField>
+
+<ResponseField name="showTooltip" type="boolean" default="true">
+  Show informational tooltips when hovering over verification badges. Use string values: `data-show-tooltip="true"` or `data-show-tooltip="false"`
+</ResponseField>
+
+<ResponseField name="debug" type="boolean" default="false">
+  Enable debug mode for development and troubleshooting. Outputs additional console logs. Use string values: `data-debug="true"` or `data-debug="false"`
+</ResponseField>
 
 ## What Users See
 
 When a visitor hovers over or clicks a verification stamp, they'll see:
 
-<Accordion title="Verification Details">
-  <AccordionItem title="Registration Information">
-    - **Content Hash**: The unique SHA256 hash of the media file
-    - **Registration Date**: When the media was first registered
-    - **Registered By**: The wallet address or user ID of the registrant
-    - **IPFS CID**: Link to the decentralized metadata storage
-  </AccordionItem>
-  
-  <AccordionItem title="Blockchain Verification">
-    - **Transaction Hash**: Link to the Solana blockchain transaction
-    - **On-Chain Explorer**: Direct link to view the transaction on Solana
-  </AccordionItem>
-  
-  <AccordionItem title="Provenance History">
-    - **Multiple Registrations**: If the same content was registered by different users
-    - **Timestamp Trail**: Complete history of when registrations occurred
-    - **Ownership Chain**: Track how content ownership or registration has evolved
-  </AccordionItem>
+<Accordion title="Registration Information">
+  - **Content Hash**: The unique SHA256 hash of the media file
+  - **Registration Date**: When the media was first registered
+  - **Registered By**: The wallet address or user ID of the registrant
+  - **IPFS CID**: Link to the decentralized metadata storage
+</Accordion>
+
+<Accordion title="Blockchain Verification">
+  - **Transaction Hash**: Link to the Solana blockchain transaction
+  - **On-Chain Explorer**: Direct link to view the transaction on Solana
+</Accordion>
+
+<Accordion title="Provenance History">
+  - **Multiple Registrations**: If the same content was registered by different users
+  - **Timestamp Trail**: Complete history of when registrations occurred
+  - **Ownership Chain**: Track how content ownership or registration has evolved
 </Accordion>
 
 ## Use Cases
@@ -159,9 +214,6 @@ When a visitor hovers over or clicks a verification stamp, they'll see:
 <CardGroup cols={1}>
   <Card title="News & Media Websites" icon="newspaper">
     Automatically verify the authenticity of news images and videos, building trust with readers.
-  </Card>
-  <Card title="E-commerce Platforms" icon="shopping-cart">
-    Show product image verification to reduce counterfeit concerns and increase buyer confidence.
   </Card>
   <Card title="NFT Marketplaces" icon="palette">
     Display provenance information for digital art and collectibles directly on listing pages.
@@ -188,20 +240,17 @@ When a visitor hovers over or clicks a verification stamp, they'll see:
 ## Getting Started
 
 <Steps>
-  <Step title="Contact Trust Engine">
-    Reach out to our team to discuss partnership and get your custom widget URL.
-  </Step>
   <Step title="Register Your Media">
     Use our [API](/api-overview), [SDK](/sdk-reference), or [CLI](/cli-reference) to register your media content.
   </Step>
   <Step title="Add the Script">
-    Implement the widget script tag on your website with your unique URL.
+    Implement the widget script tag on your website to automatically display verification stamps.
   </Step>
   <Step title="Test & Launch">
     Verify that stamps appear on your registered media and provide the expected verification details.
   </Step>
 </Steps>
 
-<Card title="Ready to Get Started?" icon="rocket" href="mailto:kareem@trustengine.org">
-  Contact our team to discuss partnership and receive your personalized TRUST Stamp widget.
+<Card title="Ready to Get Started?" icon="rocket" href="/quickstart">
+  Follow our quickstart guide to register your first file and see the widget in action.
 </Card>
