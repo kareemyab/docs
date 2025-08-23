@@ -16,7 +16,7 @@ icon: 'node-js'
 Add the Trust Engine SDK to your Node.js project
 
 ```bash
-npm install @trust-engine/sdk
+npm install @trust-engine/sdk@latest
 ```
 </Step>
 
@@ -35,7 +35,7 @@ const sdk = new CoreApiSDK();
 
 // Configuration
 const config = {
-  userID: 'node-user-' + Date.now(),
+  userID: 'node-user-' + Date.now(), // Must be unique across your entire application
   walletAddress: null, // We'll populate this after creating a wallet
 };
 
@@ -54,7 +54,7 @@ const sdk = new CoreApiSDK();
 
 // Configuration
 const config = {
-  userID: 'node-user-' + Date.now(),
+  userID: 'node-user-' + Date.now(), // Must be unique across your entire application
   walletAddress: null,
 };
 
@@ -75,7 +75,7 @@ async function createWallet() {
     console.log('Creating wallet for user:', config.userID);
     
     const wallet = await sdk.createWallet({
-      userID: config.userID
+      userID: config.userID // Must be unique across your entire application
     });
     
     config.walletAddress = wallet.details.walletAddress;
@@ -234,7 +234,7 @@ class TrustEngineManager {
   constructor() {
     this.sdk = new CoreApiSDK();
     this.config = {
-      userID: 'node-user-' + Date.now(),
+      userID: 'node-user-' + Date.now(), // Must be unique across your entire application
       walletAddress: null,
     };
   }
@@ -260,7 +260,7 @@ class TrustEngineManager {
       console.log('Creating wallet for user:', this.config.userID);
       
       const wallet = await this.sdk.createWallet({
-        userID: this.config.userID
+        userID: this.config.userID // Must be unique across your entire application
       });
       
       this.config.walletAddress = wallet.details.walletAddress;
