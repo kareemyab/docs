@@ -1,0 +1,398 @@
+---
+title: 'React'
+description: 'Get up and running with Trust Engine in your React app in under 5 minutes. Register your first file and verify its provenance.'
+icon: 'react'
+---
+
+<Info>
+**Time to Complete**: ~5 minutes  
+**What You'll Learn**: How to integrate Trust Engine into your React application, create a wallet, register files, and verify their provenance
+</Info>
+
+<Steps>
+<Step title="Install the Trust Engine SDK">
+Add the Trust Engine SDK to your React project
+
+```bash
+npm install @trust-engine/sdk
+```
+</Step>
+
+<Step title="Set Up the SDK in Your React App">
+Initialize the Trust Engine SDK in your React component
+
+```jsx
+import React, { useState } from 'react';
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+function TrustEngineDemo() {
+  const [userID, setUserID] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  return (
+    <div>
+      <h2>Trust Engine File Registration</h2>
+      {/* UI will go here */}
+    </div>
+  );
+}
+
+export default TrustEngineDemo;
+```
+</Step>
+
+<Step title="Create a Wallet for Your User">
+Let users enter their ID and create a wallet
+
+<Warning>
+**⚠️ ONE-TIME OPERATION**: This should only be performed **once per user**. The generated wallet will be used for **all future file registrations**.
+</Warning>
+
+```jsx
+const createWallet = async () => {
+  if (!userID.trim()) {
+    alert('Please enter a user ID first');
+    return;
+  }
+
+  try {
+    const wallet = await sdk.createWallet({
+      userID: userID.trim()
+    });
+    
+    console.log('Wallet created:', wallet.details.walletAddress);
+    setWalletAddress(wallet.details.walletAddress);
+    
+  } catch (error) {
+    console.error('Error creating wallet:', error);
+    alert('Error creating wallet: ' + error.message);
+  }
+};
+
+// Add this to your component's JSX
+<div>
+  <input 
+    type="text"
+    placeholder="Enter your user ID (e.g., john.doe@company.com)"
+    value={userID}
+    onChange={(e) => setUserID(e.target.value)}
+    disabled={walletAddress}
+  />
+  <button onClick={createWallet} disabled={walletAddress || !userID.trim()}>
+    {walletAddress ? 'Wallet Created ✓' : 'Create Wallet'}
+  </button>
+</div>
+
+{walletAddress && (
+  <div>
+    <strong>Wallet Address:</strong> {walletAddress}
+  </div>
+)}
+```
+</Step>
+
+<Step title="Add File Upload and Registration">
+Now let users select and register files using the wallet from Step 3
+
+```jsx
+const handleFileSelect = (event) => {
+  const file = event.target.files[0];
+  setSelectedFile(file);
+};
+
+const registerFile = async () => {
+  if (!selectedFile) {
+    alert('Please select a file first');
+    return;
+  }
+  
+  if (!walletAddress) {
+    alert('Please create a wallet first');
+    return;
+  }
+
+  try {
+    const registration = await sdk.registerFile({
+      file: selectedFile,
+      contentTitle: selectedFile.name,
+      walletAddress: walletAddress, // Using wallet from Step 3
+      walletType: 'managed',
+      metadata: 'Registered via React app'
+    });
+
+    console.log('File registered!', registration);
+    alert('File registered successfully!');
+    
+  } catch (error) {
+    console.error('Error registering file:', error);
+    alert('Error registering file: ' + error.message);
+  }
+};
+
+// Add this to your component's JSX (below the wallet section)
+<div>
+  <input 
+    type="file" 
+    onChange={handleFileSelect}
+    disabled={!walletAddress}
+  />
+  
+  {selectedFile && (
+    <div>
+      <strong>Selected:</strong> {selectedFile.name}
+    </div>
+  )}
+  
+  <button 
+    onClick={registerFile} 
+    disabled={!selectedFile || !walletAddress}
+  >
+    Register File
+  </button>
+</div>
+```
+</Step>
+
+<Step title="Verify File Registration">
+Check if the file from Step 4 was successfully registered
+
+```jsx
+const [searchResults, setSearchResults] = useState(null);
+
+const verifyFile = async () => {
+  if (!selectedFile) {
+    alert('Please register a file first');
+    return;
+  }
+
+  try {
+    const results = await sdk.searchFile(selectedFile); // Using same file from Step 4
+    setSearchResults(results);
+    console.log('Search results:', results);
+    
+    if (results.totalResults > 0) {
+      alert('✅ File found on blockchain!');
+    } else {
+      alert('❌ File not found - make sure you registered it first');
+    }
+    
+  } catch (error) {
+    console.error('Error searching file:', error);
+    alert('Error searching file: ' + error.message);
+  }
+};
+
+// Add this to your component's JSX (below the registration section)
+<div>
+  <button 
+    onClick={verifyFile} 
+    disabled={!selectedFile}
+  >
+    Verify Registration
+  </button>
+  
+  {searchResults && searchResults.totalResults > 0 && (
+    <div>
+      <strong>✅ Found {searchResults.totalResults} registration(s)</strong>
+    </div>
+  )}
+</div>
+```
+</Step>
+
+<Step title="Complete React Component">
+Here's the complete working React component that combines all the steps
+
+```jsx
+import React, { useState } from 'react';
+import { CoreApiSDK } from '@trust-engine/sdk';
+
+const sdk = new CoreApiSDK();
+
+function TrustEngineDemo() {
+  const [userID, setUserID] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [searchResults, setSearchResults] = useState(null);
+
+  // Step 3: Create wallet
+  const createWallet = async () => {
+    if (!userID.trim()) {
+      alert('Please enter a user ID first');
+      return;
+    }
+
+    try {
+      const wallet = await sdk.createWallet({
+        userID: userID.trim()
+      });
+      
+      console.log('Wallet created:', wallet.details.walletAddress);
+      setWalletAddress(wallet.details.walletAddress);
+      
+    } catch (error) {
+      console.error('Error creating wallet:', error);
+      alert('Error creating wallet: ' + error.message);
+    }
+  };
+
+  // Step 4: Handle file selection
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    setSelectedFile(file);
+  };
+
+  // Step 4: Register file
+  const registerFile = async () => {
+    if (!selectedFile) {
+      alert('Please select a file first');
+      return;
+    }
+    
+    if (!walletAddress) {
+      alert('Please create a wallet first');
+      return;
+    }
+
+    try {
+      const registration = await sdk.registerFile({
+        file: selectedFile,
+        contentTitle: selectedFile.name,
+        walletAddress: walletAddress,
+        walletType: 'managed',
+        metadata: 'Registered via React app'
+      });
+
+      console.log('File registered!', registration);
+      alert('File registered successfully!');
+      
+    } catch (error) {
+      console.error('Error registering file:', error);
+      alert('Error registering file: ' + error.message);
+    }
+  };
+
+  // Step 5: Verify file
+  const verifyFile = async () => {
+    if (!selectedFile) {
+      alert('Please register a file first');
+      return;
+    }
+
+    try {
+      const results = await sdk.searchFile(selectedFile);
+      setSearchResults(results);
+      console.log('Search results:', results);
+      
+      if (results.totalResults > 0) {
+        alert('✅ File found on blockchain!');
+      } else {
+        alert('❌ File not found - make sure you registered it first');
+      }
+      
+    } catch (error) {
+      console.error('Error searching file:', error);
+      alert('Error searching file: ' + error.message);
+    }
+  };
+
+  return (
+    <div style={{ padding: '20px', maxWidth: '500px' }}>
+      <h2>Trust Engine File Registration</h2>
+      
+      {/* Step 3: Wallet Creation */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Create Wallet</h3>
+        <input 
+          type="text"
+          placeholder="Enter your user ID (e.g., john.doe@company.com)"
+          value={userID}
+          onChange={(e) => setUserID(e.target.value)}
+          disabled={walletAddress}
+          style={{ width: '300px', marginRight: '10px' }}
+        />
+        <button onClick={createWallet} disabled={walletAddress || !userID.trim()}>
+          {walletAddress ? 'Wallet Created ✓' : 'Create Wallet'}
+        </button>
+        
+        {walletAddress && (
+          <div style={{ marginTop: '10px', fontSize: '14px' }}>
+            <strong>Wallet:</strong> {walletAddress.substring(0, 20)}...
+          </div>
+        )}
+      </div>
+
+      {/* Step 4: File Selection & Registration */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Register File</h3>
+        <input 
+          type="file" 
+          onChange={handleFileSelect}
+          disabled={!walletAddress}
+          style={{ marginBottom: '10px' }}
+        />
+        
+        {selectedFile && (
+          <div style={{ marginBottom: '10px' }}>
+            <strong>Selected:</strong> {selectedFile.name}
+          </div>
+        )}
+        
+        <button 
+          onClick={registerFile} 
+          disabled={!selectedFile || !walletAddress}
+        >
+          Register File
+        </button>
+      </div>
+
+      {/* Step 5: Verification */}
+      <div style={{ marginBottom: '20px' }}>
+        <h3>Verify Registration</h3>
+        <button 
+          onClick={verifyFile} 
+          disabled={!selectedFile}
+        >
+          Verify Registration
+        </button>
+        
+        {searchResults && searchResults.totalResults > 0 && (
+          <div style={{ marginTop: '10px' }}>
+            <strong>✅ Found {searchResults.totalResults} registration(s)</strong>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default TrustEngineDemo;
+```
+
+</Step>
+</Steps>
+
+---
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="SDK Documentation" icon="box" href="/sdk-reference">
+    Explore all available SDK methods and options
+  </Card>
+  
+  <Card title="TRUST Stamp Widget" icon="stamp" href="/trust-stamp">
+    Add automatic verification badges to your React app
+  </Card>
+  
+  <Card title="Node.js Guide" icon="node-js" href="/quickstart-nodejs">
+    Server-side file registration with Node.js
+  </Card>
+  
+  <Card title="REST API Guide" icon="code" href="/quickstart-rest-api">
+    Direct API integration for any language
+  </Card>
+</CardGroup>

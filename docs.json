@@ -20,8 +20,16 @@
           {
             "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart"
+              "index"
+            ]
+          },
+          {
+            "group": "Quickstart Guides",
+            "pages": [
+              "quickstart-react",
+              "quickstart-nodejs",
+              "quickstart-rest-api",
+              "quickstart-cli"
             ]
           },
           {
