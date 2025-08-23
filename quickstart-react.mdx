@@ -14,7 +14,7 @@ icon: 'react'
 Add the Trust Engine SDK to your React project
 
 ```bash
-npm install @trust-engine/sdk
+npm install @trust-engine/sdk@latest
 ```
 </Step>
 
@@ -60,7 +60,7 @@ const createWallet = async () => {
 
   try {
     const wallet = await sdk.createWallet({
-      userID: userID.trim()
+      userID: userID.trim() // Must be unique across your entire application
     });
     
     console.log('Wallet created:', wallet.details.walletAddress);
@@ -227,7 +227,7 @@ function TrustEngineDemo() {
 
     try {
       const wallet = await sdk.createWallet({
-        userID: userID.trim()
+        userID: userID.trim() // Must be unique across your entire application
       });
       
       console.log('Wallet created:', wallet.details.walletAddress);
