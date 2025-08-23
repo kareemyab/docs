@@ -1,373 +1,200 @@
 ---
 title: 'Quickstart Guide'
-description: 'Get up and running with Trust Engine in under 5 minutes. Register your first file and verify its provenance.'
+description: 'Get up and running with Trust Engine in under 5 minutes. Choose your preferred technology and follow a tailored guide.'
 icon: 'rocket'
 ---
 
 <Info>
-**Time to Complete**: ~5 minutes  
-**What You'll Learn**: How to create a wallet, register a file, and verify its provenance using Trust Engine
+**Time to Complete**: ~5 minutes per guide  
+**What You'll Learn**: How to create wallets, register files, and verify their provenance using Trust Engine
 </Info>
 
+Trust Engine supports multiple integration methods. Choose the approach that best fits your project and development style:
 
-
-## (Optional) Step 0: Health Check
-
-First, let's make sure the Trust Engine API is operational:
-
-<CodeGroup>
-```bash cURL
-curl -X GET https://core-api-server.onrender.com/health
-```
-
-```javascript JavaScript
-const response = await fetch('https://core-api-server.onrender.com/health');
-const data = await response.json();
-console.log(data);
-```
-
-```python Python
-import requests
-
-response = requests.get('https://core-api-server.onrender.com/health')
-print(response.json())
-```
-</CodeGroup>
-
-**Expected Response:**
-```json
-{
-  "status": "All systems operational!",
-  "timestamp": "2024-01-15T10:30:45.123Z"
-}
-```
-
----
-
-## Step 1: Create Your Wallet
-<Warning>
-**⚠️ ONE-TIME OPERATION**: This step should only be performed **once per user**. The generated wallet will be used for **all your future file registrations**. If you ever forget your wallet address, you can always use your user ID to remember it using our API!
-</Warning>
-
-Create a managed wallet that will own your registered files:
-
-<CodeGroup>
-```bash cURL
-curl -X POST https://core-api-server.onrender.com/create-wallet \
-  -H "Content-Type: application/json" \
-  -d '{"userID": "my-unique-id-123"}'
-```
-
-```javascript JavaScript (SDK)
-const wallet = await sdk.createWallet({
-  userID: 'my-unique-id-123'
-});
-
-console.log('Wallet created:', wallet.details.walletAddress);
-const walletAddress = wallet.details.walletAddress;
-```
-
-```bash CLI
-trust-engine-cli create-wallet \
-  --userID "my-unique-id-123"
-```
-</CodeGroup>
-
-**Expected Response:**
-```json
-{
-  "message": "Success! Your managed wallet has been created and linked to your user ID.",
-  "details": {
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-    "chain": "solana",
-    "transactionSignature": "5J7X...",
-    "explorerUrl": "https://explorer.solana.com/tx/5J7X...?cluster=devnet",
-    "emailLinkedToWallet": "hadi@trustengine.org"
-  }
-}
-```
-
-**💾 SAVE THIS INFORMATION**: Copy the `walletAddress` from the response and save it in a text file or notepad. You'll need to paste this exact address into Step 4 to register your file!
-
-<Tip>
-**Recommended**: Create a file called `trust-engine-info.txt` and save:
-```
-Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-User ID: my-unique-id-123
-```
-</Tip>
-
----
-
-## Step 2: Prepare Your File
-
-For this example, let's register a simple text file. Create the file first:
-
-<CodeGroup>
-```bash cURL
-# Create example file
-echo "Hello, Trust Engine!" > example.txt
-
-# Calculate SHA256 hash
-shasum -a 256 example.txt
-# Output: a7b2c3d4e5f6... example.txt
-
-# Get file size
-wc -c < example.txt
-# Output: 21
-
-# 💾 SAVE THE HASH: Copy the hash value for Step 4!
-# Add this to your trust-engine-info.txt:
-# File Hash: a7b2c3d4e5f6...
-# File Size: 21
-```
-
-```javascript JavaScript (SDK)
-import { CoreApiSDK } from '@trust-engine/sdk';
-
-const sdk = new CoreApiSDK();
-
-// Create example file (in browser, this would be from file input)
-const fileContent = "Hello, Trust Engine!";
-const file = new File([fileContent], "example.txt", { type: "text/plain" });
-
-console.log('File ready for registration');
-```
-
-```bash CLI
-# Create example file
-echo "Hello, Trust Engine!" > example.txt
-
-# The CLI will automatically handle hash calculation
-ls -la example.txt
-```
-</CodeGroup>
-
-<Info>
-**💾 IMPORTANT**: If using cURL method, copy the hash value (the long string before `example.txt`) to your `trust-engine-info.txt` file. You'll need this exact hash for Step 4. For SDK/CLI users, this is handled automatically.
-</Info>
-
----
-
-## Step 3: Register Your File
-
-Now we'll combine everything from the previous steps to register your file on the blockchain. You'll need:
-- **Wallet Address** from Step 2
-- **File Hash** from Step 3  
-- **File Size** from Step 3
-
-Replace the placeholder values below with your actual data:
-
-<CodeGroup>
-```bash cURL
-curl -X POST https://core-api-server.onrender.com/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contentTitle": "My First Registration",
-    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2",
-    "walletType": "managed",
-    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3",
-    "fileMetadata": {
-      "fileName": "example.txt",
-      "fileSize": YOUR_FILE_SIZE_FROM_STEP_3,
-      "mimeType": "text/plain"
-    },
-    "metadata": "Quickstart tutorial example"
-  }'
-```
-
-```javascript JavaScript (SDK)
-const registration = await sdk.registerFile({
-  file: file, // The File object from Step 3
-  contentTitle: 'My First Registration',
-  walletAddress: walletAddress, // From Step 2
-  walletType: 'managed',
-  metadata: 'Quickstart tutorial example'
-});
-
-console.log('File registered!', registration);
-```
-
-```bash CLI
-# Register the file (replace with your wallet address from Step 2)
-trust-engine-cli register \
-  --file example.txt \
-  --contentTitle "My First Registration" \
-  --walletAddress "YOUR_WALLET_ADDRESS_FROM_STEP_2" \
-  --walletType "managed" \
-  --metadata "Quickstart tutorial example"
-```
-</CodeGroup>
-
-<Info>
-**Note**: We're using managed wallets which handle transaction signing automatically. For self wallets, such as in Metamask, Phantom, etc., additional signing steps are required, and is not available in the CLI.
-</Info>
-
-**Expected Response (Managed):**
-```json
-{
-  "message": "✅ Accepted! Your file has been submitted and is being processed by the managed wallet.",
-  "details": {
-    "status": "processing",
-    "managedTransactionId": "abc123...",
-    "contentRegistrationPDA": "xyz789...",
-    "contentHash": "a7b2c3d4...",
-    "ipfsCid": "QmExample..."
-  }
-}
-```
-
----
-
-## Step 4: Verify Your Registration
-
-Search for your registered file to confirm it's in the system. Use the same **file hash** and **wallet address** from previous steps:
-
-<CodeGroup>
-```bash cURL
-curl -X POST https://core-api-server.onrender.com/search \
-  -H "Content-Type: application/json" \
-  -d '{
-    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3", 
-    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2"
-  }'
-```
-
-```javascript JavaScript (SDK)
-const results = await sdk.searchFile(file); // Pass the same file from Step 3
-
-console.log('Search results:', results);
-```
-
-```bash CLI
-trust-engine-cli search-file \
-  --file example.txt
-```
-</CodeGroup>
-
-**Expected Response:**
-```json
-{
-  "searchMode": "content_hash_and_wallet",
-  "message": "Found the specific registration for this content hash and wallet address.",
-  "searchCriteria": {
-    "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
-    "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM"
-  },
-  "totalResults": 1,
-  "registrations": [
-    {
-      "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
-      "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
-      "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
-      "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-      "userID": "user_123456789",
-      "timestamp": "2024-01-15T14:30:25.000Z",
-      "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
-      "onChainData": { /* Raw blockchain data */ }
-    }
-  ]
-}
-```
-
----
-
-## Step 5: Add TRUST Stamp Widget (Optional)
-
-Now that you have registered content, you can add the TRUST Stamp widget to automatically display verification badges on your website:
-
-<CodeGroup>
-```html Basic Implementation
-<script
-  src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"
-  data-api-base-url="https://core-api-server.onrender.com"
-  data-enabled-elements='["img","video","audio"]'
-  data-badge-position="bottom-right"
-  data-theme="light"
-  data-auto-scan="true"
-  data-observe-dynamic-content="true"
-  data-show-tooltip="true"
-  data-debug="false"
-></script>
-```
-
-```jsx React / Next.js
-import Script from 'next/script';
-
-export default function Layout({ children }) {
-  return (
-    <html>
-      <head>
-        <Script
-          src="https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js"
-          data-api-base-url="https://core-api-server.onrender.com"
-          data-enabled-elements='["img","video","audio"]'
-          data-badge-position="bottom-right"
-          data-theme="light"
-          data-auto-scan="true"
-          data-observe-dynamic-content="true"
-          data-show-tooltip="true"
-          data-debug="false"
-          strategy="afterInteractive"
-        />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
-```
-
-```vue Vue.js
-<template>
-  <div id="app">
-    <!-- Your app content -->
-  </div>
-</template>
-
-<script>
-export default {
-  mounted() {
-    const script = document.createElement('script');
-    script.src = "https://cdn.jsdelivr.net/npm/@trust-engine/widget@latest/dist/trust-engine-widget.js";
-    script.setAttribute('data-api-base-url', 'https://core-api-server.onrender.com');
-    script.setAttribute('data-enabled-elements', '["img","video","audio"]');
-    script.setAttribute('data-badge-position', 'bottom-right');
-    script.setAttribute('data-theme', 'light');
-    script.setAttribute('data-auto-scan', 'true');
-    script.setAttribute('data-observe-dynamic-content', 'true');
-    script.setAttribute('data-show-tooltip', 'true');
-    script.setAttribute('data-debug', 'false');
-    document.head.appendChild(script);
-  }
-}
-</script>
-```
-</CodeGroup>
-
-The widget will automatically scan your website for media files and display verification badges on any registered content. When visitors click these badges, they'll see the complete provenance and registration details from your Trust Engine registration.
-
-<Info>
-**Complete Integration**: For more configuration options and detailed documentation, visit the [TRUST Stamp Widget](/trust-stamp) page.
-</Info>
-
----
-
-## What's Next?
+## Choose Your Integration Method
 
 <CardGroup cols={2}>
-  <Card title="API Documentation" icon="code" href="/api-overview">
-    Use our API endpoints for direct calling
+  <Card
+    title="React Integration"
+    icon="react"
+    href="/quickstart-react"
+    color="#61DAFB"
+  >
+    Perfect for React applications and frontend web development. Includes file upload components and user interaction patterns.
   </Card>
   
-  <Card title="SDK Documentation" icon="box" href="/sdk-reference">
-    Use our JavaScript/TypeScript SDK for easier integration
+  <Card
+    title="Node.js Integration"
+    icon="node-js"
+    href="/quickstart-nodejs"
+    color="#68D391"
+  >
+    Server-side integration for Node.js applications. Handle file registration from your backend with filesystem access.
   </Card>
   
-  <Card title="CLI Documentation" icon="gear" href="/cli-reference">
-    Use our CLI for easy interaction with our server
+  <Card
+    title="REST API Integration"
+    icon="code"
+    href="/quickstart-rest-api"
+    color="#F59E0B"
+  >
+    Direct HTTP API integration for any programming language. Language-agnostic approach with curl, JavaScript, Python examples.
   </Card>
   
-  <Card title="TRUST Stamp Widget" icon="stamp" href="/trust-stamp">
-    Automatically display verification badges on your website
+  <Card
+    title="CLI Integration"
+    icon="terminal"
+    href="/quickstart-cli"
+    color="#8B5CF6"
+  >
+    Command-line interface for automation, scripting, and quick file operations. Perfect for batch processing and DevOps workflows.
   </Card>
 </CardGroup>
+
+---
+
+## What Each Guide Covers
+
+All quickstart guides follow the same essential workflow but are tailored to your chosen technology:
+
+<div style={{ display: 'flex', alignItems: 'flex-start', margin: '24px 0' }}>
+  <div style={{ 
+    background: '#3B82F6', 
+    color: 'white', 
+    width: '24px', 
+    height: '24px', 
+    borderRadius: '50%', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontWeight: 'bold', 
+    fontSize: '12px', 
+    marginRight: '12px', 
+    flexShrink: 0 
+  }}>1</div>
+  <div>
+    <strong>Installation & Setup</strong><br/>
+    Install the necessary tools and initialize your environment
+  </div>
+</div>
+
+<div style={{ display: 'flex', alignItems: 'flex-start', margin: '24px 0' }}>
+  <div style={{ 
+    background: '#3B82F6', 
+    color: 'white', 
+    width: '24px', 
+    height: '24px', 
+    borderRadius: '50%', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontWeight: 'bold', 
+    fontSize: '12px', 
+    marginRight: '12px', 
+    flexShrink: 0 
+  }}>2</div>
+  <div>
+    <strong>Create a Wallet</strong><br/>
+    Set up a managed wallet to own your registered files
+  </div>
+</div>
+
+<div style={{ display: 'flex', alignItems: 'flex-start', margin: '24px 0' }}>
+  <div style={{ 
+    background: '#3B82F6', 
+    color: 'white', 
+    width: '24px', 
+    height: '24px', 
+    borderRadius: '50%', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontWeight: 'bold', 
+    fontSize: '12px', 
+    marginRight: '12px', 
+    flexShrink: 0 
+  }}>3</div>
+  <div>
+    <strong>Register Files</strong><br/>
+    Upload and register files on the blockchain for permanent provenance
+  </div>
+</div>
+
+<div style={{ display: 'flex', alignItems: 'flex-start', margin: '24px 0' }}>
+  <div style={{ 
+    background: '#3B82F6', 
+    color: 'white', 
+    width: '24px', 
+    height: '24px', 
+    borderRadius: '50%', 
+    display: 'flex', 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontWeight: 'bold', 
+    fontSize: '12px', 
+    marginRight: '12px', 
+    flexShrink: 0 
+  }}>4</div>
+  <div>
+    <strong>Verify & Search</strong><br/>
+    Search for registered files and verify their blockchain registration
+  </div>
+</div>
+
+---
+
+## Quick Comparison
+
+| Method | Best For | File Source | Complexity |
+|--------|----------|-------------|------------|
+| **React** | Frontend apps, user uploads | File input elements | Medium |
+| **Node.js** | Backend services, automation | Filesystem, uploads | Medium |
+| **REST API** | Any language, custom integrations | Manual hash calculation | Low |
+| **CLI** | Automation, scripting, DevOps | Local files, batch operations | Low |
+
+---
+
+## Before You Start
+
+### Prerequisites
+
+- Node.js 16+ (for SDK and CLI)
+- A file you want to register (any format: PDF, image, document, etc.)
+- 5 minutes of your time
+
+### What You'll Get
+
+After completing any quickstart guide, you'll have:
+
+✅ A blockchain wallet linked to your user ID  
+✅ Your first file permanently registered on Solana  
+✅ Verification that your file is securely stored  
+✅ Working code examples you can build upon  
+
+---
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="API Documentation" icon="book" href="/api-overview">
+    Complete API reference and endpoint documentation
+  </Card>
+  
+  <Card title="SDK Reference" icon="box" href="/sdk-reference">
+    Detailed SDK methods and TypeScript definitions
+  </Card>
+  
+  <Card title="CLI Reference" icon="terminal" href="/cli-reference">
+    All CLI commands and options
+  </Card>
+  
+  <Card title="FAQ" icon="question" href="/faqs">
+    Common questions and troubleshooting
+  </Card>
+</CardGroup>
+
+---
+
+<Tip>
+**💡 Pro Tip**: If you're unsure which method to choose, start with the **CLI guide** for the simplest experience, or **React guide** if you're building a web application.
+</Tip>

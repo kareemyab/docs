@@ -1,0 +1,331 @@
+---
+title: 'REST API'
+description: 'Get up and running with Trust Engine REST API in under 5 minutes. Direct API integration for any programming language.'
+icon: 'code'
+---
+
+<Info>
+**Time to Complete**: ~5 minutes  
+**What You'll Learn**: How to use Trust Engine's REST API directly, create wallets, register files, and verify their provenance using HTTP requests
+</Info>
+
+
+
+<Steps>
+<Step title="API Base URL">
+All API requests are made to the Trust Engine base URL
+
+**Base URL:** `https://core-api-server.onrender.com`
+
+**Headers Required:**
+```http
+Content-Type: application/json
+```
+
+**Test the API (Optional):**
+```bash
+curl -X GET https://core-api-server.onrender.com/health
+```
+</Step>
+
+<Step title="Create a Wallet">
+Create a managed wallet that will own your registered files
+
+<Warning>
+**⚠️ ONE-TIME OPERATION**: This should only be performed **once per user**. Save the wallet address for all future registrations.
+</Warning>
+
+**Endpoint:** `POST /create-wallet`
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://core-api-server.onrender.com/create-wallet \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userID": "your-unique-user-id-123"
+  }'
+```
+
+```javascript JavaScript
+const response = await fetch('https://core-api-server.onrender.com/create-wallet', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    userID: 'your-unique-user-id-123'
+  })
+});
+
+const wallet = await response.json();
+console.log('Wallet created:', wallet.details.walletAddress);
+
+// Save this wallet address for future use
+const walletAddress = wallet.details.walletAddress;
+```
+
+```python Python
+import requests
+
+response = requests.post(
+    'https://core-api-server.onrender.com/create-wallet',
+    headers={'Content-Type': 'application/json'},
+    json={'userID': 'your-unique-user-id-123'}
+)
+
+wallet = response.json()
+wallet_address = wallet['details']['walletAddress']
+print(f'Wallet created: {wallet_address}')
+```
+</CodeGroup>
+
+💾 **Save the `walletAddress`** - you'll need it for the next steps!
+</Step>
+
+<Step title="Calculate File Hash">
+Before registering a file via REST API, you need to calculate its SHA256 hash and get file metadata
+
+<CodeGroup>
+```bash Command Line
+# Calculate SHA256 hash
+shasum -a 256 my-document.pdf
+# Output: a1b2c3d4e5f6789... my-document.pdf
+
+# Get file size
+wc -c < my-document.pdf
+# Output: 1234567
+
+# Get MIME type (manual or use 'file' command)
+file --mime-type my-document.pdf
+# Output: my-document.pdf: application/pdf
+```
+
+```javascript JavaScript/Node.js
+import crypto from 'crypto';
+import fs from 'fs';
+
+function calculateFileHash(filePath) {
+  const fileBuffer = fs.readFileSync(filePath);
+  const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+  const size = fileBuffer.length;
+  
+  return {
+    hash,
+    size,
+    fileName: path.basename(filePath)
+  };
+}
+
+const fileInfo = calculateFileHash('./my-document.pdf');
+console.log('File hash:', fileInfo.hash);
+console.log('File size:', fileInfo.size);
+```
+
+```python Python
+import hashlib
+import os
+
+def calculate_file_hash(file_path):
+    with open(file_path, 'rb') as f:
+        file_content = f.read()
+        hash_sha256 = hashlib.sha256(file_content).hexdigest()
+        file_size = len(file_content)
+    
+    return {
+        'hash': hash_sha256,
+        'size': file_size,
+        'filename': os.path.basename(file_path)
+    }
+
+file_info = calculate_file_hash('./my-document.pdf')
+print(f'File hash: {file_info["hash"]}')
+print(f'File size: {file_info["size"]}')
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Register Your File">
+Register the file on the blockchain using the hash and metadata from Step 3
+
+**Endpoint:** `POST /register`
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://core-api-server.onrender.com/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contentTitle": "My Important Document",
+    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2",
+    "walletType": "managed",
+    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3",
+    "fileMetadata": {
+      "fileName": "my-document.pdf",
+      "fileSize": YOUR_FILE_SIZE_FROM_STEP_3,
+      "mimeType": "application/pdf"
+    },
+    "metadata": "Registered via REST API"
+  }'
+```
+
+```javascript JavaScript
+const registrationData = {
+  contentTitle: 'My Important Document',
+  walletAddress: 'YOUR_WALLET_ADDRESS_FROM_STEP_2',
+  walletType: 'managed',
+  contentHash: 'YOUR_FILE_HASH_FROM_STEP_3',
+  fileMetadata: {
+    fileName: 'my-document.pdf',
+    fileSize: YOUR_FILE_SIZE_FROM_STEP_3,
+    mimeType: 'application/pdf'
+  },
+  metadata: 'Registered via REST API'
+};
+
+const response = await fetch('https://core-api-server.onrender.com/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(registrationData)
+});
+
+const registration = await response.json();
+console.log('Registration result:', registration);
+```
+
+```python Python
+import requests
+
+registration_data = {
+    'contentTitle': 'My Important Document',
+    'walletAddress': 'YOUR_WALLET_ADDRESS_FROM_STEP_2',
+    'walletType': 'managed',
+    'contentHash': 'YOUR_FILE_HASH_FROM_STEP_3',
+    'fileMetadata': {
+        'fileName': 'my-document.pdf',
+        'fileSize': YOUR_FILE_SIZE_FROM_STEP_3,
+        'mimeType': 'application/pdf'
+    },
+    'metadata': 'Registered via REST API'
+}
+
+response = requests.post(
+    'https://core-api-server.onrender.com/register',
+    headers={'Content-Type': 'application/json'},
+    json=registration_data
+)
+
+registration = response.json()
+print('Registration result:', registration)
+```
+</CodeGroup>
+
+</Step>
+
+<Step title="Verify File Registration">
+Search for your registered file to confirm it's on the blockchain
+
+**Endpoint:** `POST /search`
+
+<CodeGroup>
+```bash cURL
+curl -X POST https://core-api-server.onrender.com/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contentHash": "YOUR_FILE_HASH_FROM_STEP_3",
+    "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2"
+  }'
+```
+
+```javascript JavaScript
+const searchData = {
+  contentHash: 'YOUR_FILE_HASH_FROM_STEP_3',
+  walletAddress: 'YOUR_WALLET_ADDRESS_FROM_STEP_2'
+};
+
+const response = await fetch('https://core-api-server.onrender.com/search', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(searchData)
+});
+
+const searchResults = await response.json();
+console.log('Search results:', searchResults);
+
+if (searchResults.totalResults > 0) {
+  console.log('✅ File found on blockchain!');
+  console.log('Registrations:', searchResults.registrations);
+} else {
+  console.log('❌ File not found');
+}
+```
+
+```python Python
+import requests
+
+search_data = {
+    'contentHash': 'YOUR_FILE_HASH_FROM_STEP_3',
+    'walletAddress': 'YOUR_WALLET_ADDRESS_FROM_STEP_2'
+}
+
+response = requests.post(
+    'https://core-api-server.onrender.com/search',
+    headers={'Content-Type': 'application/json'},
+    json=search_data
+)
+
+search_results = response.json()
+print('Search results:', search_results)
+
+if search_results['totalResults'] > 0:
+    print('✅ File found on blockchain!')
+    for i, reg in enumerate(search_results['registrations']):
+        print(f'Registration {i+1}:')
+        print(f'  PDA: {reg["pdaAddress"]}')
+        print(f'  Timestamp: {reg["timestamp"]}')
+else:
+    print('❌ File not found')
+```
+</CodeGroup>
+
+</Step>
+
+
+</Steps>
+
+---
+
+## API Endpoints Summary
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/health` | GET | Check API status |
+| `/create-wallet` | POST | Create a new managed wallet |
+| `/register` | POST | Register a file on blockchain |
+| `/search` | POST | Search for registered files |
+| `/find-wallet` | POST | Find wallet by user ID |
+| `/link-wallet` | POST | Link external wallet to user |
+| `/submit-transaction` | POST | Submit signed transaction |
+
+## What's Next?
+
+<CardGroup cols={2}>
+  <Card title="API Documentation" icon="book" href="/api-overview">
+    Complete API reference and documentation
+  </Card>
+  
+  <Card title="SDK Guide" icon="box" href="/sdk-reference">
+    Use our JavaScript SDK for easier integration
+  </Card>
+  
+  <Card title="React Guide" icon="react" href="/quickstart-react">
+    Frontend integration with React
+  </Card>
+  
+  <Card title="Node.js Guide" icon="node-js" href="/quickstart-nodejs">
+    Server-side integration with Node.js
+  </Card>
+</CardGroup>
