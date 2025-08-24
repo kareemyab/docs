@@ -4,12 +4,6 @@ description: 'Get up and running with Trust Engine REST API in under 5 minutes. 
 icon: 'code'
 ---
 
-<Info>
-**Time to Complete**: ~5 minutes  
-**What You'll Learn**: How to use Trust Engine's REST API directly, create wallets, register files, and verify their provenance using HTTP requests
-</Info>
-
-
 
 <Steps>
 <Step title="API Base URL">
@@ -91,14 +85,6 @@ Before registering a file via REST API, you need to calculate its SHA256 hash an
 # Calculate SHA256 hash
 shasum -a 256 my-document.pdf
 # Output: a1b2c3d4e5f6789... my-document.pdf
-
-# Get file size
-wc -c < my-document.pdf
-# Output: 1234567
-
-# Get MIME type (manual or use 'file' command)
-file --mime-type my-document.pdf
-# Output: my-document.pdf: application/pdf
 ```
 
 ```javascript JavaScript/Node.js
@@ -108,18 +94,13 @@ import fs from 'fs';
 function calculateFileHash(filePath) {
   const fileBuffer = fs.readFileSync(filePath);
   const hash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-  const size = fileBuffer.length;
   
-  return {
-    hash,
-    size,
-    fileName: path.basename(filePath)
-  };
+  return hash;
 }
 
-const fileInfo = calculateFileHash('./my-document.pdf');
-console.log('File hash:', fileInfo.hash);
-console.log('File size:', fileInfo.size);
+const fileHash = calculateFileHash('./my-document.pdf');
+console.log('File hash:', fileHash);
+// Output: a1b2c3d4e5f6789... (Save this!!)
 ```
 
 ```python Python
@@ -130,17 +111,12 @@ def calculate_file_hash(file_path):
     with open(file_path, 'rb') as f:
         file_content = f.read()
         hash_sha256 = hashlib.sha256(file_content).hexdigest()
-        file_size = len(file_content)
     
-    return {
-        'hash': hash_sha256,
-        'size': file_size,
-        'filename': os.path.basename(file_path)
-    }
+    return hash_sha256
 
-file_info = calculate_file_hash('./my-document.pdf')
-print(f'File hash: {file_info["hash"]}')
-print(f'File size: {file_info["size"]}')
+file_hash = calculate_file_hash('./my-document.pdf')
+print(f'File hash: {file_hash}')
+# Output: a1b2c3d4e5f6789... (Save this!!)
 ```
 </CodeGroup>
 
@@ -160,11 +136,6 @@ curl -X POST https://core-api-server.onrender.com/register \
     "walletAddress": "YOUR_WALLET_ADDRESS_FROM_STEP_2",
     "walletType": "managed",
     "contentHash": "YOUR_FILE_HASH_FROM_STEP_3",
-    "fileMetadata": {
-      "fileName": "my-document.pdf",
-      "fileSize": YOUR_FILE_SIZE_FROM_STEP_3,
-      "mimeType": "application/pdf"
-    },
     "metadata": "Registered via REST API"
   }'
 ```
@@ -175,11 +146,6 @@ const registrationData = {
   walletAddress: 'YOUR_WALLET_ADDRESS_FROM_STEP_2',
   walletType: 'managed',
   contentHash: 'YOUR_FILE_HASH_FROM_STEP_3',
-  fileMetadata: {
-    fileName: 'my-document.pdf',
-    fileSize: YOUR_FILE_SIZE_FROM_STEP_3,
-    mimeType: 'application/pdf'
-  },
   metadata: 'Registered via REST API'
 };
 
@@ -203,11 +169,6 @@ registration_data = {
     'walletAddress': 'YOUR_WALLET_ADDRESS_FROM_STEP_2',
     'walletType': 'managed',
     'contentHash': 'YOUR_FILE_HASH_FROM_STEP_3',
-    'fileMetadata': {
-        'fileName': 'my-document.pdf',
-        'fileSize': YOUR_FILE_SIZE_FROM_STEP_3,
-        'mimeType': 'application/pdf'
-    },
     'metadata': 'Registered via REST API'
 }
 
@@ -298,18 +259,6 @@ else:
 </Steps>
 
 ---
-
-## API Endpoints Summary
-
-| Endpoint | Method | Purpose |
-|----------|--------|---------|
-| `/health` | GET | Check API status |
-| `/create-wallet` | POST | Create a new managed wallet |
-| `/register` | POST | Register a file on blockchain |
-| `/search` | POST | Search for registered files |
-| `/find-wallet` | POST | Find wallet by user ID |
-| `/link-wallet` | POST | Link external wallet to user |
-| `/submit-transaction` | POST | Submit signed transaction |
 
 ## What's Next?
 

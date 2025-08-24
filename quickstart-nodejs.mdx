@@ -4,11 +4,6 @@ description: 'Get up and running with Trust Engine in your Node.js application i
 icon: 'node-js'
 ---
 
-<Info>
-**Time to Complete**: ~5 minutes  
-**What You'll Learn**: How to integrate Trust Engine into your Node.js backend, create wallets, register files from the filesystem, and verify their provenance
-</Info>
-
 
 
 <Steps>
@@ -23,51 +18,50 @@ npm install @trust-engine/sdk@latest
 <Step title="Set Up Your Node.js Environment">
 Initialize the SDK and set up basic file structure
 
+<Warning>
+**📝 IMPORTANT**: You will be building **ONE FILE** throughout this guide. Each step adds new functions to the same `trust-engine-demo.js` file. **DO NOT** replace previous code - just keep adding to it!
+</Warning>
+
 Create a new file `trust-engine-demo.js`:
 
-```javascript
-import { CoreApiSDK } from '@trust-engine/sdk';
+<CodeGroup>
+```javascript ES Module
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import fs from 'fs';
-import path from 'path';
+import path from 'path'
 
 // Initialize the SDK
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 // Configuration
 const config = {
   userID: 'node-user-' + Date.now(), // Must be unique across your entire application
   walletAddress: null, // We'll populate this after creating a wallet
 };
-
-console.log('Trust Engine Node.js Demo');
 ```
 
-Or if using CommonJS:
-
-```javascript
-const { CoreApiSDK } = require('@trust-engine/sdk');
+```javascript CommonJS
+const { TrustEngineSDK } = require('@trust-engine/sdk');
 const fs = require('fs');
-const path = require('path');
+const path = require('path')
 
 // Initialize the SDK
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 // Configuration
 const config = {
   userID: 'node-user-' + Date.now(), // Must be unique across your entire application
   walletAddress: null,
 };
-
-console.log('Trust Engine Node.js Demo');
 ```
+</CodeGroup>
 </Step>
 
 <Step title="Create a Wallet">
 Create a managed wallet for your application or user
 
-<Warning>
-**⚠️ ONE-TIME OPERATION**: This should only be performed **once per user**. Store the wallet address securely for future use.
-</Warning>
+
+**Add these functions to your `trust-engine-demo.js` file:**
 
 ```javascript
 async function createWallet() {
@@ -120,27 +114,32 @@ function loadExistingWallet() {
 <Step title="Register Files from Filesystem">
 Register any file from your server's filesystem to the blockchain
 
+**Add this function to your `trust-engine-demo.js` file (below the previous functions):**
+
 ```javascript
-async function registerFile(filePath, contentTitle = null) {
+async function registerFile(filePath, contentTitle) {
   try {
     // Check if file exists
     if (!fs.existsSync(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
     
+    if (!contentTitle) {
+      throw new Error('contentTitle is required');
+    }
+    
     // Read file
     const fileBuffer = fs.readFileSync(filePath);
     const fileName = path.basename(filePath);
-    const mimeType = getMimeType(fileName);
     
-    // Create File object
-    const file = new File([fileBuffer], fileName, { type: mimeType });
+    // Create File object - no need for filename or MIME type
+    const file = new File([fileBuffer], fileName);
     
-    console.log(`📁 Registering file: ${fileName} (${(fileBuffer.length / 1024).toFixed(1)} KB)`);
+    console.log(`📁 Registering file: ${contentTitle} (${(fileBuffer.length / 1024).toFixed(1)} KB)`);
     
     const registration = await sdk.registerFile({
       file: file,
-      contentTitle: contentTitle || fileName,
+      contentTitle: contentTitle,
       walletAddress: config.walletAddress,
       walletType: 'managed',
       metadata: `Registered from Node.js server at ${new Date().toISOString()}`
@@ -158,29 +157,13 @@ async function registerFile(filePath, contentTitle = null) {
     throw error;
   }
 }
-
-// Simple MIME type detection
-function getMimeType(fileName) {
-  const ext = path.extname(fileName).toLowerCase();
-  const mimeTypes = {
-    '.pdf': 'application/pdf',
-    '.txt': 'text/plain',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.mp4': 'video/mp4',
-    '.mp3': 'audio/mpeg',
-    '.json': 'application/json',
-    '.csv': 'text/csv'
-  };
-  return mimeTypes[ext] || 'application/octet-stream';
-}
 ```
 </Step>
 
 <Step title="Verify File Registration">
 Search for registered files to confirm they're on the blockchain
+
+**Add this function to your `trust-engine-demo.js` file (below the previous functions):**
 
 ```javascript
 async function verifyFile(filePath) {
@@ -188,14 +171,13 @@ async function verifyFile(filePath) {
     // Read the same file
     const fileBuffer = fs.readFileSync(filePath);
     const fileName = path.basename(filePath);
-    const mimeType = getMimeType(fileName);
     
-    // Create File object (same as registration)
-    const file = new File([fileBuffer], fileName, { type: mimeType });
+    // Create File object - no need for filename or MIME type
+    const file = new File([fileBuffer], fileName);
     
-    console.log(`🔍 Searching for file: ${fileName}`);
+    console.log(`🔍 Searching for file at: ${filePath}`);
     
-    const searchResults = await sdk.searchFile(file);
+    const searchResults = await sdk.searchFile({ file });
     
     if (searchResults.totalResults > 0) {
       console.log('✅ File found on blockchain!');
@@ -219,179 +201,231 @@ async function verifyFile(filePath) {
     throw error;
   }
 }
+
 ```
 </Step>
 
-<Step title="Complete Node.js Script">
-Here's a complete working script that demonstrates the full workflow
+<Step title="Run Your Complete Demo">
+Now that you have all the functions in your file, let's test them together!
+
+**Add this demo code to the end of your `trust-engine-demo.js` file:**
 
 ```javascript
-import { CoreApiSDK } from '@trust-engine/sdk';
-import fs from 'fs';
-import path from 'path';
+// Demo workflow - add this at the very end of your file
+async function runDemo() {
+  try {
+    console.log('🚀 Starting Trust Engine Demo\n');
 
-class TrustEngineManager {
-  constructor() {
-    this.sdk = new CoreApiSDK();
-    this.config = {
-      userID: 'node-user-' + Date.now(), // Must be unique across your entire application
-      walletAddress: null,
-    };
-  }
-
-  // Load existing wallet configuration
-  loadWalletConfig() {
-    try {
-      if (fs.existsSync('wallet-config.json')) {
-        const walletConfig = JSON.parse(fs.readFileSync('wallet-config.json', 'utf8'));
-        this.config = { ...this.config, ...walletConfig };
-        console.log('📂 Loaded existing wallet:', this.config.walletAddress);
-        return true;
-      }
-    } catch (error) {
-      console.log('No existing wallet found, will create new one');
-    }
-    return false;
-  }
-
-  // Create a new wallet
-  async createWallet() {
-    try {
-      console.log('Creating wallet for user:', this.config.userID);
-      
-      const wallet = await this.sdk.createWallet({
-        userID: this.config.userID // Must be unique across your entire application
-      });
-      
-      this.config.walletAddress = wallet.details.walletAddress;
-      
-      // Save configuration
-      fs.writeFileSync('wallet-config.json', JSON.stringify({
-        ...this.config,
-        createdAt: new Date().toISOString()
-      }, null, 2));
-      
-      console.log('✅ Wallet created successfully!');
-      console.log('Wallet Address:', this.config.walletAddress);
-      
-      return wallet;
-    } catch (error) {
-      console.error('❌ Error creating wallet:', error.message);
-      throw error;
-    }
-  }
-
-  // Register a file
-  async registerFile(filePath, contentTitle = null) {
-    if (!this.config.walletAddress) {
-      throw new Error('No wallet address available. Create a wallet first.');
+    // Step 1: Load or create wallet
+    if (!loadExistingWallet()) {
+      await createWallet();
     }
 
+    // Step 2: Register a file with contentTitle
+    console.log('\n📝 Registering file...');
+    const filePath = './package.json'; // Change this to any file you want to test
+    const contentTitle = 'My Package Configuration';
+    
     if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${filePath}`);
-    }
-
-    const fileBuffer = fs.readFileSync(filePath);
-    const fileName = path.basename(filePath);
-    const mimeType = this.getMimeType(fileName);
-    
-    const file = new File([fileBuffer], fileName, { type: mimeType });
-    
-    console.log(`📁 Registering: ${fileName} (${(fileBuffer.length / 1024).toFixed(1)} KB)`);
-    
-    const registration = await this.sdk.registerFile({
-      file: file,
-      contentTitle: contentTitle || fileName,
-      walletAddress: this.config.walletAddress,
-      walletType: 'managed',
-      metadata: `Node.js registration - ${new Date().toISOString()}`
-    });
-
-    console.log('✅ File registered!');
-    console.log('Transaction ID:', registration.details.managedTransactionId);
-    
-    return registration;
-  }
-
-  // Verify a file
-  async verifyFile(filePath) {
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${filePath}`);
-    }
-
-    const fileBuffer = fs.readFileSync(filePath);
-    const fileName = path.basename(filePath);
-    const mimeType = this.getMimeType(fileName);
-    
-    const file = new File([fileBuffer], fileName, { type: mimeType });
-    
-    console.log(`🔍 Verifying: ${fileName}`);
-    
-    const results = await this.sdk.searchFile(file);
-    
-    if (results.totalResults > 0) {
-      console.log(`✅ Found ${results.totalResults} registration(s)`);
-    } else {
-      console.log('❌ File not found on blockchain');
+      console.log('Please create a test file or update the filePath variable');
+      return;
     }
     
-    return results;
-  }
+    const registration = await registerFile(filePath, contentTitle);
+    console.log("Registration Complete:", registration)
 
-  // Get MIME type
-  getMimeType(fileName) {
-    const ext = path.extname(fileName).toLowerCase();
-    const mimeTypes = {
-      '.pdf': 'application/pdf',
-      '.txt': 'text/plain',
-      '.jpg': 'image/jpeg',
-      '.png': 'image/png',
-      '.json': 'application/json',
-      '.csv': 'text/csv'
-    };
-    return mimeTypes[ext] || 'application/octet-stream';
-  }
+    // Step 3: Verify the file
+    console.log('\n🔍 Verifying registration...');
+    const verification = await verifyFile(filePath);
+    console.log("Verification Complete", verification)
 
-  // Demo workflow
-  async runDemo(filePath) {
-    try {
-      console.log('🚀 Starting Trust Engine Demo\n');
-
-      // Step 1: Load or create wallet
-      const hasWallet = this.loadWalletConfig();
-      if (!hasWallet) {
-        await this.createWallet();
-      }
-
-      // Step 2: Register file
-      console.log('\n📝 Registering file...');
-      const registration = await this.registerFile(filePath);
-
-      // Step 3: Verify file
-      console.log('\n🔍 Verifying registration...');
-      const verification = await this.verifyFile(filePath);
-
-      console.log('\n✅ Demo completed successfully!');
-      
-      return { registration, verification };
-    } catch (error) {
-      console.error('\n❌ Demo failed:', error.message);
-      throw error;
-    }
+    console.log('\n✅ Demo completed successfully!');
+    
+  } catch (error) {
+    console.error('\n❌ Demo failed:', error.message);
   }
 }
 
-// Usage example
-async function main() {
-  const trustEngine = new TrustEngineManager();
+// Run the demo
+runDemo();
+```
+
+**Now run your complete file:**
+
+```bash
+node trust-engine-demo.js
+```
+
+Your file should now have: imports → config → loadExistingWallet → createWallet → registerFile → verifyFile → runDemo functions, all working together!
+</Step>
+
+<Step title="Complete Reference Script">
+<Info>
+**📋 This is for reference only** - if you followed the previous steps, your file should already be working! This shows the complete file structure in one place.
+</Info>
+
+For reference, here's what your complete `trust-engine-demo.js` file should look like:
+
+```javascript
+import { TrustEngineSDK } from '@trust-engine/sdk';
+import fs from 'fs';
+import path from 'path';
+
+// Initialize SDK and configuration
+const sdk = new TrustEngineSDK();
+const config = {
+  userID: 'node-user-' + Date.now(), // Must be unique across your entire application
+  walletAddress: null,
+};
+
+// Load existing wallet configuration
+function loadWalletConfig() {
+  try {
+    if (fs.existsSync('wallet-config.json')) {
+      const walletConfig = JSON.parse(fs.readFileSync('wallet-config.json', 'utf8'));
+      config.walletAddress = walletConfig.walletAddress;
+      config.userID = walletConfig.userID;
+      console.log('📂 Loaded existing wallet:', config.walletAddress);
+      return true;
+    }
+  } catch (error) {
+    console.log('No existing wallet found, will create new one');
+  }
+  return false;
+}
+
+// Create a new wallet
+async function createWallet() {
+  try {
+    console.log('Creating wallet for user:', config.userID);
+    
+    const wallet = await sdk.createWallet({
+      userID: config.userID // Must be unique across your entire application
+    });
+    
+    config.walletAddress = wallet.details.walletAddress;
+    
+    // Save configuration
+    fs.writeFileSync('wallet-config.json', JSON.stringify({
+      userID: config.userID,
+      walletAddress: config.walletAddress,
+      createdAt: new Date().toISOString()
+    }, null, 2));
+    
+    console.log('✅ Wallet created successfully!');
+    console.log('Wallet Address:', config.walletAddress);
+    
+    return wallet;
+  } catch (error) {
+    console.error('❌ Error creating wallet:', error.message);
+    throw error;
+  }
+}
+
+// Register a file
+async function registerFile(filePath, contentTitle) {
+  if (!config.walletAddress) {
+    throw new Error('No wallet address available. Create a wallet first.');
+  }
+
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+
+  if (!contentTitle) {
+    throw new Error('contentTitle is required');
+  }
+
+  const fileBuffer = fs.readFileSync(filePath);
+  const fileName = path.basename(filePath);
   
-  // Example: Register a package.json file
-  const filePath = './package.json';
+  // Create File object - no need for filename or MIME type
+  const file = new File([fileBuffer], fileName);
   
-  if (fs.existsSync(filePath)) {
-    await trustEngine.runDemo(filePath);
+  console.log(`📁 Registering: ${contentTitle} (${(fileBuffer.length / 1024).toFixed(1)} KB)`);
+  
+  const registration = await sdk.registerFile({
+    file: file,
+    contentTitle: contentTitle,
+    walletAddress: config.walletAddress,
+    walletType: 'managed',
+    metadata: `Node.js registration - ${new Date().toISOString()}`
+  });
+
+  console.log('✅ File registered!');
+  console.log('Transaction ID:', registration.details.managedTransactionId);
+  
+  return registration;
+}
+
+// Verify a file
+async function verifyFile(filePath) {
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+
+  const fileBuffer = fs.readFileSync(filePath);
+  const fileName = path.basename(filePath);
+  
+  // Create File object - no need for filename or MIME type
+  const file = new File([fileBuffer], fileName);
+  
+  console.log(`🔍 Verifying file at: ${filePath}`);
+  
+  const results = await sdk.searchFile({ file });
+  
+  if (results.totalResults > 0) {
+    console.log('✅ File found on blockchain!');
+    console.log('Total registrations:', results.totalResults);
+    
+    results.registrations.forEach((reg, index) => {
+      console.log(`\nRegistration ${index + 1}:`);
+      console.log('  PDA Address:', reg.pdaAddress);
+      console.log('  Registered by:', reg.registeredBy);
+      console.log('  Timestamp:', reg.timestamp);
+      console.log('  Explorer URL:', reg.explorerUrl);
+    });
   } else {
-    console.log('Please create a test file or update the filePath variable');
+    console.log('❌ File not found on blockchain');
+  }
+  
+  return results;
+}
+
+// Main demo workflow
+async function main() {
+  try {
+    console.log('🚀 Starting Trust Engine Demo\n');
+
+    // Step 1: Load or create wallet
+    if (!loadWalletConfig()) {
+      await createWallet();
+    }
+
+    // Step 2: Register file with contentTitle
+    console.log('\n📝 Registering file...');
+    const filePath = './package.json';
+    const contentTitle = 'My Package Configuration';
+    
+    if (!fs.existsSync(filePath)) {
+      console.log('Please create a test file or update the filePath variable');
+      return;
+    }
+    
+    const registration = await registerFile(filePath, contentTitle);
+    console.log("Registration Complete:", registration)
+
+    // Step 3: Verify file
+    console.log('\n🔍 Verifying registration...');
+    const verification = await verifyFile(filePath);
+    console.log("Verification Complete", verification)
+
+    console.log('\n✅ Demo completed successfully!');
+    
+    return { registration, verification };
+  } catch (error) {
+    console.error('\n❌ Demo failed:', error.message);
+    throw error;
   }
 }
 
@@ -408,30 +442,6 @@ node trust-engine-demo.js
 </Steps>
 
 ---
-
-## Example Output
-
-When you run the complete script, you should see output like this:
-
-```
-🚀 Starting Trust Engine Demo
-
-Creating wallet for user: node-user-1699123456789
-✅ Wallet created successfully!
-Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-
-📝 Registering file...
-📁 Registering: package.json (1.2 KB)
-✅ File registered!
-Transaction ID: abc123...
-
-🔍 Verifying registration...
-🔍 Verifying: package.json
-✅ Found 1 registration(s)
-
-✅ Demo completed successfully!
-```
-
 ## What's Next?
 
 <CardGroup cols={2}>

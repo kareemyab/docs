@@ -36,10 +36,10 @@ function searchFile(
 
 <CodeGroup>
 ```tsx React / Next.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { useState } from 'react';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 export default function FileSearch() {
   const [file, setFile] = useState<File | null>(null);
@@ -57,10 +57,10 @@ export default function FileSearch() {
     setIsSearching(true);
     try {
       // Search all registrations for this file
-      const searchResult = await sdk.searchFile(file);
+      const searchResult = await sdk.searchFile({ file });
       
       // Or search for specific wallet's registration:
-      // const searchResult = await sdk.searchFile(file, 'specific-wallet-address');
+      // const searchResult = await sdk.searchFile({ file, 'specific-wallet-address' });
       
       setResult(searchResult);
     } catch (error) {
@@ -83,11 +83,11 @@ export default function FileSearch() {
 }
 ```
 ```typescript Node.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { promises as fs } from 'fs';
 import { File } from 'buffer';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 async function findFileRegistration() {
   try {
@@ -96,11 +96,11 @@ async function findFileRegistration() {
 
     // Search for all registrations of this file
     console.log('🔍 Searching for all registrations...');
-    const allResults = await sdk.searchFile(file);
+    const allResults = await sdk.searchFile({ file });
     
     // Search for specific wallet's registration
     console.log('🔍 Searching for specific wallet registration...');
-    const specificResult = await sdk.searchFile(file, '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM');
+    const specificResult = await sdk.searchFile({ file, '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM' });
     
     if (allResults.registrations && allResults.registrations.length > 0) {
       console.log(`✅ Found ${allResults.totalResults} registration(s)!`);

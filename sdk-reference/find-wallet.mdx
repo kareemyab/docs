@@ -27,10 +27,10 @@ function findWallet(
 
 <CodeGroup>
 ```tsx React / Next.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { useState } from 'react';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 export default function WalletFinder() {
   const [searchValue, setSearchValue] = useState('');
@@ -73,9 +73,9 @@ export default function WalletFinder() {
 }
 ```
 ```typescript Node.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 async function findWallet() {
   try {

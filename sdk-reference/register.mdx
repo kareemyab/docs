@@ -27,10 +27,10 @@ function registerFile(
 
 <CodeGroup>
 ```tsx React / Next.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { useState } from 'react';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 export default function FileRegistrar() {
   const [file, setFile] = useState<File | null>(null);
@@ -95,11 +95,11 @@ export default function FileRegistrar() {
 }
 ```
 ```typescript Node.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { promises as fs } from 'fs';
 import { File } from 'buffer';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 async function registerDocument() {
   try {

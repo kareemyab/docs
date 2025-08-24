@@ -4,10 +4,7 @@ description: 'Get up and running with Trust Engine in your React app in under 5 
 icon: 'react'
 ---
 
-<Info>
-**Time to Complete**: ~5 minutes  
-**What You'll Learn**: How to integrate Trust Engine into your React application, create a wallet, register files, and verify their provenance
-</Info>
+
 
 <Steps>
 <Step title="Install the Trust Engine SDK">
@@ -18,14 +15,20 @@ npm install @trust-engine/sdk@latest
 ```
 </Step>
 
-<Step title="Set Up the SDK in Your React App">
-Initialize the Trust Engine SDK in your React component
+<Step title="Set Up Your React Component">
+Initialize the SDK and set up your React component structure
+
+<Warning>
+**📝 IMPORTANT**: You will be building **ONE COMPONENT** throughout this guide. Each step adds new functions to the same React component. **DO NOT** replace previous code - just keep adding to it!
+</Warning>
+
+Create or update your React component:
 
 ```jsx
 import React, { useState } from 'react';
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 function TrustEngineDemo() {
   const [userID, setUserID] = useState('');
@@ -47,9 +50,7 @@ export default TrustEngineDemo;
 <Step title="Create a Wallet for Your User">
 Let users enter their ID and create a wallet
 
-<Warning>
-**⚠️ ONE-TIME OPERATION**: This should only be performed **once per user**. The generated wallet will be used for **all future file registrations**.
-</Warning>
+**Add this function to your React component:**
 
 ```jsx
 const createWallet = async () => {
@@ -96,6 +97,8 @@ const createWallet = async () => {
 
 <Step title="Add File Upload and Registration">
 Now let users select and register files using the wallet from Step 3
+
+**Add these functions to your React component (below the createWallet function):**
 
 ```jsx
 const handleFileSelect = (event) => {
@@ -159,7 +162,10 @@ const registerFile = async () => {
 <Step title="Verify File Registration">
 Check if the file from Step 4 was successfully registered
 
+**Add this function to your React component (below the registerFile function):**
+
 ```jsx
+// Add this state variable with your other useState declarations at the top
 const [searchResults, setSearchResults] = useState(null);
 
 const verifyFile = async () => {
@@ -169,7 +175,7 @@ const verifyFile = async () => {
   }
 
   try {
-    const results = await sdk.searchFile(selectedFile); // Using same file from Step 4
+    const results = await sdk.searchFile({ file: selectedFile }); // Using same file from Step 4
     setSearchResults(results);
     console.log('Search results:', results);
     
@@ -203,14 +209,32 @@ const verifyFile = async () => {
 ```
 </Step>
 
+<Step title="Test Your Complete React App">
+Now that you have all the functions in your component, let's test them together!
+
+**Your component should now have all the functions working together:**
+
+1. **User Input**: Enter a unique user ID
+2. **Wallet Creation**: Click "Create Wallet" to generate a managed wallet  
+3. **File Selection**: Choose any file from your computer
+4. **File Registration**: Click "Register File" to record it on blockchain
+5. **Verification**: Click "Verify Registration" to confirm it's recorded
+
+**Your React component should now have:** imports → state → createWallet → handleFileSelect → registerFile → verifyFile functions, all working together in one component!
+</Step>
+
 <Step title="Complete React Component">
+<Info>
+**📋 This is for reference only** - if you followed the previous steps, your component should already be working! This shows the complete component structure in one place.
+</Info>
+
 Here's the complete working React component that combines all the steps
 
 ```jsx
 import React, { useState } from 'react';
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 function TrustEngineDemo() {
   const [userID, setUserID] = useState('');
@@ -283,7 +307,7 @@ function TrustEngineDemo() {
     }
 
     try {
-      const results = await sdk.searchFile(selectedFile);
+      const results = await sdk.searchFile({ file: selectedFile });
       setSearchResults(results);
       console.log('Search results:', results);
       

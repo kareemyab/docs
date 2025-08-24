@@ -28,7 +28,7 @@ openapi: 'POST /register'
 
 - **`"managed"`**: Automatic signing and submission - registration completes immediately with confirmed transaction
 - **`"self"` with `returnActionLink: true`** *(Recommended)*: Returns an action link for secure browser-based transaction signing
-- **`"self"` with `returnActionLink: false`**: Returns unsigned transaction that you must sign manually and submit via [`/transactions`](/essentials/submit-transaction)
+- **`"self"` with `returnActionLink: false`**: Returns unsigned transaction that you must sign manually client side and submit via [`/transactions`](/essentials/submit-transaction)
 </Info>
 
 ## Action Link Flow (Recommended for Self Wallets)

@@ -67,10 +67,6 @@ This page provides detailed information about the type definitions used in the T
   Additional metadata to store with the file.
 </ResponseField>
 
-<ResponseField name="secret" type="string" optional>
-  A secret to use for creating a claim hash.
-</ResponseField>
-
 <ResponseField name="signTransaction" type="(transaction: Transaction) => Promise<Transaction>" optional>
   A function to sign a transaction. Usually a function from your wallet provider (Phantom, Metamask, etc. )
 </ResponseField>
@@ -91,17 +87,17 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="status" type="string">
       The status of the registration.
     </ResponseField>
-    <ResponseField name="managedTransactionId" type="string">
-      The ID of the managed transaction.
+    <ResponseField name="transactionSignature" type="string">
+      The signature of the transaction that registered the file.
     </ResponseField>
     <ResponseField name="contentRegistrationPDA" type="string">
       The Program Derived Address for the registration.
     </ResponseField>
+    <ResponseField name="contentHash" type="string">
+      The SHA256 hash of the file content.
+    </ResponseField>
     <ResponseField name="ipfsCid" type="string">
       The IPFS CID of the file.
-    </ResponseField>
-    <ResponseField name="processingFee" type="string">
-      The fee for processing the registration.
     </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
@@ -121,14 +117,17 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="status" type="string">
       The status of the registration.
     </ResponseField>
+    <ResponseField name="transaction" type="string">
+      A base64 encoded transaction that needs to be signed by the client.
+    </ResponseField>
     <ResponseField name="ipfsCid" type="string">
       The IPFS CID of the file.
     </ResponseField>
     <ResponseField name="contentRegistrationPDA" type="string">
       The Program Derived Address for the registration.
     </ResponseField>
-    <ResponseField name="transaction" type="string">
-      A base64 encoded transaction that needs to be signed by the client.
+    <ResponseField name="contentHash" type="string">
+      The SHA256 hash of the file content.
     </ResponseField>
   </Expandable>
 </ResponseField>
@@ -191,8 +190,14 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="timestamp" type="string">
       ISO timestamp when file was registered.
     </ResponseField>
+    <ResponseField name="status" type="string">
+      Status of the registration.
+    </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       Link to view on Solana Explorer.
+    </ResponseField>
+    <ResponseField name="ipfsData" type="object">
+      IPFS data stored off chain.
     </ResponseField>
     <ResponseField name="onChainData" type="object">
       Raw blockchain data (implementation details).

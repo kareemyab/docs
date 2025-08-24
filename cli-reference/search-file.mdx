@@ -40,14 +40,14 @@ Registration Details:
 
 --- Registration 1 ---
   - Content Hash: abc123def456789ghi012jkl345mno678pqr901
-  - PDA Address: xyz789abc123def456ghi789
+  - PDA Address: 9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR
   - IPFS CID: QmExampleCidForYourFileMetadata123
   - Registered By: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
   - User ID: user_12345
   - Timestamp: 2024-01-15T10:30:45.123Z
   - Validation Status: validated
   - Consensus: high
-  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
+  - Explorer URL: https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet
 ```
 
 You can also search for files registered by a specific wallet:
@@ -88,12 +88,15 @@ This will return:
   "registrations": [
     {
       "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
-      "pdaAddress": "xyz789abc123def456ghi789",
+      "pdaAddress": "9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR",
       "ipfsCid": "QmExampleCidForYourFileMetadata123",
       "registeredBy": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
       "userID": "user_12345",
       "timestamp": "2024-01-15T10:30:45.123Z",
-      "explorerUrl": "https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet"
+      "status": "registered",
+      "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
+      "ipfsData": {},
+      "onChainData": {}
     }
   ]
 }
