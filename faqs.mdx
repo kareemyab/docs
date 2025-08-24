@@ -172,24 +172,6 @@ icon: 'circle-question'
 ## Developer Questions
 
 <AccordionGroup>
-  <Accordion title="What's the difference between content hash and claim hash?">
-    **Content Hash**: SHA256 of your file content, used for registration and searching
-    
-    **Claim Hash**: Optional SHA256 of (content hash + secret), used for future ownership proof
-    
-    ```javascript
-    // Content hash (always required)
-    const contentHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-    
-    // Claim hash (optional, for secret verification)
-    const secret = "my-secret-phrase-2024";
-    const combined = contentHash + secret;
-    const claimHash = crypto.createHash('sha256').update(combined).digest('hex');
-    ```
-    
-    **Use claim hash when**: You want to prove ownership later without revealing a secret upfront.
-  </Accordion>
-
   <Accordion title="Why do I need a user-wallet relationship?">
     Trust Engine requires linking user IDs to wallet addresses for:
     

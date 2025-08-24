@@ -14,14 +14,13 @@ trust-engine-cli register [options]
 
 | Option                        | Description                                      |
 | ----------------------------- | ------------------------------------------------ |
-| `-f, --file <path>`           | Path to the file to register                     |
+| `-f, --file <path>`           | Path to the file to register                    |
 | `-t, --contentTitle <title>`  | Title for the content being registered          |
 | `-w, --walletAddress <address>` | User wallet address (Solana public key)       |
-| `-y, --walletType <type>`     | Wallet type: 'self' or 'managed'          |
+| `-y, --walletType <type>`     | Wallet type: 'self' or 'managed'                |
 | `-r, --returnActionLink`      | Return an action link for transaction signing (self wallets only) |
 | `-m, --metadata <text>`       | Public metadata as a string (optional)          |
-| `-s, --secret <text>`         | Optional raw text secret for claim hash generation |
-| `--json`                      | Output the result as JSON                        |
+| `--json`                      | Output the result as JSON                       |
 
 ## Examples
 
@@ -42,11 +41,11 @@ After running the command, you'll see registration details:
 
 Registration Details:
   - Status: completed
-  - Transaction Signature: 2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg
-  - Content Registration PDA: xyz789abc123def456ghi789
+  - Transaction Signature: 5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB
+  - Content Registration PDA: 9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR
   - Content Hash: abc123def456789ghi012jkl345mno678pqr901
   - IPFS CID: QmExampleCidForYourFileMetadata123
-  - Explorer URL: https://explorer.solana.com/tx/2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg?cluster=devnet
+  - Explorer URL: https://explorer.solana.com/address/5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB?cluster=devnet
 ```
 
 If you're using a self wallet, you have two options for signing:
@@ -90,12 +89,12 @@ Registration Details:
   - Sign the transaction using your wallet and submit it using the following command:
     trust-engine-cli submit-transaction --transaction <signed_base64_transaction>
   - Transaction (Base64): eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...
-  - Content Registration PDA: xyz789abc123def456ghi789
+  - Content Registration PDA: 9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR
   - Content Hash: abc123def456789ghi012jkl345mno678pqr901
   - IPFS CID: QmExampleCidForYourFileMetadata123
 ```
 
-You can also register with metadata and secrets:
+You can also register with metadata:
 
 ```bash
 trust-engine-cli register \
@@ -104,7 +103,6 @@ trust-engine-cli register \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   --walletType "managed" \
   --metadata "type:contract,department:legal" \
-  --secret "my_secret_verification_phrase"
 ```
 
 For self wallets with action links:
@@ -116,7 +114,6 @@ trust-engine-cli register \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
   --walletType "self" \
   --metadata "type:contract,department:legal" \
-  --secret "my_secret_verification_phrase" \
   --returnActionLink
 ```
 
@@ -133,11 +130,11 @@ trust-engine-cli register --file ./data.csv --contentTitle "Research Data" --wal
   "message": "✅ Success! Your file has been registered and confirmed on-chain.",
   "details": {
     "status": "confirmed",
-    "transactionSignature": "2nBhEBYYvfaAe16UMNqRHre4YNSskvuYgx3M6E4JP1oDYvZEJHvoPzyUwkoB6VRYuVEMarHNr9RxJWnyb8FnFnBg",
-    "contentRegistrationPDA": "xyz789abc123def456ghi789",
+    "transactionSignature": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
+    "contentRegistrationPDA": "9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR",
     "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
     "ipfsCid": "QmExampleCidForYourFileMetadata123",
-    "explorerUrl": "https://explorer.solana.com/tx/xyz789abc123def456ghi789?cluster=devnet"
+    "explorerUrl": "https://explorer.solana.com/address/9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR?cluster=devnet"
   }
 }
 ```
@@ -166,7 +163,7 @@ trust-engine-cli register --file ./data.csv --contentTitle "Research Data" --wal
     "status": "requires-client-signature",
     "transaction": "eJzTYmBkYGBkZWBgZGZgYGRhYGBkZmBgZGVgYGRmYGBkZWBgZGZgYGRh...",
     "ipfsCid": "QmExampleCidForYourFileMetadata123",
-    "contentRegistrationPDA": "xyz789abc123def456ghi789",
+    "contentRegistrationPDA": "9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR",
     "contentHash": "abc123def456789ghi012jkl345mno678pqr901"
   }
 }

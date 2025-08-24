@@ -19,10 +19,10 @@ npm install @trust-engine/sdk@latest
 Here's a quick example of how to import and use the SDK in your project:
 
 ```typescript
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 
 // Initialize the SDK
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 // Example: Create a new wallet
 async function createNewWallet() {
@@ -71,7 +71,7 @@ Search for a file's registration record using the file itself.
 
 ```typescript
 const file = new File(["content"], "example.txt", { type: "text/plain" });
-const records = await sdk.searchFile(file);
+const records = await sdk.searchFile({ file });
 ```
 
 <br/>

@@ -4,11 +4,6 @@ description: 'Get up and running with Trust Engine CLI in under 5 minutes. Perfe
 icon: 'terminal'
 ---
 
-<Info>
-**Time to Complete**: ~5 minutes  
-**What You'll Learn**: How to use Trust Engine CLI for wallet creation, file registration, and verification directly from your terminal
-</Info>
-
 <Steps>
 <Step title="Install the Trust Engine CLI">
 Install the CLI globally to use it from anywhere in your terminal
@@ -27,24 +22,6 @@ trust-engine-cli --version
 trust-engine-cli --help
 ```
 
-**Expected output:**
-```
-Trust Engine CLI v1.0.0
-
-Commands:
-  create-wallet    Create a new wallet for a user
-  find-wallet      Find a wallet by user ID or wallet address
-  link-wallet      Link a wallet to a user ID
-  register         Register a file with the Trust Engine
-  search-file      Search for a file by its content hash
-  submit-transaction Submit a signed transaction to the network
-
-Options:
-  --help     Show help
-  --version  Show version number
-  --json     Output results in JSON format
-```
-
 </Step>
 
 <Step title="Create a Wallet">
@@ -59,29 +36,6 @@ Create a managed wallet that will own your registered files
 trust-engine-cli create-wallet --userID "your-unique-user-id-123"
 ```
 
-**With JSON output (for scripting):**
-```bash
-# Note: userID must be unique across your entire application
-trust-engine-cli create-wallet --userID "your-unique-user-id-123" --json
-```
-
-**Expected output:**
-```
-✅ Wallet created successfully!
-
-User ID: your-unique-user-id-123
-Wallet Address: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-Chain: solana
-Transaction: 5J7X2vK8... (view on Solana Explorer)
-Explorer URL: https://explorer.solana.com/tx/5J7X...?cluster=devnet
-
-💡 Save your wallet address - you'll need it for file registration!
-```
-
-**💾 Save the wallet address** - copy it from the output above. You can also find it later using:
-```bash
-trust-engine-cli find-wallet --userID "your-unique-user-id-123"
-```
 
 </Step>
 
@@ -99,51 +53,6 @@ trust-engine-cli register \
   --metadata "Registered via CLI"
 ```
 
-**Example with a real file:**
-```bash
-# Register a PDF document
-trust-engine-cli register \
-  --file ./contract.pdf \
-  --contentTitle "Employment Contract" \
-  --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
-  --walletType "managed" \
-  --metadata "Legal document registration"
-```
-
-**Register with JSON output:**
-```bash
-trust-engine-cli register \
-  --file ./my-document.pdf \
-  --contentTitle "My Document" \
-  --walletAddress "YOUR_WALLET_ADDRESS" \
-  --walletType "managed" \
-  --metadata "CLI registration" \
-  --json
-```
-
-**Expected output:**
-```
-📁 Processing file: my-document.pdf
-📊 File size: 1.2 MB
-🔐 Content hash: a1b2c3d4e5f6789...
-📤 Uploading to IPFS...
-⛓️  Registering on blockchain...
-
-✅ File registered successfully!
-
-Registration Details:
-  Content Title: My Important Document
-  File Name: my-document.pdf
-  File Size: 1,234,567 bytes
-  Content Hash: a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234
-  IPFS CID: QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz
-  Transaction ID: abc123def456...
-  
-🔗 View on Solana Explorer:
-https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet
-
-💡 Your file is now permanently registered on the blockchain!
-```
 
 </Step>
 
@@ -151,57 +60,15 @@ https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY
 Search for your registered file to confirm it's on the blockchain
 
 ```bash
-trust-engine-cli search-file --file ./my-document.pdf
+trust-engine-cli search-file --file ./my-document.pdf -w "YOUR_WALLET_ADDRESS_FROM_STEP_2"
 ```
 
-**Search with JSON output:**
-```bash
-trust-engine-cli search-file --file ./my-document.pdf --json
-```
-
-**Search by hash (if you have it):**
-```bash
-trust-engine-cli search-file --contentHash "a1b2c3d4e5f6789..."
-```
-
-**Expected output:**
-```
-🔍 Searching for file: my-document.pdf
-📊 File hash: a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234
-
-✅ File found on blockchain!
-
-Search Results (1 registration found):
-
-Registration #1:
-  PDA Address: 8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY
-  Registered By: 9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM
-  User ID: your-unique-user-id-123
-  Timestamp: 2024-01-15T14:30:25.000Z
-  IPFS CID: QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz
-  
-🔗 View on Solana Explorer:
-https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet
-
-🎉 Verification complete - your file is securely registered!
-```
 
 </Step>
 
 </Steps>
 
 ---
-
-## CLI Commands Reference
-
-| Command | Purpose | Key Options |
-|---------|---------|-------------|
-| `create-wallet` | Create new managed wallet | `--userID` |
-| `find-wallet` | Find wallet by user ID | `--userID`, `--walletAddress` |
-| `link-wallet` | Link external wallet | `--userID`, `--walletAddress` |
-| `register` | Register file on blockchain | `--file`, `--walletAddress`, `--contentTitle` |
-| `search-file` | Search for registered files | `--file`, `--contentHash` |
-| `submit-transaction` | Submit signed transaction | `--transaction`, `--walletAddress` |
 
 ## Global Options
 

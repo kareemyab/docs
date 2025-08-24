@@ -27,10 +27,10 @@ function submitTransaction(
 
 <CodeGroup>
 ```tsx React / Next.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 import { useState } from 'react';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 export default function TransactionSubmitter({ base64Transaction }: { base64Transaction: string }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,9 +59,9 @@ export default function TransactionSubmitter({ base64Transaction }: { base64Tran
 }
 ```
 ```typescript Node.js
-import { CoreApiSDK } from '@trust-engine/sdk';
+import { TrustEngineSDK } from '@trust-engine/sdk';
 
-const sdk = new CoreApiSDK();
+const sdk = new TrustEngineSDK();
 
 async function submitSignedTransaction() {
   // This would usually be your signed version the unsigned transaction that came from the /register endpoint
