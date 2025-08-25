@@ -172,6 +172,9 @@ The response from registering a file. This can vary depending on whether the wal
 <ResponseField name="registrations" type="Array<object>">
   An array of objects, where each object contains the details of a registration record.
   <Expandable>
+    <ResponseField name="title" type="string">
+      The chosen title of the registration
+    </ResponseField>
     <ResponseField name="contentHash" type="string">
       The SHA256 hash of the file content.
     </ResponseField>
@@ -196,11 +199,11 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="explorerUrl" type="string">
       Link to view on Solana Explorer.
     </ResponseField>
-    <ResponseField name="ipfsData" type="object">
-      IPFS data stored off chain.
+    <ResponseField name="metadata" type="string">
+      Optional metadata about the file from the user
     </ResponseField>
-    <ResponseField name="onChainData" type="object">
-      Raw blockchain data (implementation details).
+    <ResponseField name="identity_data" type="object">
+      Identity data they decided to reveal about themselves
     </ResponseField>
   </Expandable>
 </ResponseField>

@@ -521,6 +521,7 @@
                       "totalResults": 2,
                       "registrations": [
                         {
+                          "title": "Test File",
                           "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                           "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
                           "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
@@ -528,9 +529,19 @@
                           "userID": "user_123456789",
                           "timestamp": "2024-01-15T14:30:25.000Z",
                           "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
-                          "onChainData": {},
                           "status": "registered",
-                          "ipfsData": {}
+                          "metadata": "Test File Metadata", 
+                          "identity_data": {
+                            "verified_name": "John Doe",
+                            "verified_nationality": "United States",
+                            "verified_date_of_birth": "1990-01-01",
+                            "verified_gender": null,
+                            "verified_passport_number": null,
+                            "verified_issuing_state": null,
+                            "verified_expiry_date": null,
+                            "verified_at": "2024-01-15T14:30:25.000Z",
+                            "provider": "self"
+                          }
                         }
                       ]
                     }
@@ -547,6 +558,7 @@
                       "totalResults": 1,
                       "registrations": [
                         {
+                          "title": "Test File",
                           "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                           "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
                           "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
@@ -554,9 +566,19 @@
                           "userID": "user_123456789",
                           "timestamp": "2024-01-15T14:30:25.000Z",
                           "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
-                          "onChainData": {},
                           "status": "registered",
-                          "ipfsData": {}
+                          "metadata": "Test File Metadata", 
+                          "identity_data": {
+                            "verified_name": "John Doe",
+                            "verified_nationality": "United States",
+                            "verified_date_of_birth": "1990-01-01",
+                            "verified_gender": null,
+                            "verified_passport_number": null,
+                            "verified_issuing_state": null,
+                            "verified_expiry_date": null,
+                            "verified_at": "2024-01-15T14:30:25.000Z",
+                            "provider": "self"
+                          }
                         }
                       ]
                     }
@@ -1348,6 +1370,10 @@
       "SearchRegistration": {
         "type": "object",
         "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the file"
+          },
           "contentHash": {
             "type": "string",
             "description": "SHA256 hash of the file content"
@@ -1382,16 +1408,16 @@
             "type": "string",
             "description": "Link to view on Solana Explorer"
           },
-          "ipfsData": {
-            "type": "object",
-            "description": "IPFS data stored off chain"
+          "metadata": {
+            "type": "string",
+            "description": "Metadata stored off chain"
           },
-          "onChainData": {
+          "identity_data": {
             "type": "object",
-            "description": "Raw blockchain data"
+            "description": "Identity data stored off chain"
           }
         },
-        "required": ["contentHash", "pdaAddress", "ipfsCid", "registeredBy", "userID", "timestamp", "explorerUrl", "onChainData", "status", "ipfsData"]
+        "required": ["title", "contentHash", "pdaAddress", "ipfsCid", "registeredBy", "userID", "timestamp", "explorerUrl", "status", "metadata", "identity_data"]
       },
       "SearchValidationErrorResponse": {
         "type": "object",
