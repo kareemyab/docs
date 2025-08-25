@@ -88,6 +88,7 @@ This will return:
   "totalResults": 1,
   "registrations": [
     {
+      "title": "Test File",
       "contentHash": "abc123def456789ghi012jkl345mno678pqr901",
       "pdaAddress": "9MzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfGKJH2mNqR",
       "ipfsCid": "QmExampleCidForYourFileMetadata123",
@@ -96,8 +97,18 @@ This will return:
       "timestamp": "2024-01-15T10:30:45.123Z",
       "status": "registered",
       "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
-      "ipfsData": {},
-      "onChainData": {}
+      "metadata": "Test File Metadata", 
+      "identity_data": {
+        "verified_name": "John Doe",
+        "verified_nationality": "United States",
+        "verified_date_of_birth": "1990-01-01",
+        "verified_gender": null,
+        "verified_passport_number": null,
+        "verified_issuing_state": null,
+        "verified_expiry_date": null,
+        "verified_at": "2024-01-15T14:30:25.000Z",
+        "provider": "self"
+      }
     }
   ]
 }
