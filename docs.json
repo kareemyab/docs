@@ -100,8 +100,7 @@
               "sdk-reference/link-wallet",
               "sdk-reference/find-wallet",
               "sdk-reference/verify-identity",
-              "sdk-reference/check-identity-status",
-              "sdk-reference/health"
+              "sdk-reference/check-identity-status"
             ]
           },
           {
@@ -149,6 +148,14 @@
               "cli-reference/submit-transaction"
             ]
           }
+        ]
+      },
+      {
+        "tab": "Identity",
+        "pages": [
+          "identity/index",
+          "identity/getting-started",
+          "identity/faq"
         ]
       },
       {

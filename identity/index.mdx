@@ -1,0 +1,246 @@
+---
+title: Identity Verification Overview
+description: 'Zero-knowledge identity verification for enhanced file registrations and compliance'
+---
+
+# Identity Verification with Trust Engine
+
+Trust Engine integrates with **Self.xyz**, a leading zero-knowledge (ZK) identity verification platform, to provide **per-registration identity verification**. Users can choose to verify their identity for specific file registrations, trading convenience for enhanced credibility and compliance.
+
+<Info>
+**Key Concept**: Identity verification is **optional for each registration**. Users can choose to add verified identity data to specific registrations. The `/register` endpoint automatically includes identity data when the user has recently completed verification for that registration.
+</Info>
+
+## 🚀 Quick Understanding
+
+Identity verification works **per-registration**:
+
+1. **User decides**: For this registration, do I want to include verified identity?
+2. **If yes**: User completes verification process (~2 minutes with Self app)  
+3. **Automatic inclusion**: `/register` endpoint detects recent verification and includes identity data
+4. **If no**: Registration proceeds with just file + blockchain proof
+
+**The convenience**: Users choose per-registration, and the system automatically includes verification data when present.
+
+**Perfect for**:
+- ✅ Feature development without real ID uploads
+- ✅ Stakeholder demonstrations  
+- ✅ Integration testing with predictable results
+- ✅ UI/UX iteration without Self app dependency
+
+## 📚 Implementation
+
+Ready to integrate? Check the technical documentation:
+
+<CardGroup cols={3}>
+  <Card title="API Endpoints" icon="server" href="/essentials/register-identity">
+    Use REST API calls for identity verification
+  </Card>
+  <Card title="SDK Methods" icon="code" href="/sdk-reference/verify-identity">
+    Use JavaScript/TypeScript SDK for easy integration
+  </Card>
+  <Card title="CLI Commands" icon="terminal" href="/cli-reference/verify-identity">
+    Use command-line interface for scripts and testing
+  </Card>
+</CardGroup>
+
+## What Users Need: Self App Download
+
+<Warning>
+**Critical Requirement**: Users must download the **Self app** (iOS/Android) to complete identity verification. This is a free app that processes ID documents securely on their device.
+</Warning>
+
+**How it works**:
+1. User chooses enhanced registration with identity verification
+2. Your app redirects user to Trust Engine's verification page  
+3. User scans QR code with Self app (downloads if needed)
+4. Self app guides them through secure ID verification
+5. Registration automatically includes verified identity data
+
+**Self App Links**:
+- [iOS App Store](https://apps.apple.com/app/self-crypto-super-app/id1459811885)
+- [Google Play Store](https://play.google.com/store/apps/details?id=com.joinself.app)
+
+## Why Use Identity Verification?
+
+<Info>
+**Design Rationale**: Per-registration verification allows users to match identity disclosure to content sensitivity. A casual document might not need identity, while legal contracts benefit from verified authorship.
+</Info>
+
+<CardGroup cols={2}>
+  <Card title="Flexible Credibility" icon="shield-check">
+    Users choose when to add verified identity - trading convenience for enhanced trust per registration
+  </Card>
+  <Card title="Targeted Compliance" icon="scale-balanced">
+    Meet KYC/AML requirements only when needed, while preserving privacy through zero-knowledge proofs
+  </Card>
+  <Card title="Selective Identity" icon="user-shield">
+    Different registrations can verify different identity fields based on content requirements
+  </Card>
+  <Card title="Always Optional" icon="toggle-off">
+    Users never lose functionality - they gain the option to enhance specific registrations with identity
+  </Card>
+</CardGroup>
+
+### **Credibility Trade-offs**
+
+<AccordionGroup>
+<Accordion title="Standard Registration (No Identity)">
+  **What happens**: File registered with wallet address only
+  
+  **Credibility level**: Basic blockchain proof of registration
+  
+  **Use cases**: Personal documents, casual sharing, low-stakes content
+  
+  **User effort**: Minimal - just file upload and registration
+</Accordion>
+
+<Accordion title="Enhanced Registration (With Identity)">
+  **What happens**: File registered with verified identity data attached
+  
+  **Credibility level**: High - blockchain proof + verified authorship
+  
+  **Use cases**: Legal documents, compliance requirements, high-value content
+  
+  **User effort**: Additional 2-3 minutes for identity verification via Self app
+</Accordion>
+</AccordionGroup>
+
+## What Gets Verified Per Registration?
+
+For each file registration, users can choose to verify any combination of these identity fields:
+
+<AccordionGroup>
+<Accordion title="Personal Information">
+  - **Full Name** - Legal name from government ID
+  - **Date of Birth** - Age verification and identity confirmation
+  - **Nationality** - Citizenship or nationality from passport/ID
+  - **Gender** - Gender as listed on official documents
+</Accordion>
+
+<Accordion title="Document Information">
+  - **Issuing State/Country** - Which government issued the ID document
+  - **Document Number** - Passport or ID card number (if requested)
+  - **Expiry Date** - When the ID document expires
+</Accordion>
+</AccordionGroup>
+
+## How It Benefits Your Application
+
+### For Developers
+- **Simple Integration** - Add identity verification with just a few API calls and URL redirects
+- **No QR Code Implementation** - Just redirect users to the provided verification URL
+- **Flexible Requirements** - Choose which identity fields your application needs
+- **Automatic Inclusion** - Verified data is automatically attached to file registrations
+- **Privacy Compliant** - ZK proofs ensure user privacy while meeting compliance needs
+
+### For End Users
+- **Quick Process** - Simple redirect to Trust Engine's verification page, verify once, use everywhere
+- **Privacy Control** - Choose exactly what information to share
+- **Secure Verification** - Documents processed using zero-knowledge technology
+
+## Integration Flow Overview
+
+<Steps>
+  <Step title="Setup Wallet Relation">
+    Ensure the user has a wallet linked to a user ID in your system
+  </Step>
+  <Step title="Initiate Verification">
+    Call the identity verification API to create a verification session
+  </Step>
+  <Step title="User Verification">
+    User scans QR code with Self app and completes verification
+  </Step>
+  <Step title="Monitor Status">
+    Check verification status and retrieve verified data
+  </Step>
+  <Step title="Enhanced Registrations">
+    File registrations automatically include verified identity data
+  </Step>
+</Steps>
+
+## Per-Registration Use Cases
+
+<Info>
+**Key Insight**: Different documents need different levels of identity verification. Users can tailor identity disclosure to match content sensitivity and requirements.
+</Info>
+
+<AccordionGroup>
+<Accordion title="🏠 Personal Document (No Identity Needed)">
+  **Example**: Family photo, personal note
+  
+  **Registration choice**: Standard (no identity verification)
+  
+  **Rationale**: Content is personal/casual, no compliance requirements
+  
+  **Result**: Fast registration, basic blockchain proof
+</Accordion>
+
+<Accordion title="📋 Business Contract (Name + Nationality)">
+  **Example**: Service agreement, partnership contract
+  
+  **Registration choice**: Verify name and nationality only
+  
+  **Rationale**: Parties need to know who they're contracting with, but not full identity details
+  
+  **Result**: Legally meaningful while preserving privacy
+</Accordion>
+
+<Accordion title="🏦 Financial Document (Full KYC Verification)">
+  **Example**: Loan agreement, investment document
+  
+  **Registration choice**: Verify name, nationality, DOB, issuing state, document expiry
+  
+  **Rationale**: Regulatory compliance requires comprehensive identity verification
+  
+  **Result**: Meets KYC/AML requirements with blockchain immutability
+</Accordion>
+
+<Accordion title="🎓 Academic Credential (Name + Verification)">
+  **Example**: Diploma, certificate, transcript
+  
+  **Registration choice**: Verify name and date of birth
+  
+  **Rationale**: Credential authenticity requires identity confirmation, but not full personal details
+  
+  **Result**: Verifiable credentials with appropriate privacy level
+</Accordion>
+</AccordionGroup>
+
+### **Cross-Registration Flexibility**
+
+<CardGroup cols={2}>
+  <Card title="Same User, Different Needs" icon="user-gear">
+    One user might register a casual document (no identity) and a legal contract (full identity) on the same day
+  </Card>
+  <Card title="Progressive Requirements" icon="arrow-trend-up">
+    Start with basic registration, then upgrade specific documents with identity as needs evolve
+  </Card>
+</CardGroup>
+
+## Privacy & Security
+
+Trust Engine's identity verification is built on privacy-first principles:
+
+- **Zero-Knowledge Proofs** - Identity verified without exposing raw document data
+- **Selective Disclosure** - Users choose exactly what information to share
+- **No Document Storage** - Original identity documents never leave the user's device
+- **Blockchain Immutability** - Verified claims are tamper-proof once recorded
+- **Self-Sovereign Identity** - Users maintain full control over their identity data
+
+## Next Steps
+
+Ready to add identity verification to your application?
+
+<CardGroup cols={2}>
+  <Card title="Learn How It Works" icon="lightbulb" href="/identity/how-it-works">
+    Understand the technical process and user experience flow
+  </Card>
+  <Card title="Get Started" icon="rocket" href="/identity/getting-started">
+    Step-by-step integration guide with code examples
+  </Card>
+</CardGroup>
+
+<Info>
+**New to Self.xyz?** Check out our [Self.xyz Overview](/identity/self-xyz-overview) to understand the verification platform before diving into implementation.
+</Info>
