@@ -285,7 +285,7 @@ The response from registering a file. This can vary depending on whether the wal
 </ResponseField>
 
 <ResponseField name="disclosures" type="IdentityDisclosures" required>
-  Object specifying which identity fields to request verification for. At least one field must be set to `true`.
+  Object specifying which identity fields to request verification for. All 7 fields must be explicitly provided with boolean values. At least one field must be set to `true`.
   <Expandable>
     <ResponseField name="issuing_state" type="boolean">
       Country/state that issued the ID document.

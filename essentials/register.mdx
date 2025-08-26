@@ -8,14 +8,17 @@ openapi: 'POST /register'
 ## What This Endpoint Does
 
 <Steps>
-  <Step title="File Validation">
-    Validates file type
+  <Step title="Input Validation">
+    Validates wallet address, content hash, and required parameters
   </Step>
   <Step title="IPFS Upload">
-    Uploads file and metadata to IPFS and generates Content Identifier (CID)
+    Uploads file metadata to IPFS and generates Content Identifier (CID)
   </Step>
-  <Step title="On-Chain Registration">
-    Creates immutable proof record on Solana blockchain
+  <Step title="Identity Check">
+    Automatically checks for recent identity verification and includes verified data if available
+  </Step>
+  <Step title="Blockchain Registration">
+    Creates immutable proof record on Solana blockchain (signed automatically for managed wallets, or returns transaction for self wallets)
   </Step>
 </Steps>
 
@@ -23,40 +26,52 @@ openapi: 'POST /register'
 
 ## Wallet Type Flows
 
-<Info>
-**Important**: The response structure varies based on your `walletType` and `returnActionLink` parameter:
+<Card>
+<Tabs>
+  <Tab title='Managed ("managed")'>
+    **For Trust Engine-created wallets only**
+    
+    Use `"walletType": "managed"` only for wallets created via [`/create-wallet`](/essentials/create-wallet)
+    
+    ✅ **Immediate completion** - Returns `200` with confirmed transaction  
+    ✅ **No user action needed** - Trust Engine handles all signing  
+    ✅ **Instant result** - Registration is complete when API call returns
+  </Tab>
+  
+  <Tab title='Self with Action Link ("self")'>
+    **For user's own wallets (Phantom, Solflare, etc.) - Recommended**
+    
+    Use `"walletType": "self"` + `"returnActionLink": true`
+    
+    ✅ **User-friendly** - Returns `202` with secure action link  
+    ✅ **Browser compatible** - Works with all major wallet extensions  
+    ✅ **Secure signing** - User signs via familiar wallet interface
 
-- **`"managed"`**: Automatic signing and submission - registration completes immediately with confirmed transaction
-- **`"self"` with `returnActionLink: true`** *(Recommended)*: Returns an action link for secure browser-based transaction signing
-- **`"self"` with `returnActionLink: false`**: Returns unsigned transaction that you must sign manually client side and submit via [`/transactions`](/essentials/submit-transaction)
-</Info>
+    ### How It Works
 
-## Action Link Flow (Recommended for Self Wallets)
+    <Steps>
+      <Step title="Set returnActionLink: true">
+        API returns secure action link instead of raw transaction data
+      </Step>
+      <Step title="User visits link">
+        User signs transaction using their browser wallet (Phantom, Solflare, etc.)
+      </Step>
+      <Step title="Auto-completion">
+        Transaction is automatically submitted and registration completes
+      </Step>
+    </Steps>
 
-The action link flow provides a secure and user-friendly way to handle transaction signing for self wallets:
-
-<Steps>
-  <Step title="Request with Action Link">
-    Set `returnActionLink: true` in your request payload
-  </Step>
-  <Step title="Database Storage">
-    The unsigned transaction and metadata are securely stored with a unique token
-  </Step>
-  <Step title="Action Link Response">
-    Receive a secure link with the token (e.g., `http://trustengine.org/tx-action/abc123`)
-  </Step>
-  <Step title="User Signs Transaction">
-    User visits the link and signs the transaction using their browser wallet (Phantom, Solflare, etc.)
-  </Step>
-  <Step title="Registration Complete">
-    Transaction is automatically submitted and registration is complete
-  </Step>
-</Steps>
-
-### Action Link Benefits
-- **Secure**: Transactions are stored server-side with expiring tokens
-- **User-Friendly**: No need to handle raw transaction data
-- **Browser-Compatible**: Works with all major Solana wallet extensions
-- **Time-Limited**: Links expire after 24 hours for security
-
-
+    **Benefits**: Secure, user-friendly, browser-compatible, and links expire after 24 hours.
+  </Tab>
+  
+  <Tab title='Self with Raw Transaction ("self")'>
+    **For user's own wallets - Advanced integration**
+    
+    Use `"walletType": "self"` + `"returnActionLink": false`
+    
+    ⚙️ **Advanced** - Returns `202` with unsigned transaction data  
+    ⚙️ **Manual handling** - You handle wallet connection and signing  
+    ⚙️ **Submit required** - Use [`/transactions`](/essentials/submit-transaction) after signing
+  </Tab>
+</Tabs>
+</Card>

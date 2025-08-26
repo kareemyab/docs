@@ -82,9 +82,13 @@ Initiate identity verification for a wallet address using Self.xyz ZK verificati
 const result = await sdk.verifyIdentity({
   walletAddress: 'YOUR_WALLET_ADDRESS',
   disclosures: {
+    issuing_state: false,
     name: true,
     nationality: true,
-    date_of_birth: true
+    date_of_birth: true,
+    passport_number: false,
+    gender: false,
+    expiry_date: false
   }
 });
 ```

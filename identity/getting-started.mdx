@@ -188,7 +188,18 @@ A: Usually due to photo quality. Users can retry immediately with better lightin
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 const mockSDK = {
-  async verifyIdentity({ walletAddress, disclosures }) {
+  async verifyIdentity({ walletAddress, disclosures }: {
+    walletAddress: string;
+    disclosures: {
+      issuing_state: boolean;
+      name: boolean;
+      nationality: boolean;
+      date_of_birth: boolean;
+      passport_number: boolean;
+      gender: boolean;
+      expiry_date: boolean;
+    }
+  }) {
     console.log('🔧 Mock: Starting verification for', walletAddress);
     return {
       details: {
