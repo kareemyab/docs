@@ -18,7 +18,15 @@ Quick answers to common questions plus troubleshooting for integration issues.
   // Simply call verifyIdentity again
   const newVerification = await sdk.verifyIdentity({
     walletAddress,
-    disclosures: { name: true, nationality: true }
+    disclosures: { 
+      issuing_state: false,
+      name: true, 
+      nationality: true,
+      date_of_birth: false,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    }
   });
   ```
 </Accordion>
@@ -262,7 +270,15 @@ Quick answers to common questions plus troubleshooting for integration issues.
     try {
       const response = await sdk.verifyIdentity({ 
         walletAddress, 
-        disclosures: { name: true, nationality: true }
+        disclosures: { 
+          issuing_state: false,
+          name: true, 
+          nationality: true,
+          date_of_birth: false,
+          passport_number: false,
+          gender: false,
+          expiry_date: false
+        }
       });
       
       // Just redirect to the provided URL - Trust Engine handles the QR code display
@@ -324,7 +340,15 @@ Quick answers to common questions plus troubleshooting for integration issues.
   // New: Optional identity verification
   await sdk.verifyIdentity({
     walletAddress: userWallet,
-    disclosures: { name: true, nationality: true }
+    disclosures: { 
+      issuing_state: false,
+      name: true, 
+      nationality: true,
+      date_of_birth: false,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    }
   });
 
   // Registration will include verified identity if verification was recent
@@ -501,7 +525,18 @@ Quick answers to common questions plus troubleshooting for integration issues.
   **Cross-application usage**:
   ```typescript
   // User verifies for a registration in App A
-  await sdk.verifyIdentity({ walletAddress: "abc123...", disclosures: {...} });
+  await sdk.verifyIdentity({ 
+    walletAddress: "abc123...", 
+    disclosures: {
+      issuing_state: false,
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    }
+  });
 
   // Later, in App B (same wallet), they can check existing verification status
   const status = await sdk.checkIdentityStatus("abc123...");
@@ -621,7 +656,15 @@ Quick answers to common questions plus troubleshooting for integration issues.
   **Implement robust error handling**:
 
   ```typescript
-  const robustVerification = async (walletAddress: string, disclosures: any) => {
+  const robustVerification = async (walletAddress: string, disclosures: {
+    issuing_state: boolean;
+    name: boolean;
+    nationality: boolean;
+    date_of_birth: boolean;
+    passport_number: boolean;
+    gender: boolean;
+    expiry_date: boolean;
+  }) => {
     const maxRetries = 3;
     let attempt = 0;
 
