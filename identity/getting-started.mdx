@@ -1,0 +1,338 @@
+---
+title: Getting Started
+description: 'Understanding how to integrate identity verification into your workflow'
+---
+
+# Getting Started with Identity Verification
+
+Learn how to think about integrating **per-registration identity verification** into your application workflow.
+
+<Info>
+**Mental Model**: Identity verification is an **enhancement option for individual registrations**. Users choose whether to add verified identity based on the specific content they're registering. The `/register` endpoint automatically includes identity data when the user has recently completed verification for that registration.
+</Info>
+
+## Understanding the Flow
+
+Identity verification happens in **3 simple steps**:
+
+<Steps>
+  <Step title="User Choice">
+    When registering a file, users choose between:
+    - **Standard**: Fast registration with blockchain proof
+    - **Enhanced**: Standard + verified identity (adds ~2 minutes)
+  </Step>
+  
+  <Step title="Identity Verification (if chosen)">
+    If enhanced registration chosen:
+    - Use `/register/identity` endpoint to start verification
+    - User scans QR code with Self app on Trust Engine's verification page
+    - Takes photos of government ID and selects what information to share
+  </Step>
+  
+  <Step title="Automatic Integration">
+    The `/register` endpoint automatically detects recent verification:
+    - **If verification completed**: Includes verified identity data in registration
+    - **If no recent verification**: Proceeds with standard registration only
+  </Step>
+</Steps>
+
+## What Users Need
+
+Before offering identity verification, users need:
+
+**📱 Device Requirements**
+- Smartphone with camera
+- **Self app** (free download from [iOS App Store](https://apps.apple.com/app/self-crypto-super-app/id1459811885) or [Google Play](https://play.google.com/store/apps/details?id=com.joinself.app))
+- Internet connection
+
+**📄 Document Requirements**  
+- Government-issued photo ID
+- Valid (not expired) documents
+- Clear, well-lit environment for photos
+
+**⏱️ Time Requirement**
+- About 2-3 minutes for verification
+- One-time setup (faster for repeat use)
+
+## Key User Messages
+
+Help users understand what's happening:
+
+**❌ Avoid saying**: "Identity verification is required"  
+**✅ Say instead**: "Add verified identity to enhance this registration"
+
+**❌ Avoid saying**: "Upload your ID documents"  
+**✅ Say instead**: "Verify your identity securely - documents stay on your device"
+
+**❌ Avoid saying**: "This will verify all your future registrations"  
+**✅ Say instead**: "Choose enhanced registration to include verified identity for this file"
+
+## Implementation Approach
+
+Choose your integration method:
+
+<CardGroup cols={3}>
+  <Card title="REST API" icon="server" href="/essentials/register-identity">
+    **Best for**: Any backend language
+    
+    Direct HTTP calls to Trust Engine API endpoints
+    
+    `/register/identity` → `/identity/session/{wallet}`
+  </Card>
+  
+  <Card title="JavaScript SDK" icon="code" href="/sdk-reference/verify-identity">
+    **Best for**: Node.js, React, web apps
+    
+    Simple method calls with automatic polling
+    
+    `sdk.verifyIdentity()` → `sdk.checkIdentityStatus()`
+  </Card>
+  
+  <Card title="CLI Commands" icon="terminal" href="/cli-reference/verify-identity">
+    **Best for**: Scripts, testing, demos
+    
+    Command-line interface with interactive prompts
+    
+    `verify-identity` → `check-identity`
+  </Card>
+</CardGroup>
+
+## Implementation Workflow
+
+**1. Prerequisites Setup**
+- Ensure users can create/link wallets ↗ [Wallet API](/essentials/create-wallet)
+- Set up basic file registration ↗ [Register API](/essentials/register)
+
+**2. Add Identity Verification Option**
+- Offer optional identity verification to users (usually one-time)
+- Guide users through Self app download if needed  
+- Redirect users to Trust Engine's verification page (no QR code implementation needed)
+
+**3. Status Management**
+- Poll verification status every 5-10 seconds
+- Handle completion, failure, and timeout scenarios
+- Provide clear user feedback throughout process
+
+**4. Error Handling**
+- Session expiration (24 hours) → restart verification
+- Verification failure → help with better document photos
+- Network issues → implement retry logic
+
+## Different Registration Scenarios
+
+<AccordionGroup>
+<Accordion title="🏠 Personal Document">
+  **User choice**: Standard registration (no identity)
+  
+  **Reasoning**: Personal photos, notes don't need identity verification
+  
+  **Result**: Fast, simple registration process
+</Accordion>
+
+<Accordion title="📋 Business Contract">
+  **User choice**: Enhanced registration (name + nationality)
+  
+  **Reasoning**: Business partners want to know who they're contracting with
+  
+  **Result**: Verified identity adds legal weight to agreement
+</Accordion>
+
+<Accordion title="🏦 Financial Document">
+  **User choice**: Enhanced registration (full KYC fields)
+  
+  **Reasoning**: Regulatory compliance requires comprehensive identity
+  
+  **Result**: Meets KYC/AML requirements with blockchain immutability
+</Accordion>
+
+<Accordion title="🎓 Academic Credential">
+  **User choice**: Enhanced registration (name + date of birth)
+  
+  **Reasoning**: Credential authenticity requires identity confirmation
+  
+  **Result**: Verifiable credentials that employers/institutions can trust
+</Accordion>
+</AccordionGroup>
+
+## What Happens After Verification
+
+Once a user completes identity verification for a registration:
+
+✅ **Automatic inclusion**: The `/register` endpoint detects recent verification and includes identity data  
+✅ **Enhanced credibility**: That specific registration gains verified authorship  
+✅ **Search benefits**: When others search for that file, they see verified authorship  
+✅ **Compliance ready**: That registration meets KYC/AML requirements
+
+## Common Questions
+
+**Q: Do users have to verify for every registration?**  
+A: Only if they want that specific registration to include verified identity. Each registration is a separate choice.
+
+**Q: What if users don't want to verify their identity?**  
+A: That's fine! They can always use standard registration. Verification is completely optional.
+
+**Q: Can users choose which identity fields to verify for each registration?**  
+A: Yes! Users can choose different identity fields to verify based on what that specific registration requires.
+
+**Q: What if verification fails?**  
+A: Usually due to photo quality. Users can retry immediately with better lighting/positioning.
+
+## Development & Testing
+
+### Testing Without Real Documents
+
+**Development Environment Setup:**
+
+```typescript
+// Use development mock for testing
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+const mockSDK = {
+  async verifyIdentity({ walletAddress, disclosures }) {
+    console.log('🔧 Mock: Starting verification for', walletAddress);
+    return {
+      details: {
+        qrCodeUrl: `https://trustengine.org/verify?wallet=${walletAddress}`, // URL to verification page
+        status: 'pending'
+      }
+    };
+  },
+  
+  async checkIdentityStatus(walletAddress) {
+    // Auto-complete after 3 seconds for testing
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    return {
+      details: {
+        status: 'verified',
+        verifiedData: {
+          verified_name: 'Test Developer',
+          verified_nationality: 'United States',
+          verified_date_of_birth: '1990-01-01'
+        }
+      }
+    };
+  }
+};
+
+// Use mock in development, real SDK in production
+const sdk = isDevelopment ? mockSDK : new TrustEngineSDK();
+```
+
+**Demo Mode for Stakeholders:**
+- Mock SDK completes verification in 3 seconds
+- Returns realistic test data for demonstrations
+- No real identity documents required for testing
+- Mock URLs can redirect to demo pages for stakeholder presentations
+
+### Integration Timeline
+
+**Development Effort Estimates:**
+
+**Basic Integration (API):** 0.5-1 developer days
+- REST endpoint integration
+- Simple URL redirect
+- Basic status polling  
+- Error handling
+
+**Enhanced Integration (SDK):** 1-2 developer days  
+- React/Node.js components
+- Smooth UX with proper loading states
+- Comprehensive error handling
+
+**Production-Ready:** 2-3 developer days
+- User communication & onboarding
+- Polish redirect flow and user messaging
+- Retry logic and edge case handling
+
+### Performance Considerations
+
+**Status Polling Best Practices:**
+```typescript
+// Efficient polling with exponential backoff
+const pollWithBackoff = async (walletAddress) => {
+  let attempts = 0;
+  const maxAttempts = 20; // 5 minutes max
+  
+  const poll = async () => {
+    try {
+      const status = await sdk.checkIdentityStatus(walletAddress);
+      
+      if (status.details.status !== 'pending') {
+        return status; // Completed
+      }
+      
+      if (attempts >= maxAttempts) {
+        throw new Error('Polling timeout - session may have expired');
+      }
+      
+      // Exponential backoff: 5s, 10s, 15s, max 30s
+      const delay = Math.min(30000, 5000 + (attempts * 5000));
+      attempts++;
+      
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return poll();
+      
+    } catch (error) {
+      console.error('Polling error:', error);
+      throw error;
+    }
+  };
+  
+  return poll();
+};
+```
+
+**Performance Impact:**
+- Polling requests: ~1KB each, every 5-30 seconds
+- Minimal bandwidth impact
+- Consider WebSocket alternatives for high-traffic apps
+- QR code page: Simple redirect - no additional implementation needed
+
+### User Communication Templates
+
+**Pre-Verification Messaging:**
+
+```typescript
+const getContextualMessage = (documentType) => {
+  const messages = {
+    legal: {
+      headline: "Add verified identity for legal authenticity",
+      benefit: "Courts and partners can verify document authenticity",
+      cta: "Add Legal Verification"
+    },
+    business: {
+      headline: "Enhance credibility with verified authorship", 
+      benefit: "Business partners can trust verified identity",
+      cta: "Add Business Verification"
+    },
+    personal: {
+      headline: "Optional: Add verified identity for trust",
+      benefit: "Increases trust if you plan to share this document",
+      cta: "Add Optional Verification"
+    }
+  };
+  
+  return messages[documentType] || messages.personal;
+};
+```
+
+**During Verification:**
+- ✅ "You'll be redirected to complete verification with the Self app"
+- ✅ "Your ID photos are processed securely on your device only"  
+- ✅ "This usually takes 1-2 minutes to complete"
+
+**Error Recovery:**
+- ❌ "Verification failed - try retaking photos with better lighting"
+- ⏰ "Session expired - tap to start new verification"
+- 🌐 "Connection issue - tap to retry"
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Choose Your Method" icon="route">
+    Pick API, SDK, or CLI based on your tech stack and start implementing
+  </Card>
+  <Card title="FAQ & Troubleshooting" icon="question-circle" href="/identity/faq">
+    Common issues and solutions for smooth integration
+  </Card>
+</CardGroup>

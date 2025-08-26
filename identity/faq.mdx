@@ -1,0 +1,889 @@
+---
+title: FAQ & Troubleshooting  
+description: 'Common questions, solutions, and troubleshooting for identity verification'
+---
+
+# FAQ & Troubleshooting
+
+Quick answers to common questions plus troubleshooting for integration issues.
+
+## Common Issues & Solutions
+
+<AccordionGroup>
+<Accordion title="🔄 Verification session expired (24 hours)">
+  **Problem**: User sees "session expired" message
+  
+  **Solution**: Start a new verification session
+  ```typescript
+  // Simply call verifyIdentity again
+  const newVerification = await sdk.verifyIdentity({
+    walletAddress,
+    disclosures: { name: true, nationality: true }
+  });
+  ```
+</Accordion>
+
+<Accordion title="❌ Verification failed - poor document quality">
+  **Problem**: Most common verification failure
+  
+  **Solutions**:
+  - Better lighting (avoid shadows and glare)
+  - Ensure entire document is in frame
+  - Use flat, dark background surface
+  - Make sure all text is clearly readable
+  
+  **User messaging**: "Try retaking photos with better lighting and ensure all text is visible"
+</Accordion>
+
+<Accordion title="⚠️ Network errors during status polling">
+  **Problem**: API timeouts or network failures
+  
+  **Solution**: Implement retry logic with exponential backoff
+  ```typescript
+  const checkStatusWithRetry = async (walletAddress, retries = 3) => {
+    try {
+      return await sdk.checkIdentityStatus(walletAddress);
+    } catch (error) {
+      if (retries > 0) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        return checkStatusWithRetry(walletAddress, retries - 1);
+      }
+      throw error;
+    }
+  };
+  ```
+</Accordion>
+
+<Accordion title="🔍 'No verification session found' error">
+  **Problem**: Trying to check status for non-existent session
+  
+  **Solutions**:
+  - Verify wallet address is correct
+  - Check if session was created successfully
+  - Handle case where user hasn't started verification yet
+</Accordion>
+</AccordionGroup>
+
+## Development Questions
+
+<AccordionGroup>
+<Accordion title="How do I handle Self.xyz service reliability?">
+  **Service uptime**: Self.xyz maintains 99.9% uptime with global CDN infrastructure.
+  
+  **Graceful degradation approach**:
+  ```typescript
+  const startVerificationWithFallback = async (walletAddress, disclosures) => {
+    try {
+      return await sdk.verifyIdentity({ walletAddress, disclosures });
+    } catch (error) {
+      if (error.message.includes('service unavailable')) {
+        // Show user-friendly message and allow retry later
+        return {
+          error: 'service_unavailable',
+          message: 'Identity verification is temporarily unavailable. Please try again in a few minutes.',
+          retryAfter: 300000 // 5 minutes
+        };
+      }
+      throw error; // Re-throw other errors
+    }
+  };
+  ```
+  
+  **Best practices**:
+  - Always provide fallback to standard registration
+  - Show clear status messages during outages
+  - Implement retry logic with exponential backoff
+</Accordion>
+
+<Accordion title="How do I handle 24-hour session expiration UX?">
+  **User experience approach**:
+  
+  ```typescript
+  const handleExpiredSession = async (walletAddress) => {
+    // Check if session is close to expiring (within 2 hours)
+    const status = await sdk.checkIdentityStatus(walletAddress);
+    const expiresAt = new Date(status.details.expiresAt);
+    const now = new Date();
+    const hoursUntilExpiry = (expiresAt - now) / (1000 * 60 * 60);
+    
+    if (hoursUntilExpiry < 2) {
+      // Warn user and suggest completing soon
+      showExpirationWarning(hoursUntilExpiry);
+    }
+    
+    if (status.details.status === 'expired') {
+      // Auto-start new session
+      return sdk.verifyIdentity({ walletAddress, disclosures });
+    }
+  };
+  ```
+  
+  **UX recommendations**:
+  - Warn users 2 hours before expiration
+  - Auto-restart expired sessions when user returns
+  - Don't make users manually handle expiration
+</Accordion>
+
+<Accordion title="What edge cases should I plan for?">
+  **Common edge cases and solutions**:
+  
+  **Network interruption during verification**:
+  ```typescript
+  // Implement robust status checking
+  const checkStatusWithRetry = async (walletAddress, maxRetries = 3) => {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        return await sdk.checkIdentityStatus(walletAddress);
+      } catch (error) {
+        if (i === maxRetries - 1) throw error;
+        await new Promise(resolve => setTimeout(resolve, 2000 * (i + 1)));
+      }
+    }
+  };
+  ```
+  
+  **User closes app mid-verification**:
+  - Session persists for 24 hours
+  - User can return and complete later
+  - Poll status when user returns to app
+  
+  **Multiple devices/tabs**:
+  - Verification sessions are wallet-specific
+  - Status updates across all tabs polling same wallet
+  - Handle concurrent polling gracefully
+  
+  **Document rejection scenarios**:
+  - Poor lighting → Guide user to better environment
+  - Expired documents → Suggest using different ID
+  - Unsupported document types → List supported formats
+</Accordion>
+</AccordionGroup>
+
+## General Questions
+
+<AccordionGroup>
+<Accordion title="Why do users need to download the Self app?">
+  **The Self app is required** for secure identity verification. Here's why:
+  
+  - **Local processing**: ID documents are analyzed on the user's device only - never uploaded to servers
+  - **Zero-knowledge proofs**: The app generates cryptographic proofs without exposing raw document data
+  - **User control**: Users choose exactly what information to share for each verification
+  - **One-time setup**: Once installed, users can verify identity for any Self.xyz-integrated service
+  
+  **Download links**:
+  - [iOS App Store](https://apps.apple.com/app/self-crypto-super-app/id1459811885)
+  - [Google Play Store](https://play.google.com/store/apps/details?id=com.joinself.app)
+</Accordion>
+
+<Accordion title="What is Self.xyz and why is it required?">
+  **Self.xyz** is a zero-knowledge identity verification platform that allows users to prove their identity without exposing sensitive personal information. Trust Engine integrates with Self.xyz to provide privacy-preserving identity verification.
+
+  **Why Self.xyz?**
+  - **Zero-knowledge proofs**: Users prove identity without sharing raw documents
+  - **Selective disclosure**: Users control exactly what information to share
+  - **Privacy-first**: No raw identity documents are stored anywhere
+  - **Compliance-ready**: Meets regulatory requirements while preserving privacy
+
+  **What users need**: The free Self app (iOS/Android) to complete verification.
+</Accordion>
+
+<Accordion title="How much does identity verification cost?">
+  **For developers**: Identity verification is included with Trust Engine at no additional cost. You only pay standard Trust Engine usage fees.
+
+  **For end users**: The Self app is free to download and use. Users don't pay anything for identity verification.
+
+  **What's included**:
+  - Unlimited identity verification sessions
+  - All supported identity fields
+  - Zero-knowledge proof generation
+  - 24-hour session validity
+</Accordion>
+
+<Accordion title="Which countries and documents are supported?">
+  **Documents supported**:
+  - Government-issued passports (most countries worldwide)
+  - Driver's licenses (varies by jurisdiction)
+  - National ID cards (varies by country)
+  - Must include a photo and be current/valid
+
+  **Global coverage**: Self.xyz supports identity documents from most countries, but coverage may vary. The app will indicate if a specific document type is supported during the verification process.
+
+  **Best compatibility**: International passports typically have the highest success rate across all regions.
+</Accordion>
+
+<Accordion title="Is identity verification required for Trust Engine?">
+  **No, identity verification is optional.** Trust Engine works perfectly without identity verification:
+
+  - **Basic mode**: Register files with wallet addresses only
+  - **Enhanced mode**: Register files with verified identity data
+  - **Flexible**: You can add identity verification to existing implementations
+  - **User choice**: Let users decide whether to verify their identity
+
+  However, identity verification adds significant value for compliance, trust, and fraud prevention.
+</Accordion>
+## User Experience Questions
+
+<AccordionGroup>
+<Accordion title="How do I handle users who resist downloading Self app?">
+  **User concerns and responses**:
+  
+  **"Why another app?"**
+  - "Self app keeps your documents on your device - more secure than uploading to websites"
+  - "One-time download works with any service using Self.xyz"
+  - "Free app, no in-app purchases or subscription"
+  
+  **"I don't trust it"**
+  - Link to Self.xyz security information and certifications
+  - Explain zero-knowledge technology in simple terms
+  - Emphasize that documents never leave their device
+  
+  **Implementation approach**:
+  ```typescript
+  const handleAppDownloadResistance = () => {
+    return {
+      primaryAction: "Continue without verification",
+      secondaryAction: "Learn about Self app security",
+      messaging: "You can always add verification later - your choice!"
+    };
+  };
+  ```
+  
+  **Best practices**:
+  - Always offer standard registration as primary option
+  - Present verification as enhancement, not requirement
+  - Provide easy way to add verification later
+</Accordion>
+
+<Accordion title="How do I handle the verification redirect?">
+  **Simple implementation**:
+  
+  ```typescript
+  const handleIdentityVerification = async (walletAddress) => {
+    try {
+      const response = await sdk.verifyIdentity({ 
+        walletAddress, 
+        disclosures: { name: true, nationality: true }
+      });
+      
+      // Just redirect to the provided URL - Trust Engine handles the QR code display
+      window.location.href = response.details.qrCodeUrl;
+      
+    } catch (error) {
+      console.error('Failed to start verification:', error);
+    }
+  };
+  ```
+  
+  **Implementation benefits**:
+  - No QR code generation or display code needed
+  - Trust Engine handles mobile vs desktop optimization
+  - No additional UI components to maintain
+  - Works seamlessly across all devices and platforms
+</Accordion>
+
+<Accordion title="What's the typical user drop-off rate?">
+  **Completion rates vary by context**:
+  
+  - **High-value documents** (legal, financial): 70-85% completion
+  - **Business documents**: 60-75% completion  
+  - **Optional verification**: 25-40% completion
+  
+  **Factors that improve completion**:
+  - Clear value proposition for that specific document
+  - Smooth onboarding with Self app explanation
+  - Mobile-optimized UX
+  - Contextual timing (right when user needs verification)
+  
+  **Implementation strategy**:
+  - A/B testing different messaging approaches
+  - Progressive disclosure - explain benefits gradually
+  - Don't pressure users - make it genuinely optional
+  - Measure completion rates for your specific use case
+</Accordion>
+</AccordionGroup>
+
+## Implementation Questions
+
+<AccordionGroup>
+<Accordion title="Do I need to modify my existing Trust Engine integration?">
+  **No breaking changes required.** Identity verification is additive:
+
+  **Existing functionality continues to work**:
+  ```typescript
+  // This still works exactly as before
+  const result = await sdk.registerFile({
+    file: myFile,
+    contentTitle: "Document",
+    walletAddress: userWallet,
+    walletType: "managed"
+  });
+  ```
+
+  **Add identity verification incrementally**:
+  ```typescript
+  // New: Optional identity verification
+  await sdk.verifyIdentity({
+    walletAddress: userWallet,
+    disclosures: { name: true, nationality: true }
+  });
+
+  // Registration will include verified identity if verification was recent
+  const enhancedResult = await sdk.registerFile({...});
+  ```
+
+  **Migration path**: Start with optional verification, then make it required for specific file types or user tiers.
+</Accordion>
+
+<Accordion title="How do I check if a user is already verified?">
+  **Use the status checking methods**:
+
+  ```typescript
+  // Check current verification status
+  const status = await sdk.checkIdentityStatus(walletAddress);
+
+  if (status.details.status === 'verified') {
+    console.log('User is verified');
+    console.log('Verified data:', status.details.verifiedData);
+  } else {
+    console.log('User needs verification');
+    // Start verification process
+  }
+  ```
+
+  **Status values**:
+  - `'verified'` - Identity successfully verified
+  - `'pending'` - Verification in progress
+  - `'failed'` - Verification failed
+  - `'expired'` - Session expired (24 hours)
+  - No session - User has never started verification
+
+  **Best practice**: Always check status before starting new verification sessions.
+</Accordion>
+
+<Accordion title="Can I require specific identity fields?">
+  **Yes, you have full control over required fields**:
+
+  ```typescript
+  // Minimal verification - just age proof
+  const ageVerification = {
+    date_of_birth: true,
+    name: false,
+    nationality: false
+  };
+
+  // KYC compliance verification
+  const kycVerification = {
+    name: true,
+    nationality: true,
+    date_of_birth: true,
+    issuing_state: true,
+    expiry_date: true
+  };
+
+  // Full identity verification
+  const fullVerification = {
+    name: true,
+    nationality: true,
+    date_of_birth: true,
+    issuing_state: true,
+    passport_number: true,
+    gender: true,
+    expiry_date: true
+  };
+
+  await sdk.verifyIdentity({
+    walletAddress,
+    disclosures: kycVerification // Choose your requirements
+  });
+  ```
+
+  **Field validation**: At least one field must be `true`, but you can require any combination.
+</Accordion>
+
+<Accordion title="How do I handle verification for existing users?">
+  **Gradual rollout approach**:
+
+  ```typescript
+  const handleExistingUser = async (userID: string) => {
+    try {
+      // Check if user already has verification
+      const wallet = await sdk.findWallet({ userID });
+      const status = await sdk.checkIdentityStatus(wallet.details.relation.walletAddress);
+      
+      if (status.details.status === 'verified') {
+        return { alreadyVerified: true, data: status.details.verifiedData };
+      }
+    } catch (error) {
+      // User doesn't have verification yet
+    }
+
+    // Offer optional verification
+    return { alreadyVerified: false, canVerify: true };
+  };
+
+  // Usage in UI
+  const userStatus = await handleExistingUser(currentUserID);
+  
+  if (!userStatus.alreadyVerified) {
+    // Show optional verification prompt
+    showVerificationOffer();
+  }
+  ```
+
+  **Strategies**:
+  - **Optional upgrade**: Offer verification as an enhancement
+  - **Required for new features**: Require verification for premium features
+  - **Gradual enforcement**: Start optional, then require for sensitive operations
+</Accordion>
+</AccordionGroup>
+
+## User Experience Questions
+
+<AccordionGroup>
+<Accordion title="What do users need to complete verification?">
+  **Requirements for users**:
+  
+  **Device & Software**:
+  - Smartphone (iOS or Android)
+  - The free Self app (downloaded from app stores)
+  - Camera access for document scanning
+  - Internet connection
+
+  **Documents**:
+  - Government-issued photo ID (passport, driver's license, national ID)
+  - Document must be current and valid (not expired)
+  - High-quality, clear photos
+
+  **Time**:
+  - About 2-3 minutes for the verification process
+
+  **Privacy**:
+  - Control over what information to share
+  - Documents processed locally on their device
+</Accordion>
+
+<Accordion title="How long does verification take?">
+  **Typical timeline**:
+  - **Verification URL creation**: Instant
+  - **User verification in Self app**: 2-3 minutes
+  - **Result processing**: Usually under 30 seconds
+  - **Total time**: 3-5 minutes for most users
+
+  **Factors affecting time**:
+  - Document photo quality (retakes may be needed)
+  - User familiarity with the Self app
+  - Internet connection speed
+  - Document type and issuing authority
+
+  **Session expiration**: 24 hours (users can complete at their own pace)
+
+  **Monitoring**: Use status polling to detect completion in real-time
+</Accordion>
+
+<Accordion title="What if users don't have smartphones?">
+  **Current limitation**: Self.xyz verification requires a smartphone with the Self app. This is because:
+  - Document scanning requires high-quality camera
+  - Facial recognition needs live selfie capability
+  - Security model requires local processing
+
+  **Alternatives for non-smartphone users**:
+  - Allow basic file registration without verification
+  - Provide verification as optional enhancement
+  - Consider traditional KYC services for edge cases
+  - Partner with Self.xyz for potential future web-based solutions
+
+  **Recommendation**: Make identity verification optional to accommodate all users.
+</Accordion>
+
+<Accordion title="Can users share verification across multiple applications?">
+  **Important**: Users still need to choose per-registration whether to include identity verification, but verified identity data can be shared across Trust Engine applications.
+
+  **Cross-application usage**:
+  ```typescript
+  // User verifies for a registration in App A
+  await sdk.verifyIdentity({ walletAddress: "abc123...", disclosures: {...} });
+
+  // Later, in App B (same wallet), they can check existing verification status
+  const status = await sdk.checkIdentityStatus("abc123...");
+  // If recent verification exists: status.details.status === 'verified' ✅
+  ```
+
+  **How it works**: Each application still requires users to choose enhanced registration with identity verification, but the underlying identity data can be reused if recently verified.
+
+  **Benefits**:
+  - Users don't need to re-verify identity documents across applications
+  - Faster enhanced registration process in subsequent applications
+  - Consistent identity data across the Trust Engine ecosystem
+</Accordion>
+</AccordionGroup>
+
+## Security and Privacy Questions
+
+<AccordionGroup>
+<Accordion title="How secure is the identity verification process?">
+  **Security measures**:
+
+  **Document Processing**:
+  - All document analysis happens locally on the user's device
+  - Raw documents never leave the user's phone
+  - AI verification detects fraudulent or tampered documents
+
+  **Data Transmission**:
+  - Only zero-knowledge proofs are transmitted (not raw data)
+  - All communications use HTTPS encryption
+  - Cryptographic signatures prevent tampering
+
+  **Storage**:
+  - No raw identity documents stored anywhere
+  - Only verified claims (not original data) recorded on blockchain
+  - User maintains full control over their identity data
+
+  **Privacy Protection**:
+  - Users choose exactly what information to share
+  - Selective disclosure prevents over-sharing
+  - Zero-knowledge proofs mathematically verify claims without exposing data
+</Accordion>
+
+<Accordion title="What data is stored and where?">
+  **What Trust Engine stores**:
+  - Verification status (verified/pending/failed)
+  - Cryptographic proofs (not readable data)
+  - Requested disclosure fields (boolean flags)
+  - Timestamps (creation, verification, expiration)
+
+  **What Self.xyz stores**:
+  - User account and wallet information (encrypted)
+  - Verification proofs and signatures
+  - No raw identity documents
+
+  **What is NOT stored**:
+  - Raw document scans or photos
+  - Full identity information
+  - Facial recognition data
+  - Unencrypted personal information
+
+  **Blockchain records**:
+  - Cryptographic hashes only
+  - No readable personal information
+  - Immutable verification proofs
+  - Privacy-preserving by design
+</Accordion>
+
+<Accordion title="Can verification data be deleted or updated?">
+  **Data lifecycle**:
+
+  **Verification sessions**:
+  - Expire after 24 hours if not completed
+  - Can be overwritten by new verification attempts
+  - Failed sessions don't persist long-term
+
+  **Verified identity data**:
+  - Persists for the lifetime of the wallet relationship
+  - Can be updated by completing new verification with different disclosure fields
+  - Cannot be selectively deleted (maintain audit trail)
+
+  **User control**:
+  - Users can always create new verification sessions
+  - Self.xyz users can manage their data through the Self app
+  - Wallet relationships can be recreated if needed
+
+  **Compliance**: 
+  - Follows GDPR and data protection regulations
+  - Users maintain rights over their identity data
+  - Trust Engine provides data access and deletion mechanisms where legally required
+</Accordion>
+
+<Accordion title="Is this compliant with privacy regulations?">
+  **GDPR Compliance**:
+  - ✅ Minimal data collection (only requested fields)
+  - ✅ User consent for each verification session
+  - ✅ Data minimization (zero-knowledge proofs)
+  - ✅ Right to explanation (clear verification process)
+
+  **CCPA Compliance**:
+  - ✅ Clear privacy notice about data use
+  - ✅ User control over shared information
+  - ✅ Data deletion rights where applicable
+
+  **Other Regulations**:
+  - **KYC/AML**: Supports compliance while preserving privacy
+  - **HIPAA**: No health information collected by default
+  - **Financial Services**: Meets identity verification requirements
+
+  **Privacy-by-Design**: The zero-knowledge approach inherently supports privacy regulations by minimizing data exposure and processing.
+</Accordion>
+</AccordionGroup>
+
+## Technical Questions
+
+<AccordionGroup>
+<Accordion title="How do I handle network failures during verification?">
+  **Implement robust error handling**:
+
+  ```typescript
+  const robustVerification = async (walletAddress: string, disclosures: any) => {
+    const maxRetries = 3;
+    let attempt = 0;
+
+    while (attempt < maxRetries) {
+      try {
+        const result = await sdk.verifyIdentity({ walletAddress, disclosures });
+        return result;
+      } catch (error) {
+        attempt++;
+        
+        if (error.code === 'NETWORK_ERROR' && attempt < maxRetries) {
+          console.log(`Attempt ${attempt} failed, retrying...`);
+          await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+          continue;
+        }
+        
+        throw error; // Re-throw if not a network error or max retries reached
+      }
+    }
+  };
+  ```
+
+  **Best practices**:
+  - Implement exponential backoff for retries
+  - Show user-friendly error messages
+  - Allow manual retry options
+  - Save progress where possible
+</Accordion>
+
+<Accordion title="How do I test identity verification in development?">
+  **Development strategies**:
+
+  **Environment separation**:
+  ```typescript
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  // Use mock data in development
+  if (isDevelopment) {
+    return mockVerificationData;
+  } else {
+    return await sdk.checkIdentityStatus(walletAddress);
+  }
+  ```
+
+  **Testing approaches**:
+  - Create mock verification responses for automated tests
+  - Use staging environment with test wallets
+  - Implement feature flags to enable/disable verification
+  - Test error scenarios with network simulation
+
+  **Mock data structure**:
+  ```typescript
+  const mockVerifiedData = {
+    verified_name: "Test User",
+    verified_nationality: "Test Country",
+    verified_date_of_birth: "1990-01-01",
+    // ... other fields as needed
+  };
+  ```
+</Accordion>
+
+<Accordion title="Can I customize the verification fields for different user types?">
+  **Yes, create verification profiles**:
+
+  ```typescript
+  const verificationProfiles = {
+    basic: {
+      name: false,
+      nationality: false,
+      date_of_birth: true // Age verification only
+    },
+    
+    standard: {
+      name: true,
+      nationality: true,
+      date_of_birth: true
+    },
+    
+    premium: {
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      issuing_state: true,
+      expiry_date: true
+    },
+    
+    compliance: {
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      issuing_state: true,
+      passport_number: true,
+      expiry_date: true
+    }
+  };
+
+  // Usage based on user tier or file type
+  const getRequiredVerification = (userTier: string, fileType: string) => {
+    if (fileType === 'legal_document') return verificationProfiles.compliance;
+    if (userTier === 'premium') return verificationProfiles.premium;
+    return verificationProfiles.standard;
+  };
+  ```
+
+  **Dynamic requirements**: Adjust verification requirements based on file sensitivity, user tier, or regulatory requirements.
+</Accordion>
+
+<Accordion title="How do I migrate from other identity verification services?">
+  **Migration strategy**:
+
+  **1. Parallel implementation** (recommended):
+  ```typescript
+  const hybridVerification = async (userID: string) => {
+    // Check Trust Engine verification first
+    try {
+      const trustEngineStatus = await checkTrustEngineVerification(userID);
+      if (trustEngineStatus.verified) {
+        return { provider: 'trustengine', data: trustEngineStatus };
+      }
+    } catch (error) {
+      // Fall back to existing service
+    }
+
+    // Check existing service
+    const existingStatus = await checkExistingService(userID);
+    return { provider: 'existing', data: existingStatus };
+  };
+  ```
+
+  **2. Gradual transition**:
+  - Start with new users on Trust Engine
+  - Offer existing users optional migration
+  - Maintain both systems during transition period
+  - Eventually phase out old system
+
+  **3. Data mapping**:
+  ```typescript
+  const mapExistingData = (oldData: any) => {
+    return {
+      name: oldData.full_name,
+      nationality: oldData.country,
+      date_of_birth: oldData.birth_date,
+      // Map other fields as needed
+    };
+  };
+  ```
+
+  **Migration benefits**: Zero-knowledge privacy, better user experience, integrated with file registration.
+</Accordion>
+</AccordionGroup>
+
+## Troubleshooting
+
+<AccordionGroup>
+<Accordion title="Users report verification is 'stuck' or not completing">
+  **Common causes and solutions**:
+
+  **1. Session timeout**:
+  ```typescript
+  const checkSessionExpiry = async (walletAddress: string) => {
+    const status = await sdk.checkIdentityStatus(walletAddress);
+    
+    if (status.details.status === 'expired') {
+      // Start new session
+      return await sdk.verifyIdentity({ walletAddress, disclosures });
+    }
+    
+    return status;
+  };
+  ```
+
+  **2. App issues**:
+  - User needs to update Self app
+  - User needs to restart app
+  - User needs to check internet connection
+
+  **3. Document issues**:
+  - Poor lighting in photos
+  - Expired documents
+  - Unsupported document types
+
+  **Prevention**: Provide clear instructions and troubleshooting tips in your UI.
+</Accordion>
+
+<Accordion title="Error: 'No verification session found'">
+  **This error occurs when**:
+  - User never started verification
+  - Session expired (24 hours)
+  - Wallet address doesn't match
+
+  **Solution**:
+  ```typescript
+  const safeStatusCheck = async (walletAddress: string) => {
+    try {
+      return await sdk.checkIdentityStatus(walletAddress);
+    } catch (error) {
+      if (error.statusCode === 404) {
+        // No session exists, user needs to start verification
+        return { needsVerification: true };
+      }
+      throw error;
+    }
+  };
+  ```
+
+  **Prevention**: Always handle the case where no verification session exists.
+</Accordion>
+
+<Accordion title="Verification works in testing but fails in production">
+  **Check these factors**:
+
+  **Environment configuration**:
+  ```typescript
+  // Ensure correct API endpoints
+  const sdk = new TrustEngineSDK(
+    process.env.NODE_ENV === 'production' 
+      ? 'https://core-api-server.onrender.com'
+      : 'http://localhost:3000'
+  );
+  ```
+
+  **Common production issues**:
+  - HTTPS requirements for camera access
+  - CORS configuration for cross-origin requests
+  - Rate limiting in production environment
+  - Network firewall blocking API calls
+
+  **Debugging steps**:
+  - Check browser console for errors
+  - Verify API responses in network tab
+  - Test with production API keys
+  - Validate SSL certificates
+</Accordion>
+</AccordionGroup>
+
+## Getting More Help
+
+<CardGroup cols={2}>
+  <Card title="Troubleshooting Guide" icon="wrench" href="/identity/troubleshooting">
+    Detailed solutions for technical issues and edge cases
+  </Card>
+  <Card title="Integration Guide" icon="code" href="/identity/integration-guide">
+    Complete code examples and implementation patterns
+  </Card>
+  <Card title="API Documentation" icon="book" href="/api-reference">
+    Technical API specifications and error codes
+  </Card>
+  <Card title="Contact Support" icon="envelope">
+    **Email**: support@trustengine.com
+    
+    **Response time**: 24-48 hours
+    
+    **Include**: Error messages, environment details, and reproduction steps
+  </Card>
+</CardGroup>
+
+## Contributing to Documentation
+
+Found an error or want to suggest improvements?
+
+- **GitHub**: Submit issues or pull requests to our documentation repository
+- **Community**: Join our Discord for real-time discussions
+- **Feedback**: Email documentation@trustengine.com with suggestions
+
+Your feedback helps improve the developer experience for everyone! 🚀
