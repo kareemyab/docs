@@ -1,0 +1,203 @@
+# Trust Engine check-identity
+
+> Check the status of identity verification for a wallet address
+
+The check-identity command retrieves the current identity verification session status and verified data for a specific wallet address. Use this to monitor verification progress and retrieve verified identity information.
+
+To use it, run the following command from your terminal
+
+```bash
+trust-engine-cli check-identity [options]
+```
+
+## Options
+
+| Option                          | Description                              |
+| ------------------------------- | ---------------------------------------- |
+| `-w, --walletAddress <address>` | User wallet address (Solana public key) |
+| `--json`                        | Output the result as JSON               |
+
+## Examples
+
+Check identity verification status:
+
+```bash
+trust-engine-cli check-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+```
+
+### Pending Verification
+
+When verification is still in progress:
+
+```
+✅ Identity verification session retrieved successfully
+
+Identity Verification Status:
+  - Wallet Address: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+  - Status: pending
+  - Created: 2024-01-15T10:30:00.000Z
+  - Expires: 2024-01-16T10:30:00.000Z
+  - Requested Fields:
+    ✓ name
+    ✓ nationality
+    ✓ date_of_birth
+
+⏳ Verification is still pending
+   Complete the verification in Self app, then check again.
+```
+
+### Verified Identity
+
+When verification is completed successfully:
+
+```
+✅ Identity verification session retrieved successfully
+
+Identity Verification Status:
+  - Wallet Address: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+  - Status: verified
+  - Created: 2024-01-15T10:30:00.000Z
+  - Expires: 2024-01-16T10:30:00.000Z
+  - Verified: 2024-01-15T11:15:30.000Z
+  - Requested Fields:
+    ✓ name
+    ✓ nationality
+    ✓ date_of_birth
+
+🔐 Verified Identity Data:
+    verified_name: John Doe
+    verified_nationality: USA
+    verified_date_of_birth: 1990-05-15
+    self_user_id: 0x7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+
+📋 Next Steps:
+   Your identity is verified! You can now register files and your
+   verified identity will be automatically included in the registration.
+   Use: trust-engine-cli register --file <path> --walletAddress 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU ...
+```
+
+### Failed Verification
+
+When verification has failed:
+
+```
+✅ Identity verification session retrieved successfully
+
+Identity Verification Status:
+  - Wallet Address: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+  - Status: failed
+  - Created: 2024-01-15T10:30:00.000Z
+  - Expires: 2024-01-16T10:30:00.000Z
+  - Requested Fields:
+    ✓ name
+    ✓ nationality
+    ✓ date_of_birth
+
+❌ Verification failed
+   Start a new verification with: trust-engine-cli verify-identity ...
+```
+
+### Expired Session
+
+When verification session has expired:
+
+```
+✅ Identity verification session retrieved successfully
+
+Identity Verification Status:
+  - Wallet Address: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+  - Status: expired
+  - Created: 2024-01-15T10:30:00.000Z
+  - Expires: 2024-01-16T10:30:00.000Z
+  - Requested Fields:
+    ✓ name
+    ✓ nationality
+    ✓ date_of_birth
+
+⏰ Verification session expired
+   Start a new verification with: trust-engine-cli verify-identity ...
+```
+
+For automation purposes, use the JSON output:
+
+```bash
+trust-engine-cli check-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
+  --json
+```
+
+**Pending verification** returns:
+
+```json
+{
+  "message": "Identity verification session retrieved successfully",
+  "details": {
+    "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "status": "pending",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "expiresAt": "2024-01-16T10:30:00.000Z",
+    "verifiedAt": null,
+    "requestedDisclosures": {
+      "name": true,
+      "nationality": true,
+      "date_of_birth": true,
+      "issuing_state": false,
+      "passport_number": false,
+      "gender": false,
+      "expiry_date": false
+    },
+    "verifiedData": null
+  }
+}
+```
+
+**Verified identity** returns:
+
+```json
+{
+  "message": "Identity verification session retrieved successfully",
+  "details": {
+    "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "status": "verified",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "expiresAt": "2024-01-16T10:30:00.000Z",
+    "verifiedAt": "2024-01-15T11:15:30.000Z",
+    "requestedDisclosures": {
+      "name": true,
+      "nationality": true,
+      "date_of_birth": true,
+      "issuing_state": false,
+      "passport_number": false,
+      "gender": false,
+      "expiry_date": false
+    },
+    "verifiedData": {
+      "verified_name": "John Doe",
+      "verified_nationality": "USA",
+      "verified_date_of_birth": "1990-05-15",
+      "verified_passport_number": null,
+      "verified_gender": null,
+      "verified_issuing_state": null,
+      "verified_expiry_date": null,
+      "self_user_id": "0x7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+    }
+  }
+}
+```
+
+## Status Types
+
+| Status     | Description                                                                          |
+| ---------- | ------------------------------------------------------------------------------------ |
+| `pending`  | Verification session created but user hasn't completed verification yet             |
+| `verified` | User successfully completed identity verification                                    |
+| `failed`   | Verification failed due to invalid documents or other validation issues             |
+| `expired`  | Session expired (24 hours) before user completed verification                       |
+
+## Integration Tips
+
+- **Polling**: For real-time updates, check status periodically (every 30-60 seconds) while pending
+- **Data Privacy**: Verified data is only returned when status is 'verified'
+- **Session Lifecycle**: Sessions expire after 24 hours - check `expiresAt` timestamp
+- **Automatic Integration**: Once verified, identity data is automatically included in file registrations

@@ -1,0 +1,254 @@
+---
+title: Check Identity Status
+description: 'Retrieves the current identity verification session status and verified data for a specific wallet address.'
+---
+
+## Function Signature
+
+```typescript
+function checkIdentityStatus(
+  walletAddress: string
+): Promise<Response>;
+```
+
+<ResponseField name="walletAddress" type="string" required>
+  Valid Solana wallet address (Base58 format) to check verification status for.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#checkidentitystatus-response)>">
+  A promise that resolves with the current identity verification session data.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#checkidentitystatus) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { TrustEngineSDK } from '@trust-engine/sdk';
+import { useState, useEffect } from 'react';
+
+const sdk = new TrustEngineSDK();
+
+export default function IdentityStatusChecker() {
+  const [walletAddress, setWalletAddress] = useState('');
+  const [status, setStatus] = useState<any | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const checkStatus = async () => {
+    if (!walletAddress) return;
+    setIsLoading(true);
+    try {
+      const statusResult = await sdk.checkIdentityStatus(walletAddress);
+      setStatus(statusResult);
+    } catch (error) {
+      console.error('❌ Failed to check status:', error.message);
+      setStatus(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Poll for status updates every 30 seconds for pending verifications
+  useEffect(() => {
+    if (status?.details?.status === 'pending') {
+      const interval = setInterval(checkStatus, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [status?.details?.status]);
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        placeholder="Enter wallet address"
+        value={walletAddress}
+        onChange={(e) => setWalletAddress(e.target.value)}
+      />
+      <button onClick={checkStatus} disabled={!walletAddress || isLoading}>
+        {isLoading ? 'Checking...' : 'Check Status'}
+      </button>
+      
+      {status && (
+        <div>
+          <h3>Status: {status.details.status}</h3>
+          <p>Created: {new Date(status.details.createdAt).toLocaleString()}</p>
+          <p>Expires: {new Date(status.details.expiresAt).toLocaleString()}</p>
+          
+          {status.details.status === 'verified' && status.details.verifiedData && (
+            <div>
+              <h4>Verified Data:</h4>
+              <pre>{JSON.stringify(status.details.verifiedData, null, 2)}</pre>
+            </div>
+          )}
+          
+          {status.details.status === 'pending' && (
+            <p>⏳ Verification pending... Status will refresh automatically.</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { TrustEngineSDK } from '@trust-engine/sdk';
+
+const sdk = new TrustEngineSDK();
+
+async function checkVerificationStatus() {
+  try {
+    const walletAddress = "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU";
+    const result = await sdk.checkIdentityStatus(walletAddress);
+    
+    console.log('✅ Status retrieved successfully!');
+    console.log('Status:', result.details.status);
+    console.log('Created At:', result.details.createdAt);
+    console.log('Expires At:', result.details.expiresAt);
+    
+    if (result.details.status === 'verified') {
+      console.log('✅ Identity verified!');
+      console.log('Verified At:', result.details.verifiedAt);
+      
+      if (result.details.verifiedData) {
+        console.log('Verified Data:', result.details.verifiedData);
+      }
+    } else if (result.details.status === 'pending') {
+      console.log('⏳ Verification still pending...');
+    } else if (result.details.status === 'failed') {
+      console.log('❌ Verification failed');
+    } else if (result.details.status === 'expired') {
+      console.log('⏰ Verification session expired');
+    }
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Status check failed:', error.message);
+    throw error;
+  }
+}
+
+// Poll for status updates
+async function pollForCompletion(walletAddress: string, maxAttempts = 20) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const result = await sdk.checkIdentityStatus(walletAddress);
+      
+      if (result.details.status !== 'pending') {
+        console.log(`🏁 Final status: ${result.details.status}`);
+        return result;
+      }
+      
+      console.log(`⏳ Attempt ${i + 1}: Still pending...`);
+      await new Promise(resolve => setTimeout(resolve, 30000)); // Wait 30 seconds
+    } catch (error) {
+      console.error(`❌ Polling attempt ${i + 1} failed:`, error.message);
+    }
+  }
+  
+  console.log('⏰ Polling timeout reached');
+  return null;
+}
+
+checkVerificationStatus();
+```
+</CodeGroup>
+
+## Response Patterns
+
+### Pending Session
+When a verification session exists but hasn't been completed yet:
+
+```typescript
+{
+  message: "Identity verification session retrieved successfully",
+  details: {
+    walletAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    status: "pending",
+    createdAt: "2024-01-15T10:30:00.000Z",
+    expiresAt: "2024-01-16T10:30:00.000Z",
+    verifiedAt: null,
+    requestedDisclosures: {
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      issuing_state: false,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    },
+    verifiedData: null
+  }
+}
+```
+
+### Verified Session
+When identity verification has been completed successfully:
+
+```typescript
+{
+  message: "Identity verification session retrieved successfully",
+  details: {
+    walletAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    status: "verified",
+    createdAt: "2024-01-15T10:30:00.000Z",
+    expiresAt: "2024-01-16T10:30:00.000Z",
+    verifiedAt: "2024-01-15T11:15:30.000Z",
+    requestedDisclosures: {
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      issuing_state: false,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    },
+    verifiedData: {
+      verified_name: "John Doe",
+      verified_nationality: "USA",
+      verified_date_of_birth: "1990-05-15",
+      verified_passport_number: null,
+      verified_gender: null,
+      verified_issuing_state: null,
+      verified_expiry_date: null,
+      self_user_id: "0x7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+    }
+  }
+}
+```
+
+## Status Meanings
+
+<AccordionGroup>
+<Accordion title="pending">
+  The verification session has been created but the user has not yet completed identity verification using the Self.xyz app. The session is still active and can be completed.
+</Accordion>
+
+<Accordion title="verified">
+  The user has successfully completed identity verification. The `verifiedData` object will contain the actual verified identity information that was requested.
+</Accordion>
+
+<Accordion title="failed">
+  The identity verification failed due to invalid documents, failed verification checks, or other Self.xyz validation issues.
+</Accordion>
+
+<Accordion title="expired">
+  The verification session expired (after 24 hours) before the user completed verification. A new session must be created to attempt verification again.
+</Accordion>
+</AccordionGroup>
+
+## Integration Tips
+
+<Tip>
+**Polling Strategy**: For real-time status updates, poll this method periodically (every 30-60 seconds) while verification is pending.
+</Tip>
+
+<Info>
+**Data Privacy**: Verified data is only returned when the session status is 'verified'. All other statuses return `verifiedData: null`.
+</Info>
+
+<Warning>
+**Session Lifecycle**: Sessions expire after 24 hours. Check the `expiresAt` timestamp to determine if a new verification session needs to be created.
+</Warning>

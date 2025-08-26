@@ -1,0 +1,83 @@
+---
+title: '/identity/session'
+description: 'Retrieves the current identity verification session status and verified data for a specific wallet address.'
+icon: 'magnifying-glass'
+openapi: 'GET /identity/session/{walletAddress}'
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Session Lookup">
+    Searches for identity verification session by wallet address
+  </Step>
+  <Step title="Status Check">
+    Returns current verification status (pending, verified, failed, expired)
+  </Step>
+  <Step title="Data Retrieval">
+    Provides verified identity data if verification is complete
+  </Step>
+  <Step title="Metadata Response">
+    Returns session timestamps and requested disclosure fields
+  </Step>
+</Steps>
+
+---
+
+## Status Meanings
+
+<AccordionGroup>
+<Accordion title="pending">
+  The verification session has been created but the user has not yet completed identity verification using the Self.xyz app. The session is still active and can be completed.
+</Accordion>
+
+<Accordion title="verified">
+  The user has successfully completed identity verification. The `verifiedData` object will contain the actual verified identity information that was requested.
+</Accordion>
+
+<Accordion title="failed">
+  The identity verification failed due to invalid documents, failed verification checks, or other Self.xyz validation issues.
+</Accordion>
+
+<Accordion title="expired">
+  The verification session expired (after 24 hours) before the user completed verification. A new session must be created to attempt verification again.
+</Accordion>
+</AccordionGroup>
+
+---
+
+## Use Cases
+
+<CardGroup cols={2}>
+<Card title="Status Polling" icon="clock">
+  Check if a user has completed their identity verification process
+</Card>
+
+<Card title="Data Retrieval" icon="database">
+  Retrieve verified identity data after successful verification
+</Card>
+
+<Card title="Session Management" icon="gear">
+  Monitor session expiration and handle failed verifications
+</Card>
+
+<Card title="Integration Flow" icon="flow">
+  Build verification status into your application's user interface
+</Card>
+</CardGroup>
+
+---
+
+## Integration Tips
+
+<Tip>
+**Polling Strategy**: For real-time status updates, poll this endpoint periodically (every 30-60 seconds) while verification is pending.
+</Tip>
+
+<Info>
+**Data Privacy**: Verified data is only returned when the session status is 'verified'. All other statuses return `verifiedData: null`.
+</Info>
+
+<Warning>
+**Session Lifecycle**: Sessions expire after 24 hours. Check the `expiresAt` timestamp to determine if a new verification session needs to be created.
+</Warning>

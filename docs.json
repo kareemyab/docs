@@ -59,6 +59,13 @@
             ]
           },
           {
+            "group": "Identity",
+            "pages": [
+              "essentials/register-identity",
+              "essentials/get-identity-session"
+            ]
+          },
+          {
             "group": "File Operations",
             "pages": [
               "essentials/register",
@@ -92,6 +99,8 @@
               "sdk-reference/search",
               "sdk-reference/link-wallet",
               "sdk-reference/find-wallet",
+              "sdk-reference/verify-identity",
+              "sdk-reference/check-identity-status",
               "sdk-reference/health"
             ]
           },
@@ -125,6 +134,19 @@
             "pages": [
               "cli-reference/register",
               "cli-reference/search-file"
+            ]
+          },
+          {
+            "group": "Identity",
+            "pages": [
+              "cli-reference/verify-identity",
+              "cli-reference/check-identity"
+            ]
+          },
+          {
+            "group": "Transactions",
+            "pages": [
+              "cli-reference/submit-transaction"
             ]
           }
         ]

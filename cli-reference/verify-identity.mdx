@@ -1,0 +1,139 @@
+# Trust Engine verify-identity
+
+> Initiate identity verification using Self.xyz ZK identity verification
+
+The verify-identity command initiates the identity verification process for a wallet address using Self.xyz ZK identity verification. This creates a verification session and provides a QR code URL that users can scan with the Self app to complete their identity verification.
+
+To use it, run the following command from your terminal
+
+```bash
+trust-engine-cli verify-identity [options]
+```
+
+## Options
+
+| Option                          | Description                                                                      |
+| ------------------------------- | -------------------------------------------------------------------------------- |
+| `-w, --walletAddress <address>` | User wallet address (Solana public key)                                         |
+| `-f, --fields <fields>`         | Comma-separated list of fields to verify (issuing_state,name,nationality,date_of_birth,passport_number,gender,expiry_date) |
+| `--json`                        | Output the result as JSON                                                        |
+
+## Examples
+
+Initiate identity verification with basic fields:
+
+```bash
+trust-engine-cli verify-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
+  --fields "name,nationality,date_of_birth"
+```
+
+After running the command, you'll see verification session details:
+
+```
+✅ Identity verification session created successfully
+
+Identity Verification Session:
+  - Wallet Address: 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+  - Status: pending
+  - Selected Fields: name, nationality, date_of_birth
+  - Created: 2024-01-15T10:30:00.000Z
+  - Expires: 2024-01-16T10:30:00.000Z
+
+🔗 Identity Verification URL:
+   https://trustengine.org/identity-verification?walletAddress=7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+
+📋 Next Steps:
+   1. Click/visit the URL above to open the verification page
+   2. Scan the QR code on that page with Self app
+   3. Complete identity verification in the app
+   4. Check status with: trust-engine-cli check-identity --walletAddress 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU
+   5. Register files with: trust-engine-cli register --file <path> --walletAddress 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU ...
+```
+
+Verify all available identity fields:
+
+```bash
+trust-engine-cli verify-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
+  --fields "issuing_state,name,nationality,date_of_birth,passport_number,gender,expiry_date"
+```
+
+For automation purposes, use the JSON output:
+
+```bash
+trust-engine-cli verify-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
+  --fields "name,nationality,date_of_birth" \
+  --json
+```
+
+**New session created** returns:
+
+```json
+{
+  "message": "Identity verification session created successfully",
+  "details": {
+    "qrCodeUrl": "https://trustengine.org/identity-verification?walletAddress=7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "selectedDisclosures": {
+      "name": true,
+      "nationality": true,
+      "date_of_birth": true
+    },
+    "status": "pending",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "expiresAt": "2024-01-16T10:30:00.000Z",
+    "instructions": "Visit the QR code URL and scan with Self app to verify your identity"
+  }
+}
+```
+
+**Existing pending session found** returns:
+
+```json
+{
+  "message": "You already have a pending identity verification session",
+  "details": {
+    "qrCodeUrl": "https://trustengine.org/identity-verification?walletAddress=7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    "requestedDisclosures": {
+      "name": true,
+      "nationality": true,
+      "date_of_birth": true,
+      "issuing_state": false,
+      "passport_number": false,
+      "gender": false,
+      "expiry_date": false
+    },
+    "status": "pending",
+    "createdAt": "2024-01-15T09:30:00.000Z",
+    "expiresAt": "2024-01-16T09:30:00.000Z",
+    "instructions": "Complete your existing verification or wait for it to expire before starting a new one"
+  }
+}
+```
+
+## Available Identity Fields
+
+| Field              | Description                          |
+| ------------------ | ------------------------------------ |
+| `issuing_state`    | Country/state that issued the ID     |
+| `name`             | Full name from ID document           |
+| `nationality`      | Nationality/citizenship              |
+| `date_of_birth`    | Date of birth                        |
+| `passport_number`  | Document/passport number             |
+| `gender`           | Gender from ID document              |
+| `expiry_date`      | Document expiration date             |
+
+## Prerequisites
+
+<Warning>
+Before using this command, ensure the wallet has a user-key relation established. Use the `link-wallet` or `create-wallet` commands first.
+</Warning>
+
+## Session Lifecycle
+
+- **Duration**: Sessions expire after 24 hours
+- **Status Monitoring**: Use `check-identity` to monitor verification progress
+- **Completion**: Once verified, identity data is automatically included in file registrations

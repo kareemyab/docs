@@ -276,6 +276,203 @@ The response from registering a file. This can vary depending on whether the wal
 
 ---
 
+## `verifyIdentity`
+
+### Options
+
+<ResponseField name="walletAddress" type="string" required>
+  Valid Solana wallet address (Base58 format). Must have an existing user-key relation in the system.
+</ResponseField>
+
+<ResponseField name="disclosures" type="IdentityDisclosures" required>
+  Object specifying which identity fields to request verification for. At least one field must be set to `true`.
+  <Expandable>
+    <ResponseField name="issuing_state" type="boolean">
+      Country/state that issued the ID document.
+    </ResponseField>
+    <ResponseField name="name" type="boolean">
+      Full name from ID document.
+    </ResponseField>
+    <ResponseField name="nationality" type="boolean">
+      Nationality/citizenship.
+    </ResponseField>
+    <ResponseField name="date_of_birth" type="boolean">
+      Date of birth.
+    </ResponseField>
+    <ResponseField name="passport_number" type="boolean">
+      Document/passport number.
+    </ResponseField>
+    <ResponseField name="gender" type="boolean">
+      Gender from ID document.
+    </ResponseField>
+    <ResponseField name="expiry_date" type="boolean">
+      Document expiration date.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Response
+
+#### New Session Created (201)
+
+<ResponseField name="message" type="string">
+  Confirmation that the identity verification session was created.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Session information and verification instructions.
+  <Expandable>
+    <ResponseField name="qrCodeUrl" type="string">
+      URL for identity verification that can be opened in Self.xyz app.
+    </ResponseField>
+    <ResponseField name="walletAddress" type="string">
+      The wallet address for this verification session.
+    </ResponseField>
+    <ResponseField name="selectedDisclosures" type="object">
+      Object showing which identity fields were requested (only shows `true` values).
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current verification status: `"pending"`.
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO timestamp when the session was created.
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO timestamp when the session expires (24 hours from creation).
+    </ResponseField>
+    <ResponseField name="instructions" type="string">
+      User-friendly instructions for completing verification.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+#### Existing Session Found (200)
+
+<ResponseField name="message" type="string">
+  Message indicating an existing pending session was found.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Existing session information.
+  <Expandable>
+    <ResponseField name="qrCodeUrl" type="string">
+      URL for identity verification.
+    </ResponseField>
+    <ResponseField name="walletAddress" type="string">
+      The wallet address for this verification session.
+    </ResponseField>
+    <ResponseField name="requestedDisclosures" type="object">
+      All disclosure fields with boolean values.
+    </ResponseField>
+    <ResponseField name="status" type="string">
+      Current verification status: `"pending"`.
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO timestamp when the session was created.
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO timestamp when the session expires.
+    </ResponseField>
+    <ResponseField name="instructions" type="string">
+      Instructions for the existing session.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## `checkIdentityStatus`
+
+### Parameters
+
+<ResponseField name="walletAddress" type="string" required>
+  Valid Solana wallet address (Base58 format) to check verification status for.
+</ResponseField>
+
+### Response
+
+<ResponseField name="message" type="string">
+  Confirmation that the session was retrieved successfully.
+</ResponseField>
+
+<ResponseField name="details" type="object">
+  Complete session information and verification data.
+  <Expandable>
+    <ResponseField name="walletAddress" type="string">
+      The wallet address for this verification session.
+    </ResponseField>
+    <ResponseField name="status" type="'pending' | 'verified' | 'failed' | 'expired'">
+      Current verification status.
+    </ResponseField>
+    <ResponseField name="createdAt" type="string">
+      ISO timestamp when the session was created.
+    </ResponseField>
+    <ResponseField name="expiresAt" type="string">
+      ISO timestamp when the session expires (24 hours from creation).
+    </ResponseField>
+    <ResponseField name="verifiedAt" type="string | null">
+      ISO timestamp when verification was completed (null if not yet verified).
+    </ResponseField>
+    <ResponseField name="requestedDisclosures" type="object">
+      Object showing which identity fields were requested for verification.
+      <Expandable>
+        <ResponseField name="issuing_state" type="boolean">
+          Whether issuing state was requested.
+        </ResponseField>
+        <ResponseField name="name" type="boolean">
+          Whether name was requested.
+        </ResponseField>
+        <ResponseField name="nationality" type="boolean">
+          Whether nationality was requested.
+        </ResponseField>
+        <ResponseField name="date_of_birth" type="boolean">
+          Whether date of birth was requested.
+        </ResponseField>
+        <ResponseField name="passport_number" type="boolean">
+          Whether passport number was requested.
+        </ResponseField>
+        <ResponseField name="gender" type="boolean">
+          Whether gender was requested.
+        </ResponseField>
+        <ResponseField name="expiry_date" type="boolean">
+          Whether expiry date was requested.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="verifiedData" type="object | null">
+      Contains the actual verified identity data (only present when status is 'verified').
+      <Expandable>
+        <ResponseField name="verified_issuing_state" type="string | null">
+          Country/state that issued the ID document.
+        </ResponseField>
+        <ResponseField name="verified_name" type="string | null">
+          Full name from the ID document.
+        </ResponseField>
+        <ResponseField name="verified_nationality" type="string | null">
+          Nationality/citizenship.
+        </ResponseField>
+        <ResponseField name="verified_date_of_birth" type="string | null">
+          Date of birth from the document.
+        </ResponseField>
+        <ResponseField name="verified_passport_number" type="string | null">
+          Document/passport number.
+        </ResponseField>
+        <ResponseField name="verified_gender" type="string | null">
+          Gender from the ID document.
+        </ResponseField>
+        <ResponseField name="verified_expiry_date" type="string | null">
+          Document expiration date.
+        </ResponseField>
+        <ResponseField name="self_user_id" type="string">
+          Unique identifier from Self.xyz verification system.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
 ## `findWallet`
 
 ### Options
