@@ -43,6 +43,12 @@ The CLI provides the following commands:
   <Card title="search-file" icon="magnifying-glass" href="/cli-reference/search-file">
     Search for a file by its content hash
   </Card>
+  <Card title="verify-identity" icon="id-card" href="/cli-reference/verify-identity">
+    Initiate identity verification using Self.xyz
+  </Card>
+  <Card title="check-identity" icon="user-check" href="/cli-reference/check-identity">
+    Check the status of identity verification
+  </Card>
   <Card title="submit-transaction" icon="paper-plane" href="/cli-reference/submit-transaction">
     Submit a signed transaction to the network
   </Card>
@@ -63,6 +69,28 @@ trust-engine-cli register \
   --file ./document.pdf \
   --contentTitle "Important Document" \
   --walletAddress "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM" \
+  --walletType "managed"
+```
+
+### Identity Verification Workflow
+```bash
+# 1. Create or link a wallet first
+trust-engine-cli create-wallet --userID "user_12345"
+
+# 2. Initiate identity verification
+trust-engine-cli verify-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
+  --fields "name,nationality,date_of_birth"
+
+# 3. Check verification status
+trust-engine-cli check-identity \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+
+# 4. Register files with verified identity
+trust-engine-cli register \
+  --file ./document.pdf \
+  --contentTitle "Verified Document" \
+  --walletAddress "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU" \
   --walletType "managed"
 ```
 

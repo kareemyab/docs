@@ -1,0 +1,194 @@
+---
+title: Verify Identity
+description: 'Initiates identity verification process for a wallet address using Self.xyz ZK identity verification.'
+---
+
+## Function Signature
+
+```typescript
+function verifyIdentity(
+  options: Options
+): Promise<Response>;
+```
+
+<ResponseField name="options" type="[Options](/sdk-reference/types#verifyidentity-options)">
+  The options for initiating identity verification.
+</ResponseField>
+
+<ResponseField name="Promise" type="Promise<[Response](/sdk-reference/types#verifyidentity-response)>">
+  A promise that resolves with the response from the identity verification request.
+</ResponseField>
+
+<Info>
+**Type Definitions**: For detailed type information including all properties and their descriptions, visit the [Types](/sdk-reference/types#verifyidentity) page.
+</Info>
+
+## Usage
+
+<CodeGroup>
+```tsx React / Next.js
+import { TrustEngineSDK } from '@trust-engine/sdk';
+import { useState } from 'react';
+
+const sdk = new TrustEngineSDK();
+
+export default function IdentityVerifier() {
+  const [walletAddress, setWalletAddress] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [result, setResult] = useState<any | null>(null);
+
+  const handleVerify = async () => {
+    if (!walletAddress) return;
+    setIsVerifying(true);
+    try {
+      const verificationResult = await sdk.verifyIdentity({
+        walletAddress: walletAddress,
+        disclosures: {
+          name: true,
+          nationality: true,
+          date_of_birth: true,
+          issuing_state: false,
+          passport_number: false,
+          gender: false,
+          expiry_date: false
+        }
+      });
+      
+      setResult(verificationResult);
+    } catch (error) {
+      console.error('❌ Identity verification failed:', error.message);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  return (
+    <div>
+      <input 
+        type="text" 
+        placeholder="Enter wallet address"
+        value={walletAddress}
+        onChange={(e) => setWalletAddress(e.target.value)}
+      />
+      <button onClick={handleVerify} disabled={!walletAddress || isVerifying}>
+        {isVerifying ? 'Starting Verification...' : 'Verify Identity'}
+      </button>
+      {result && (
+        <div>
+          <pre>{JSON.stringify(result, null, 2)}</pre>
+          {result.details?.qrCodeUrl && (
+            <p>
+              <a href={result.details.qrCodeUrl} target="_blank" rel="noopener noreferrer">
+                Open Verification QR Code
+              </a>
+            </p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+```
+```typescript Node.js
+import { TrustEngineSDK } from '@trust-engine/sdk';
+
+const sdk = new TrustEngineSDK();
+
+async function initiateIdentityVerification() {
+  try {
+    const result = await sdk.verifyIdentity({
+      walletAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+      disclosures: {
+        name: true,
+        nationality: true,
+        date_of_birth: true,
+        issuing_state: false,
+        passport_number: false,
+        gender: false,
+        expiry_date: false
+      }
+    });
+    
+    console.log('✅ Identity verification session created!');
+    console.log('QR Code URL:', result.details.qrCodeUrl);
+    console.log('Status:', result.details.status);
+    console.log('Expires At:', result.details.expiresAt);
+    
+    return result;
+  } catch (error) {
+    console.error('❌ Identity verification failed:', error.message);
+    throw error;
+  }
+}
+
+initiateIdentityVerification();
+```
+</CodeGroup>
+
+## Response Patterns
+
+### New Session Created (201)
+When a new identity verification session is successfully created:
+
+```typescript
+{
+  message: "Identity verification session created successfully",
+  details: {
+    qrCodeUrl: "https://trustengine.org/identity-verification?walletAddress=...",
+    walletAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    selectedDisclosures: {
+      name: true,
+      nationality: true,
+      date_of_birth: true
+    },
+    status: "pending",
+    createdAt: "2024-01-15T10:30:00.000Z",
+    expiresAt: "2024-01-16T10:30:00.000Z",
+    instructions: "Visit the QR code URL and scan with Self app to verify your identity"
+  }
+}
+```
+
+### Existing Session Found (200)
+When there's already a pending verification session for the wallet:
+
+```typescript
+{
+  message: "You already have a pending identity verification session",
+  details: {
+    qrCodeUrl: "https://trustengine.org/identity-verification?walletAddress=...",
+    walletAddress: "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
+    requestedDisclosures: {
+      name: true,
+      nationality: true,
+      date_of_birth: true,
+      issuing_state: false,
+      passport_number: false,
+      gender: false,
+      expiry_date: false
+    },
+    status: "pending",
+    createdAt: "2024-01-15T09:30:00.000Z",
+    expiresAt: "2024-01-16T09:30:00.000Z",
+    instructions: "Complete your existing verification or wait for it to expire before starting a new one"
+  }
+}
+```
+
+## Requirements
+
+<Warning>
+Before using this method, ensure the wallet has a user-key relation established. Use the [`linkWallet`](/sdk-reference/link-wallet) or [`createWallet`](/sdk-reference/create-wallet) methods first.
+</Warning>
+
+## Next Steps
+
+After initiating verification:
+
+1. **Share QR Code**: Direct users to the `qrCodeUrl` for identity verification
+2. **Monitor Status**: Use [`checkIdentityStatus`](/sdk-reference/check-identity-status) to check verification progress
+3. **Handle Completion**: Verification results are processed automatically when users complete their verification
+
+<Info>
+Sessions expire after 24 hours. Users must complete verification within this timeframe, or a new session must be created.
+</Info>

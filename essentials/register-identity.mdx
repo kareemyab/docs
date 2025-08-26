@@ -1,0 +1,51 @@
+---
+title: '/register/identity'
+description: 'Initiates identity verification process for a wallet address using Self.xyz ZK identity verification.'
+icon: 'id-card'
+openapi: 'POST /register/identity'
+---
+
+## What This Endpoint Does
+
+<Steps>
+  <Step title="Wallet Validation">
+    Validates the provided wallet address and checks for existing user-key relation
+  </Step>
+  <Step title="Disclosure Validation">
+    Validates the requested identity disclosure fields (name, nationality, date of birth, etc.)
+  </Step>
+  <Step title="Session Creation">
+    Creates a new identity verification session in the database
+  </Step>
+  <Step title="QR Code Generation">
+    Returns a QR code URL for Self.xyz app verification
+  </Step>
+</Steps>
+
+---
+
+## Requirements
+
+<Warning>
+Before using this endpoint, ensure the wallet has a user-key relation established. Use the [`/link-wallet`](/essentials/link-wallet) or [`/create-wallet`](/essentials/create-wallet) endpoints first.
+</Warning>
+
+---
+
+## Next Steps
+
+<Steps>
+  <Step title="Share QR Code">
+    Share the `qrCodeUrl` with the user for identity verification
+  </Step>
+  <Step title="Monitor Status">
+    Use [`/identity/session/:walletAddress`](/essentials/get-identity-session) to check verification status
+  </Step>
+  <Step title="Automatic Processing">
+    Verification results are processed automatically when users complete their verification
+  </Step>
+</Steps>
+
+<Info>
+Sessions expire after 24 hours. Users must complete verification within this timeframe, or a new session must be created.
+</Info>

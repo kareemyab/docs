@@ -74,6 +74,30 @@ const file = new File(["content"], "example.txt", { type: "text/plain" });
 const records = await sdk.searchFile({ file });
 ```
 
+### Verify Identity
+
+Initiate identity verification for a wallet address using Self.xyz ZK verification.
+
+```typescript
+const result = await sdk.verifyIdentity({
+  walletAddress: 'YOUR_WALLET_ADDRESS',
+  disclosures: {
+    name: true,
+    nationality: true,
+    date_of_birth: true
+  }
+});
+```
+
+### Check Identity Status
+
+Monitor the status of an identity verification session.
+
+```typescript
+const status = await sdk.checkIdentityStatus('YOUR_WALLET_ADDRESS');
+console.log('Verification status:', status.details.status);
+```
+
 <br/>
 
 Explore the functions in the sidebar to learn more about each feature.
