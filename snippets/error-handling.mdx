@@ -8,23 +8,23 @@ async function handleTrustEngineRequest(apiCall) {
   } catch (error) {
     // Handle specific Trust Engine errors
     if (error.message?.includes('User-Key Relation Required')) {
-      throw new Error('Please create a wallet first using /create-wallet');
+      throw new Error('<error message>');
     }
     
     if (error.message?.includes('File Already Registered')) {
-      throw new Error('This content has already been registered. Use /search to find the existing record.');
+      throw new Error('<error message>');
     }
     
     if (error.message?.includes('Rate Limit')) {
-      throw new Error('Too many requests. Please wait a few minutes before trying again.');
+      throw new Error('<error message>');
     }
     
     if (error.message?.includes('Invalid contentHash')) {
-      throw new Error('Content hash must be a 64-character hex string. Please recalculate your file hash.');
+      throw new Error('<error message>');
     }
     
     // Generic fallback
-    throw new Error('An unexpected error occurred. Please try again or contact support.');
+    throw new Error('<error message>');
   }
 }
 
@@ -62,22 +62,22 @@ def handle_trust_engine_request(api_call, max_retries=3):
                     time.sleep(wait_time)
                     continue
                 else:
-                    raise Exception("Rate limit exceeded. Please wait and try again.")
+                    raise Exception("<error message>")
             
             if response.status_code == 409:  # Conflict (duplicate)
-                raise Exception("This content has already been registered. Use /search to find existing record.")
+                raise Exception("<error message>")
             
             if response.status_code == 400:
                 error_data = response.json()
                 if 'User-Key Relation Required' in error_data.get('message', ''):
-                    raise Exception("Please create a wallet first using /create-wallet")
+                    raise Exception("<error message>")
                 elif 'Invalid contentHash' in error_data.get('message', ''):
-                    raise Exception("Content hash must be a 64-character hex string")
+                    raise Exception("<error message>")
                 else:
-                    raise Exception(f"Invalid request: {error_data.get('message', 'Unknown error')}")
+                    raise Exception("<error message>")
             
             if not response.ok:
-                raise Exception(f"API request failed: {response.status_code}")
+                raise Exception("<error message>")
             
             return response.json()
             
@@ -87,7 +87,7 @@ def handle_trust_engine_request(api_call, max_retries=3):
                 time.sleep(2 ** attempt)
                 continue
             else:
-                raise Exception(f"Network error after {max_retries} attempts: {str(e)}")
+                raise Exception("<error message>")
 
 # Usage example
 try:
