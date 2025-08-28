@@ -115,7 +115,7 @@
                       "details": {
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
                         "chain": "solana",
-                        "transactionSignature": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
+                        "transactionId": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
                         "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet",
                         "userID": "user-12345"
                       }
@@ -137,13 +137,13 @@
                     "summary": "Missing User ID",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["userID"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -165,7 +165,7 @@
                     "summary": "User ID Already Has Wallet",
                     "value": {
                       "error": true,
-                      "message": "A wallet is already associated with the User ID: user-12345.",
+                      "message": "<error message>",
                       "details": {
                         "conflictType": "User ID already linked",
                         "userID": "user-12345",
@@ -178,7 +178,7 @@
                     "summary": "Wallet Already Linked",
                     "value": {
                       "error": true,
-                      "message": "This wallet address is already linked to a User ID: existing-user.",
+                      "message": "<error message>",
                       "details": {
                         "conflictType": "Wallet already linked",
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
@@ -203,7 +203,7 @@
                     "summary": "Internal Server Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error."
+                      "message": "<error message>"
                     }
                   }
                 }
@@ -268,8 +268,8 @@
                     "value": {
                       "message": "✅ Success! Your file has been registered and confirmed on-chain.",
                       "details": {
-                        "status": "confirmed",
-                        "transactionSignature": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
+                        "status": "submitted",
+                        "transactionId": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
                         "contentRegistrationPDA": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
                         "contentHash": "a1b2c3d4e5f6789012345678901234567890abcdef123456789012345678901234",
                         "ipfsCid": "QmX7Rt8VBgKdNzF4mP6YvWzNfEtY2jDw5mVpL1WzNfEtYz",
@@ -339,18 +339,18 @@
                     "summary": "Input Validation Failed",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["contentTitle", "walletAddress"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           },
                           {
                             "type": "invalid_value",
                             "field": "walletType",
-                            "message": "Must be self or managed"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -360,13 +360,13 @@
                     "summary": "Metadata Too Long",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_value",
                             "field": "metadata",
-                            "message": "Metadata is too long. A maximum of 500 characters is allowed."
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -388,7 +388,7 @@
                     "summary": "File Already Registered",
                     "value": {
                       "error": true,
-                      "message": "Looks like you have already registered this file. Please use the /search endpoint to find the existing record.",
+                      "message": "<error message>",
                       "details": {
                         "contentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                         "pdaAddress": "8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY",
@@ -400,7 +400,7 @@
                     "summary": "No User-Wallet Relation",
                     "value": {
                       "error": true,
-                      "message": "This wallet address doesn't have a user ID relation. Please create one first.",
+                      "message": "<error message>",
                       "details": {
                         "missingRequirement": "User-Key Relation",
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
@@ -426,28 +426,28 @@
                     "summary": "IPFS Upload Failed",
                     "value": {
                       "error": true,
-                      "message": "Failed to upload data to QuickNode IPFS. Please check your API key and try again."
+                      "message": "<error message>"
                     }
                   },
                   "ipfs-invalid-response": {
                     "summary": "IPFS Invalid Response",
                     "value": {
                       "error": true,
-                      "message": "Invalid response from QuickNode IPFS - missing CID"
+                      "message": "<error message>"
                     }
                   },
                   "managed-error": {
                     "summary": "Managed Transaction Failed",
                     "value": {
                       "error": true,
-                      "message": "Managed wallet transaction failed: Insufficient funds for transaction"
+                      "message": "<error message>"
                     }
                   },
                   "general-server-error": {
                     "summary": "General Server Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error.",
+                      "message": "<error message>",
                       "details": {
                         "error": "Unexpected error during registration process"
                       }
@@ -599,13 +599,13 @@
                     "summary": "Missing Content Hash",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["contentHash"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -615,13 +615,13 @@
                     "summary": "Invalid Content Hash Format",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_format",
                             "field": "contentHash",
-                            "message": "Must be a 32-byte hex string (64 characters)"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -631,13 +631,13 @@
                     "summary": "Invalid Wallet Address Format",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_format",
                             "field": "walletAddress",
-                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -659,7 +659,7 @@
                     "summary": "No Registrations Found (Content Hash Only)",
                     "value": {
                       "error": true,
-                      "message": "An on-chain proof for this file does not exist, which means it has not been registered.",
+                      "message": "<error message>",
                       "details": {
                         "searchedContentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                         "searchMode": "All Registrations"
@@ -670,7 +670,7 @@
                     "summary": "No Specific Registration Found (Content Hash + Wallet)",
                     "value": {
                       "error": true,
-                      "message": "No registration found for this content hash and wallet address combination.",
+                      "message": "<error message>",
                       "details": {
                         "searchedContentHash": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
                         "searchedWalletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
@@ -694,7 +694,7 @@
                     "summary": "Internal Server Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error."
+                      "message": "<error message>"
                     }
                   }
                 }
@@ -817,12 +817,12 @@
                     "summary": "No Parameters Provided",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_parameters",
-                            "message": "Exactly one of userID or walletAddress must be provided"
+                            "message": "<error message>"
                           }
                         ],
                         "provided": {
@@ -840,12 +840,12 @@
                     "summary": "Both Parameters Provided",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_parameters",
-                            "message": "Exactly one of userID or walletAddress must be provided"
+                            "message": "<error message>"
                           }
                         ],
                         "provided": {
@@ -863,13 +863,13 @@
                     "summary": "Invalid Wallet Address Format",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_format",
                             "field": "walletAddress",
-                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                            "message": "<error message>"
                           }
                         ],
                         "walletAddress": "invalid-address",
@@ -893,7 +893,7 @@
                     "summary": "User ID Not Found",
                     "value": {
                       "error": true,
-                      "message": "No wallet relation found for the provided userID.",
+                      "message": "<error message>",
                       "details": {
                         "searchType": "userID",
                         "searchValue": "user-12345",
@@ -905,7 +905,7 @@
                     "summary": "Wallet Address Not Found",
                     "value": {
                       "error": true,
-                      "message": "No wallet relation found for the provided walletAddress.",
+                      "message": "<error message>",
                       "details": {
                         "searchType": "walletAddress",
                         "searchValue": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
@@ -929,7 +929,7 @@
                     "summary": "Internal Server Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error."
+                      "message": "<error message>"
                     }
                   }
                 }
@@ -996,7 +996,8 @@
                       "details": {
                         "userID": "user-12345",
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
-                        "transactionSignature": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
+                        "status": "submitted",
+                        "transactionId": "5J7X2vK8mWzNfEtY2jDw5mVpL1WzNfEtYKJH2mNqR3pB",
                         "explorerUrl": "https://explorer.solana.com/address/8kQv2gFhgRmHq7ZPBx4N9TqJbSx3jDw5mVpL1WzNfEtY?cluster=devnet"
                       }
                     }
@@ -1017,13 +1018,13 @@
                     "summary": "Missing Required Fields",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["userID", "walletAddress"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1033,13 +1034,13 @@
                     "summary": "Invalid Wallet Address Format",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_format",
                             "field": "walletAddress",
-                            "message": "Invalid wallet address format. Must be a valid Solana public key."
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1049,13 +1050,13 @@
                     "summary": "User ID Too Long",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_value",
                             "field": "userID",
-                            "message": "User ID is too long. A maximum of 1000 characters is allowed."
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1077,7 +1078,7 @@
                     "summary": "User ID Already Linked",
                     "value": {
                       "error": true,
-                      "message": "A wallet is already associated with the User ID: user-12345.",
+                      "message": "<error message>",
                       "details": {
                         "conflictType": "User ID already linked",
                         "userID": "user-12345",
@@ -1090,7 +1091,7 @@
                     "summary": "Wallet Already Linked",
                     "value": {
                       "error": true,
-                      "message": "This wallet address is already linked to a User ID: existing-user.",
+                      "message": "<error message>",
                       "details": {
                         "conflictType": "Wallet already linked",
                         "walletAddress": "9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM",
@@ -1115,7 +1116,7 @@
                     "summary": "Internal Server Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error."
+                      "message": "<error message>"
                     }
                   }
                 }
@@ -1233,13 +1234,13 @@
                     "summary": "Missing Wallet Address",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["walletAddress"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1249,13 +1250,13 @@
                     "summary": "Invalid Disclosures",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_value",
                             "field": "disclosures",
-                            "message": "At least one disclosure field must be set to true"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1277,7 +1278,7 @@
                     "summary": "No User-Key Relation",
                     "value": {
                       "error": true,
-                      "message": "This wallet address doesn't have a user ID relation. Please create one first.",
+                      "message": "<error message>",
                       "details": {
                         "missingRequirement": "User-Key Relation",
                         "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
@@ -1417,7 +1418,7 @@
                     "summary": "Missing Wallet Address",
                     "value": {
                       "error": true,
-                      "message": "Wallet address is required as URL parameter",
+                      "message": "<error message>",
                       "details": {
                         "usage": "GET /identity/session/{walletAddress}"
                       }
@@ -1439,7 +1440,7 @@
                     "summary": "Session Not Found",
                     "value": {
                       "error": true,
-                      "message": "Identity verification session not found",
+                      "message": "<error message>",
                       "details": {
                         "walletAddress": "7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU",
                         "suggestion": "No identity verification session found for this wallet"
@@ -1518,7 +1519,7 @@
                     "value": {
                       "message": "Transaction submitted and confirmed successfully!",
                       "details": {
-                        "transactionSignature": "7DpZxJy3wKzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfG",
+                        "transactionId": "7DpZxJy3wKzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfG",
                         "explorerUrl": "https://explorer.solana.com/address/7DpZxJy3wKzRqTnV8mYpH4xL9WvNfEtY2jDw5mVpQcfG?cluster=devnet"
                       }
                     }
@@ -1539,13 +1540,13 @@
                     "summary": "Missing Transaction Field",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "missing_fields",
                             "fields": ["transaction"],
-                            "message": "Missing input fields"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1555,13 +1556,13 @@
                     "summary": "Invalid Type",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_types",
                             "fields": ["transaction"],
-                            "message": "Invalid input types. Must be a string"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1571,13 +1572,13 @@
                     "summary": "Invalid Base64 Format",
                     "value": {
                       "error": true,
-                      "message": "Input validation failed",
+                      "message": "<error message>",
                       "details": {
                         "validationErrors": [
                           {
                             "type": "invalid_format",
                             "field": "transaction",
-                            "message": "Must be a valid base64 encoded string"
+                            "message": "<error message>"
                           }
                         ]
                       }
@@ -1599,14 +1600,14 @@
                     "summary": "Transaction Submission Failed",
                     "value": {
                       "error": true,
-                      "message": "Internal server error."
+                      "message": "<error message>"
                     }
                   },
                   "network-error": {
                     "summary": "Network Error",
                     "value": {
                       "error": true,
-                      "message": "Internal server error.",
+                      "message": "<error message>",
                       "details": {
                         "error": "Network request failed"
                       }
@@ -1897,20 +1898,20 @@
         "properties": {
           "message": {
             "type": "string",
-            "description": "Success message for confirmed transaction"
+            "description": "Success message for submitted transaction"
           },
           "details": {
             "type": "object",
-            "description": "Confirmed transaction details for managed wallets",
+            "description": "Submitted transaction details for managed wallets",
             "properties": {
               "status": {
                 "type": "string",
-                "enum": ["confirmed"],
+                "enum": ["submitted"],
                 "description": "Transaction status"
               },
-              "transactionSignature": {
+              "transactionId": {
                 "type": "string",
-                "description": "Confirmed transaction signature"
+                "description": "Submitted transaction ID"
               },
               "contentRegistrationPDA": {
                 "type": "string",
@@ -1929,7 +1930,7 @@
                 "description": "Solana explorer URL for the transaction"
               }
             },
-            "required": ["status", "transactionSignature", "contentRegistrationPDA", "contentHash", "ipfsCid", "explorerUrl"]
+            "required": ["status", "transactionId", "contentRegistrationPDA", "contentHash", "ipfsCid", "explorerUrl"]
           }
         },
         "required": ["message", "details"]
@@ -2154,9 +2155,9 @@
                 "enum": ["solana"],
                 "description": "Blockchain network identifier"
               },
-              "transactionSignature": {
+              "transactionId": {
                 "type": "string",
-                "description": "On-chain transaction signature for the wallet-user relationship"
+                "description": "On-chain transaction ID for the wallet-user relationship"
               },
               "explorerUrl": {
                 "type": "string",
@@ -2167,7 +2168,7 @@
                 "description": "User ID linked to the wallet"
               }
             },
-            "required": ["walletAddress", "chain", "transactionSignature", "explorerUrl", "userID"]
+            "required": ["walletAddress", "chain", "transactionId", "explorerUrl", "userID"]
           }
         },
         "required": ["message", "details"]
@@ -2262,16 +2263,21 @@
                 "type": "string",
                 "description": "The wallet address that was linked"
               },
-              "transactionSignature": {
+              "status": {
                 "type": "string",
-                "description": "Solana transaction hash for the relationship creation"
+                "enum": ["submitted"],
+                "description": "Transaction status"
+              },
+              "transactionId": {
+                "type": "string",
+                "description": "Solana transaction ID for the relationship creation"
               },
               "explorerUrl": {
                 "type": "string",
                 "description": "Direct link to view the transaction on Solana Explorer"
               }
             },
-            "required": ["userID", "walletAddress", "transactionSignature", "explorerUrl"]
+            "required": ["userID", "walletAddress", "status", "transactionId", "explorerUrl"]
           }
         },
         "required": ["message", "details"]
@@ -2503,16 +2509,16 @@
             "type": "object",
             "description": "Transaction submission details",
             "properties": {
-              "transactionSignature": {
+              "transactionId": {
                 "type": "string",
-                "description": "The confirmed transaction signature on Solana"
+                "description": "The confirmed transaction ID on Solana"
               },
               "explorerUrl": {
                 "type": "string",
                 "description": "Direct link to view the transaction on Solana Explorer"
               }
             },
-            "required": ["transactionSignature", "explorerUrl"]
+            "required": ["transactionId", "explorerUrl"]
           }
         },
         "required": ["message", "details"]

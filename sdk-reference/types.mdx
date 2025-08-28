@@ -29,8 +29,8 @@ This page provides detailed information about the type definitions used in the T
     <ResponseField name="chain" type="string">
       The blockchain the wallet was created on.
     </ResponseField>
-    <ResponseField name="transactionSignature" type="string">
-      The signature of the transaction that created the wallet.
+    <ResponseField name="transactionId" type="string">
+      The ID of the transaction that created the wallet.
     </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
@@ -87,8 +87,8 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="status" type="string">
       The status of the registration.
     </ResponseField>
-    <ResponseField name="transactionSignature" type="string">
-      The signature of the transaction that registered the file.
+    <ResponseField name="transactionId" type="string">
+      The ID of the transaction that registered the file.
     </ResponseField>
     <ResponseField name="contentRegistrationPDA" type="string">
       The Program Derived Address for the registration.
@@ -237,8 +237,11 @@ The response from registering a file. This can vary depending on whether the wal
     <ResponseField name="walletAddress" type="string">
       The user's wallet address.
     </ResponseField>
-    <ResponseField name="transactionSignature" type="string">
-      The signature of the transaction that stored the user-key relation.
+    <ResponseField name="status" type="string">
+      The transaction status.
+    </ResponseField>
+    <ResponseField name="transactionId" type="string">
+      The ID of the transaction that stored the user-key relation.
     </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
@@ -265,8 +268,8 @@ The response from registering a file. This can vary depending on whether the wal
 <ResponseField name="details" type="object">
   An object containing the details of the transaction.
   <Expandable>
-    <ResponseField name="transactionSignature" type="string">
-      The signature of the transaction.
+    <ResponseField name="transactionId" type="string">
+      The ID of the transaction.
     </ResponseField>
     <ResponseField name="explorerUrl" type="string">
       A URL to view the transaction on a block explorer.
